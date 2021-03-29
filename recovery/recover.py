@@ -5,36 +5,15 @@ import sys
 import math
 import os
 
-input_data = sys.argv[1]
+input_data  = sys.argv[1]
 output_data = sys.argv[2]
-error_num = 0
+error_num   = 0
 
-#------------- recover the partially "0" component ----------------------------
-
-test_data = open(input_data, "r")
-result = open("middle_data.dat","w+")
-contents = test_data.read()
-test_data.close()
-elements = contents.splitlines()
-
-para_lists = {"normal" : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
-              "long"   : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
-              "ganged" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
-              "inter_ganged" : { "noise" : []},
-              "fit_normal" : { "A" : [], "B" : [], "C" : [] },
-              "fit_longGanged" : { "A" : [], "B" : [], "C" : [] },
-              "quality/unused" : {"fit_quality" : [], "unused" : [] } }
-
-recover_list = []
-
-
-#....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-# recovery equations
+#------------- recovery equations ---------------------------------------------
 def avg(a, b):
   return 1/2*(a + b)
 
-# recovery equation for the threshold (use same FE)
+# recovery equation for the threshold (use values in same FE)
 def recover_thr(nth_FE, pixel_type, value_type, recover_list):
   global cure
   cure = data[nth_FE][pixel_type][value_type]
@@ -54,7 +33,7 @@ def recover_thr(nth_FE, pixel_type, value_type, recover_list):
       cure = sum(recover_list)/len(recover_list)
   return round(cure, 1)
 
-# recovery equation for other than the threshold (use different FEs)
+# recovery equation for other than the threshold (use values in different FEs)
 def recover_diff(nth_FE, pixel_type, parameter, recover_list):
   cure = data[nth_FE][pixel_type][parameter]
   if cure == 0:
@@ -64,17 +43,39 @@ def recover_diff(nth_FE, pixel_type, parameter, recover_list):
       cure = sum(recover_list)/len(recover_list)
   return float('%.6g' % cure)
 
-#....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#------------------------------------------------------------------------------
+
+
+
+#------------- recover the partially "0" component ----------------------------
+
+test_data = open(input_data, "r")
+result    = open("partial_recover.dat","w+")
+
+contents_part = test_data.read()
+test_data.close()
+elements_part = contents_part.splitlines()
+
+para_lists = {"normal" : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
+              "long"   : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
+              "ganged" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
+              "inter_ganged" : { "noise" : []},
+              "fit_normal" : { "A" : [], "B" : [], "C" : [] },
+              "fit_longGanged" : { "A" : [], "B" : [], "C" : [] },
+              "quality/unused" : {"fit_quality" : [], "unused" : [] } }
+
+recover_list = []
+
 
 # parsing data file
-last = len(elements)
+last = len(elements_part)
 head = 0
 module_num = 0
 print(last)
 
 while head < last:
-  line = elements[head]
-  result.write(elements[head])
+  line = elements_part[head]
+  result.write(elements_part[head])
   result.write("\n")
 
   # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
@@ -85,7 +86,7 @@ while head < last:
   # seek the tail of the block
   tail = head + 1
   while tail < last:
-    tmp = elements[tail]
+    tmp = elements_part[tail]
     if tmp.find("L") == 0 or tmp.find("D") == 0 or tail == last:
       break
     else:
@@ -95,13 +96,13 @@ while head < last:
 #  print(module_num)
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
-  module = elements[head]
+  module = elements_part[head]
   print( "processing module", module )
   
   # rawBlock is the block lines, corresponding to each Pixel Module
   # for IBL, there are either 2 or 1 FEs
   # else, there are 16 FEs
-  rowBlock = elements[head+1:tail]
+  rowBlock = elements_part[head+1:tail]
 
   # split each line of the block
   splitted = [ line.split() for line in rowBlock ]
@@ -153,20 +154,21 @@ while head < last:
 
 
   # recovered data list
-  data_recover = [[splitted[i][0],
-                   recover_thr(i, "normal", "threshold", normal_thr), recover_diff(i, "normal", "sigma", normal_sigma), recover_diff(i, "normal", "noise", normal_noise), recover_diff(i, "normal", "intime", normal_intime),
-                   recover_thr(i, "long", "threshold", long_thr),     recover_diff(i, "long", "sigma", long_sigma),     recover_diff(i, "long", "noise", long_noise),     recover_diff(i, "long", "intime", long_intime),
-                   recover_thr(i, "ganged", "threshold", ganged_thr), recover_diff(i, "ganged", "sigma", ganged_sigma), recover_diff(i, "ganged", "noise", ganged_noise), recover_diff(i, "ganged", "intime", ganged_intime),
-                   recover_diff(i, "fit_normal", "A", normal_A),         recover_diff(i, "fit_normal", "B", normal_B),         recover_diff(i, "fit_normal", "C", normal_C),
-                   recover_diff(i, "fit_longGanged", "A", longGanged_A), recover_diff(i, "fit_longGanged", "B", longGanged_B), recover_diff(i, "fit_longGanged", "C", longGanged_C),
-                   recover_diff(i, "quality/unused", "fit_quality", qty), recover_diff(i, "quality/unused", "unused", unused)]
-                   for i in range(len(splitted))]
+  data_recover_part = [
+     [splitted[i][0],
+     recover_thr(i, "normal", "threshold", normal_thr), recover_diff(i, "normal", "sigma", normal_sigma), recover_diff(i, "normal", "noise", normal_noise), recover_diff(i, "normal", "intime", normal_intime),
+     recover_thr(i, "long", "threshold", long_thr),     recover_diff(i, "long", "sigma", long_sigma),     recover_diff(i, "long", "noise", long_noise),     recover_diff(i, "long", "intime", long_intime),
+     recover_thr(i, "ganged", "threshold", ganged_thr), recover_diff(i, "ganged", "sigma", ganged_sigma), recover_diff(i, "ganged", "noise", ganged_noise), recover_diff(i, "ganged", "intime", ganged_intime),
+     recover_diff(i, "fit_normal", "A", normal_A),         recover_diff(i, "fit_normal", "B", normal_B),         recover_diff(i, "fit_normal", "C", normal_C),
+     recover_diff(i, "fit_longGanged", "A", longGanged_A), recover_diff(i, "fit_longGanged", "B", longGanged_B), recover_diff(i, "fit_longGanged", "C", longGanged_C),
+     recover_diff(i, "quality/unused", "fit_quality", qty), recover_diff(i, "quality/unused", "unused", unused)]
+   for i in range(len(splitted))]
 
-  recover_list.append(data_recover)
+  recover_list.append(data_recover_part)
 
   # write recovered data to file
   writer = csv.writer(result, delimiter = " ")
-  writer.writerows(data_recover)
+  writer.writerows(data_recover_part)
 
 
   # Make parameter lists of modules for reccovering modules with all values "0"
@@ -220,23 +222,23 @@ def diffmodule(n_module, n_FE, pixel_type, para_type):
 
 
 
-result2 = open("middle_data.dat","r")
-result3 = open(output_data, "w")
-contents2 = result2.read() 
-elements2 = contents2.splitlines()
+partial_rec  = open("partial_recover.dat","r")
+all_recover  = open(output_data, "w")
+contents_all = pertial_rec.read() 
+elements_all = contents_all.splitlines()
 
 
 # parsing data file
-last2 = len(elements2)
+last2 = len(elements_all)
 head2 = 0
 module_num2 = 0
 
-print(len(elements2))
+print(len(elements_all))
 
 while head2 < last2:
-  line2 = elements2[head2]
-  result3.write(elements2[head2])
-  result3.write("\n")
+  line2 = elements_all[head2]
+  all_recover.write(elements_all[head2])
+  all_recover.write("\n")
   # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
   if not line2.find("L") == 0 and not line2.find("D") == 0:
     head2 += 1
@@ -245,7 +247,7 @@ while head2 < last2:
   # seek the tail of the block
   tail2 = head2 + 1
   while tail2 < last2:
-    tmp2 = elements2[tail2]
+    tmp2 = elements_all[tail2]
     if tmp2.find("L") == 0 or tmp2.find("D") == 0 or tail2 == last2:
       break
     else:
@@ -255,13 +257,13 @@ while head2 < last2:
 #  print(module_num2)
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
-  module2 = elements2[head2]
+  module2 = elements_all[head2]
   print( "processing module", module2 )
 
   # rawBlock is the block lines, corresponding to each Pixel Module
   # for IBL, there are either 2 or 1 FEs
   # else, there are 16 FEs
-  rowBlock2 = elements2[head2+1:tail2]
+  rowBlock2 = elements_all[head2+1:tail2]
 
   # split each line of the block
   splitted2 = [ line2.split() for line2 in rowBlock2 ]
@@ -278,7 +280,7 @@ while head2 < last2:
              "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
              for s in splitted2]
 
-  data_recover2 = [[splitted[i][0],
+  data_recover_all = [[splitted[i][0],
                     diffmodule(module_num2, i, "normal", "threshold"), diffmodule(module_num2, i, "normal", "sigma"), diffmodule(module_num2, i, "normal", "noise"), diffmodule(module_num2, i, "normal", "intime"),
                     diffmodule(module_num2, i, "long", "threshold"),   diffmodule(module_num2, i, "long", "sigma"),   diffmodule(module_num2, i, "long", "noise"),   diffmodule(module_num2, i, "long", "intime"),
                     diffmodule(module_num2, i, "ganged", "threshold"), diffmodule(module_num2, i, "ganged", "sigma"), diffmodule(module_num2, i, "ganged", "noise"), diffmodule(module_num2, i, "ganged", "intime"),
@@ -288,8 +290,8 @@ while head2 < last2:
                     for i in range(len(splitted2))]
 
   # write recovered data to file
-  writer = csv.writer(result3, delimiter = " ")
-  writer.writerows(data_recover2)
+  writer = csv.writer(all_recover, delimiter = " ")
+  writer.writerows(data_recover_all)
 
 #  print(diffmodule(1, 1, "normal", "threshold", para_lists["normal"]["threshold"][1]))
 
@@ -297,10 +299,10 @@ while head2 < last2:
 
 # end of while head2 < last2
 
-result3.close()
+all_recover.close()
 
-# delete middle_data.dat
-os.remove("middle_data.dat")
+# delete partial_recover.dat
+os.remove("partial_recover.dat")
 
 print('number of "0" =', error_num)
 print( "processing done." )
