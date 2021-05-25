@@ -84,9 +84,9 @@ void PixelCalib() {
   }
   if (WhichPart==1) {
      std::cout << "Running on BLayer" << std::endl;
-     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
+     inThrFile = "../../data/20170925_ALL/SCAN_S000067530.root";
      inTimFile = "";
-     inTotFile = "../../data/20180920_ALL/SCAN_S000072946.root";
+     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
      Output = "Out_BLayer";
   }
   if (WhichPart==2) {
@@ -104,8 +104,6 @@ void PixelCalib() {
      Output = "Out_Disk";
   }
 
-  TH1F *h1Chi2Tot = new TH1F("h1Chi2Tot", "", 200, 0, 1);
-
   // selecting Q threshold
   int qthresh = -1;
   if (WhichPart==0) qthresh = 0;
@@ -116,11 +114,9 @@ void PixelCalib() {
   int nrow = 320;   // y-axis
   int ncol = 144;   // x-axis
 
-  const int ncharge = 11;  // injected charges
-//  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
-//  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0};
-  float chargeArr[ncharge]    = {3500, 4000, 6000, 8000, 10000, 15000, 20000, 25000, 25000, 30000, 35000};
-  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0};
+  const int ncharge = 10;  // injected charges
+  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
+  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0};
 //  float chargeArr[ncharge]    = {2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000};
 //  float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
 
@@ -132,6 +128,13 @@ void PixelCalib() {
   TFile roFile(rootFileName.c_str(),"RECREATE");
   TDirectory* roThrDir = roFile.mkdir("Threshold");
   TDirectory* roTotDir = roFile.mkdir("ToT");
+
+  FILE *outputfile;
+  outputfile = fopen("summary.txt", "w");
+  if (outputfile == NULL) {          // オープンに失敗した場合
+    printf("cannot open\n");         // エラーメッセージを出して
+    exit(1);                         // 異常終了
+  }
 
   if (!inThrFile.empty()) {
     //std::cout << std::endl << "INFO =>> threshold scan analysis..." << std::endl;
@@ -1362,14 +1365,8 @@ void PixelCalib() {
           totErrLongArrI14[i] = h1dTotLongI14.GetMeanError();
           totErrLongArrI15[i] = h1dTotLongI15.GetMeanError();
 
-          //std::cout << totArrI0[i] << " " << totErrArrI0[i] << " " << totSigArrI0[i] << " " << totSigErrArrI0[i] << std:: endl;
-
         } 
 
-
-//        std::string mod2 = modStr.substr(0,2);
-//        if (mod2 == "L0"){qthresh = 1;}
-//        else {qthresh = 0;}
         float FitStartingPoint = chargeArr[qthresh]-100;
 
         TGraphErrors grTotI0(ncharge, chargeArr, totArrI0, chargeErrArr, totErrArrI0);
@@ -1820,79 +1817,71 @@ void PixelCalib() {
         float parLongP0I15 = f1DispLongI15.GetParameter(0);
         float parLongP1I15 = f1DispLongI15.GetParameter(1);
 
-        float chi2I0_new = 0;
-        float chi2I1_new = 0;
-        float chi2I2_new = 0;
-        float chi2I3_new = 0;
-        float chi2I4_new = 0;
-        float chi2I5_new = 0;
-        float chi2I6_new = 0;
-        float chi2I7_new = 0;
-        float chi2I8_new = 0;
-        float chi2I9_new = 0;
-        float chi2I10_new = 0;
-        float chi2I11_new = 0;
-        float chi2I12_new = 0;
-        float chi2I13_new = 0;
-        float chi2I14_new = 0;
-        float chi2I15_new = 0;
+        fprintf(outputfile, "%s", modStr.c_str());
+        fprintf(outputfile, "\n");
 
-        for(int i = qthresh; i < ncharge; i++){
-            float fitI0 = totArrI0[i] - ( parAI0 * (parEI0 + chargeArr[i]) / (parCI0 + chargeArr[i]) );
-            float fitI1 = totArrI1[i] - ( parAI1 * (parEI1 + chargeArr[i]) / (parCI1 + chargeArr[i]) );
-            float fitI2 = totArrI2[i] - ( parAI2 * (parEI2 + chargeArr[i]) / (parCI2 + chargeArr[i]) );
-            float fitI3 = totArrI3[i] - ( parAI3 * (parEI3 + chargeArr[i]) / (parCI3 + chargeArr[i]) );
-            float fitI4 = totArrI4[i] - ( parAI4 * (parEI4 + chargeArr[i]) / (parCI4 + chargeArr[i]) );
-            float fitI5 = totArrI5[i] - ( parAI5 * (parEI5 + chargeArr[i]) / (parCI5 + chargeArr[i]) );
-            float fitI6 = totArrI6[i] - ( parAI6 * (parEI6 + chargeArr[i]) / (parCI6 + chargeArr[i]) );
-            float fitI7 = totArrI7[i] - ( parAI7 * (parEI7 + chargeArr[i]) / (parCI7 + chargeArr[i]) );
-            float fitI8 = totArrI8[i] - ( parAI8 * (parEI8 + chargeArr[i]) / (parCI8 + chargeArr[i]) );
-            float fitI9 = totArrI9[i] - ( parAI9 * (parEI9 + chargeArr[i]) / (parCI9 + chargeArr[i]) );
-            float fitI10 = totArrI10[i] - ( parAI10 * (parEI10 + chargeArr[i]) / (parCI10 + chargeArr[i]) );
-            float fitI11 = totArrI11[i] - ( parAI11 * (parEI11 + chargeArr[i]) / (parCI11 + chargeArr[i]) );
-            float fitI12 = totArrI12[i] - ( parAI12 * (parEI12 + chargeArr[i]) / (parCI12 + chargeArr[i]) );
-            float fitI13 = totArrI13[i] - ( parAI13 * (parEI13 + chargeArr[i]) / (parCI13 + chargeArr[i]) );
-            float fitI14 = totArrI14[i] - ( parAI14 * (parEI14 + chargeArr[i]) / (parCI14 + chargeArr[i]) );
-            float fitI15 = totArrI15[i] - ( parAI15 * (parEI15 + chargeArr[i]) / (parCI15 + chargeArr[i]) );
+        float badcalI0[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI1[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI2[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI3[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI4[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI5[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI6[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI7[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI8[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI9[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI10[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI11[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI12[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI13[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI14[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI15[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-            chi2I0_new = chi2I0_new + sqrt(fitI0 * fitI0) / (ncharge - qthresh);
-            chi2I1_new = chi2I1_new + sqrt(fitI1 * fitI1) / (ncharge - qthresh);
-            chi2I2_new = chi2I2_new + sqrt(fitI2 * fitI2) / (ncharge - qthresh);
-            chi2I3_new = chi2I3_new + sqrt(fitI3 * fitI3) / (ncharge - qthresh);
-            chi2I4_new = chi2I4_new + sqrt(fitI4 * fitI4) / (ncharge - qthresh);
-            chi2I5_new = chi2I5_new + sqrt(fitI5 * fitI5) / (ncharge - qthresh);
-            chi2I6_new = chi2I6_new + sqrt(fitI6 * fitI6) / (ncharge - qthresh);
-            chi2I7_new = chi2I7_new + sqrt(fitI7 * fitI7) / (ncharge - qthresh);
-            chi2I8_new = chi2I8_new + sqrt(fitI8 * fitI8) / (ncharge - qthresh);
-            chi2I9_new = chi2I9_new + sqrt(fitI9 * fitI9) / (ncharge - qthresh); 
-            chi2I10_new = chi2I10_new + sqrt(fitI10 * fitI10) / (ncharge - qthresh);
-            chi2I11_new = chi2I11_new + sqrt(fitI11 * fitI11) / (ncharge - qthresh);
-            chi2I12_new = chi2I12_new + sqrt(fitI12 * fitI12) / (ncharge - qthresh);
-            chi2I13_new = chi2I13_new + sqrt(fitI13 * fitI13) / (ncharge - qthresh);
-            chi2I14_new = chi2I14_new + sqrt(fitI14 * fitI14) / (ncharge - qthresh);
-            chi2I15_new = chi2I15_new + sqrt(fitI15 * fitI15) / (ncharge - qthresh);
+        for (int i=qthresh; i<ncharge; i++){
+            badcalI0[i] = abs( 1 - ( (parAI0 * parEI0 - parCI0 * totArrI0[i]) / (totArrI0[i] - parAI0) ) / chargeArr[i] );
+            badcalI1[i] = abs( 1 - ( (parAI1 * parEI1 - parCI1 * totArrI1[i]) / (totArrI1[i] - parAI1) ) / chargeArr[i] );
+            badcalI2[i] = abs( 1 - ( (parAI2 * parEI2 - parCI2 * totArrI2[i]) / (totArrI2[i] - parAI2) ) / chargeArr[i] );
+            badcalI3[i] = abs( 1 - ( (parAI3 * parEI3 - parCI3 * totArrI3[i]) / (totArrI3[i] - parAI3) ) / chargeArr[i] );
+            badcalI4[i] = abs( 1 - ( (parAI4 * parEI4 - parCI4 * totArrI4[i]) / (totArrI4[i] - parAI4) ) / chargeArr[i] );
+            badcalI5[i] = abs( 1 - ( (parAI5 * parEI5 - parCI5 * totArrI5[i]) / (totArrI5[i] - parAI5) ) / chargeArr[i] );
+            badcalI6[i] = abs( 1 - ( (parAI6 * parEI6 - parCI6 * totArrI6[i]) / (totArrI6[i] - parAI6) ) / chargeArr[i] );
+            badcalI7[i] = abs( 1 - ( (parAI7 * parEI7 - parCI7 * totArrI7[i]) / (totArrI7[i] - parAI7) ) / chargeArr[i] );
+            badcalI8[i] = abs( 1 - ( (parAI8 * parEI8 - parCI8 * totArrI8[i]) / (totArrI8[i] - parAI8) ) / chargeArr[i] );
+            badcalI9[i] = abs( 1 - ( (parAI9 * parEI9 - parCI9 * totArrI9[i]) / (totArrI9[i] - parAI9) ) / chargeArr[i] );
+            badcalI10[i] = abs( 1 - ( (parAI10 * parEI10 - parCI10 * totArrI10[i]) / (totArrI10[i] - parAI10) ) / chargeArr[i] );
+            badcalI11[i] = abs( 1 - ( (parAI11 * parEI11 - parCI11 * totArrI11[i]) / (totArrI11[i] - parAI11) ) / chargeArr[i] );
+            badcalI12[i] = abs( 1 - ( (parAI12 * parEI12 - parCI12 * totArrI12[i]) / (totArrI12[i] - parAI12) ) / chargeArr[i] );
+            badcalI13[i] = abs( 1 - ( (parAI13 * parEI13 - parCI13 * totArrI13[i]) / (totArrI13[i] - parAI13) ) / chargeArr[i] );
+            badcalI14[i] = abs( 1 - ( (parAI14 * parEI14 - parCI14 * totArrI14[i]) / (totArrI14[i] - parAI14) ) / chargeArr[i] );
+            badcalI15[i] = abs( 1 - ( (parAI15 * parEI15 - parCI15 * totArrI15[i]) / (totArrI15[i] - parAI15) ) / chargeArr[i] );
         }
 
-        const double chi2_error = 1.0;
+        for (size_t i = 0; i < 10; i++)
+        {
+          fprintf(outputfile, "%f ", badcalI1[i]*100);
+        }
+        
 
-        h1Chi2Tot->Fill(chi2I0_new);
-        h1Chi2Tot->Fill(chi2I1_new);
-        h1Chi2Tot->Fill(chi2I2_new);
-        h1Chi2Tot->Fill(chi2I3_new);
-        h1Chi2Tot->Fill(chi2I4_new);
-        h1Chi2Tot->Fill(chi2I5_new);
-        h1Chi2Tot->Fill(chi2I6_new);
-        h1Chi2Tot->Fill(chi2I7_new);
-        h1Chi2Tot->Fill(chi2I8_new);
-        h1Chi2Tot->Fill(chi2I9_new);
-        h1Chi2Tot->Fill(chi2I10_new);
-        h1Chi2Tot->Fill(chi2I11_new);
-        h1Chi2Tot->Fill(chi2I12_new);
-        h1Chi2Tot->Fill(chi2I13_new);
-        h1Chi2Tot->Fill(chi2I14_new);
-        h1Chi2Tot->Fill(chi2I15_new);
+        float badcalI0_max = *max_element(badcalI0, badcalI0 + ncharge);
+        float badcalI1_max = *max_element(badcalI1, badcalI1 + ncharge);
+        float badcalI2_max = *max_element(badcalI2, badcalI2 + ncharge);
+        float badcalI3_max = *max_element(badcalI3, badcalI3 + ncharge);
+        float badcalI4_max = *max_element(badcalI4, badcalI4 + ncharge);
+        float badcalI5_max = *max_element(badcalI5, badcalI5 + ncharge);
+        float badcalI6_max = *max_element(badcalI6, badcalI6 + ncharge);
+        float badcalI7_max = *max_element(badcalI7, badcalI7 + ncharge);
+        float badcalI8_max = *max_element(badcalI8, badcalI8 + ncharge);
+        float badcalI9_max = *max_element(badcalI9, badcalI9 + ncharge);
+        float badcalI10_max = *max_element(badcalI10, badcalI10 + ncharge);
+        float badcalI11_max = *max_element(badcalI11, badcalI11 + ncharge);
+        float badcalI12_max = *max_element(badcalI12, badcalI12 + ncharge);
+        float badcalI13_max = *max_element(badcalI13, badcalI13 + ncharge);
+        float badcalI14_max = *max_element(badcalI14, badcalI14 + ncharge);
+        float badcalI15_max = *max_element(badcalI15, badcalI15 + ncharge);
 
-        int ncharge_re = ncharge;
+        fprintf(outputfile, "%f ", badcalI1_max*100);
+        fprintf(outputfile, "\n");
+
         std::vector<Double_t> chargeArrI0_re;
         std::vector<Double_t> chargeArrI1_re;
         std::vector<Double_t> chargeArrI2_re;
@@ -1995,798 +1984,803 @@ void PixelCalib() {
         std::vector<Double_t> totSigErrArrI14_re;
         std::vector<Double_t> totSigErrArrI15_re;
 
+
         for(int i=0; i < ncharge; i++){
-            chargeArrI0_re.push_back(chargeArr[i]);
-            chargeArrI1_re.push_back(chargeArr[i]);
-            chargeArrI2_re.push_back(chargeArr[i]);
-            chargeArrI3_re.push_back(chargeArr[i]);
-            chargeArrI4_re.push_back(chargeArr[i]);
-            chargeArrI5_re.push_back(chargeArr[i]);
-            chargeArrI6_re.push_back(chargeArr[i]);
-            chargeArrI7_re.push_back(chargeArr[i]);
-            chargeArrI8_re.push_back(chargeArr[i]);
-            chargeArrI9_re.push_back(chargeArr[i]);
-            chargeArrI10_re.push_back(chargeArr[i]);
-            chargeArrI11_re.push_back(chargeArr[i]);
-            chargeArrI12_re.push_back(chargeArr[i]);
-            chargeArrI13_re.push_back(chargeArr[i]);
-            chargeArrI14_re.push_back(chargeArr[i]);
-            chargeArrI15_re.push_back(chargeArr[i]);
+          chargeArrI0_re.push_back(chargeArr[i]);
+          chargeArrI1_re.push_back(chargeArr[i]);
+          chargeArrI2_re.push_back(chargeArr[i]);
+          chargeArrI3_re.push_back(chargeArr[i]);
+          chargeArrI4_re.push_back(chargeArr[i]);
+          chargeArrI5_re.push_back(chargeArr[i]);
+          chargeArrI6_re.push_back(chargeArr[i]);
+          chargeArrI7_re.push_back(chargeArr[i]);
+          chargeArrI8_re.push_back(chargeArr[i]);
+          chargeArrI9_re.push_back(chargeArr[i]);
+          chargeArrI10_re.push_back(chargeArr[i]);
+          chargeArrI11_re.push_back(chargeArr[i]);
+          chargeArrI12_re.push_back(chargeArr[i]);
+          chargeArrI13_re.push_back(chargeArr[i]);
+          chargeArrI14_re.push_back(chargeArr[i]);
+          chargeArrI15_re.push_back(chargeArr[i]);
 
-            chargeErrArrI0_re.push_back(chargeErrArr[i]);
-            chargeErrArrI1_re.push_back(chargeErrArr[i]);
-            chargeErrArrI2_re.push_back(chargeErrArr[i]);
-            chargeErrArrI3_re.push_back(chargeErrArr[i]);
-            chargeErrArrI4_re.push_back(chargeErrArr[i]);
-            chargeErrArrI5_re.push_back(chargeErrArr[i]);
-            chargeErrArrI6_re.push_back(chargeErrArr[i]);
-            chargeErrArrI7_re.push_back(chargeErrArr[i]);
-            chargeErrArrI8_re.push_back(chargeErrArr[i]);
-            chargeErrArrI9_re.push_back(chargeErrArr[i]);
-            chargeErrArrI10_re.push_back(chargeErrArr[i]);
-            chargeErrArrI11_re.push_back(chargeErrArr[i]);
-            chargeErrArrI12_re.push_back(chargeErrArr[i]);
-            chargeErrArrI13_re.push_back(chargeErrArr[i]);
-            chargeErrArrI14_re.push_back(chargeErrArr[i]);
-            chargeErrArrI15_re.push_back(chargeErrArr[i]);
+          chargeErrArrI0_re.push_back(chargeErrArr[i]);
+          chargeErrArrI1_re.push_back(chargeErrArr[i]);
+          chargeErrArrI2_re.push_back(chargeErrArr[i]);
+          chargeErrArrI3_re.push_back(chargeErrArr[i]);
+          chargeErrArrI4_re.push_back(chargeErrArr[i]);
+          chargeErrArrI5_re.push_back(chargeErrArr[i]);
+          chargeErrArrI6_re.push_back(chargeErrArr[i]);
+          chargeErrArrI7_re.push_back(chargeErrArr[i]);
+          chargeErrArrI8_re.push_back(chargeErrArr[i]);
+          chargeErrArrI9_re.push_back(chargeErrArr[i]);
+          chargeErrArrI10_re.push_back(chargeErrArr[i]);
+          chargeErrArrI11_re.push_back(chargeErrArr[i]);
+          chargeErrArrI12_re.push_back(chargeErrArr[i]);
+          chargeErrArrI13_re.push_back(chargeErrArr[i]);
+          chargeErrArrI14_re.push_back(chargeErrArr[i]);
+          chargeErrArrI15_re.push_back(chargeErrArr[i]);
 
-            totArrI0_re.push_back(totArrI0[i]);
-            totArrI1_re.push_back(totArrI1[i]);
-            totArrI2_re.push_back(totArrI2[i]);
-            totArrI3_re.push_back(totArrI3[i]);
-            totArrI4_re.push_back(totArrI4[i]);
-            totArrI5_re.push_back(totArrI5[i]);
-            totArrI6_re.push_back(totArrI6[i]);
-            totArrI7_re.push_back(totArrI7[i]);
-            totArrI8_re.push_back(totArrI8[i]);
-            totArrI9_re.push_back(totArrI9[i]);
-            totArrI10_re.push_back(totArrI10[i]);
-            totArrI11_re.push_back(totArrI11[i]);
-            totArrI12_re.push_back(totArrI12[i]);
-            totArrI13_re.push_back(totArrI13[i]);
-            totArrI14_re.push_back(totArrI14[i]);
-            totArrI15_re.push_back(totArrI15[i]);
-           
-            totErrArrI0_re.push_back(totErrArrI0[i]);
-            totErrArrI1_re.push_back(totErrArrI1[i]);
-            totErrArrI2_re.push_back(totErrArrI2[i]);
-            totErrArrI3_re.push_back(totErrArrI3[i]);
-            totErrArrI4_re.push_back(totErrArrI4[i]);
-            totErrArrI5_re.push_back(totErrArrI5[i]);
-            totErrArrI6_re.push_back(totErrArrI6[i]);
-            totErrArrI7_re.push_back(totErrArrI7[i]);
-            totErrArrI8_re.push_back(totErrArrI8[i]);
-            totErrArrI9_re.push_back(totErrArrI9[i]);
-            totErrArrI10_re.push_back(totErrArrI10[i]);
-            totErrArrI11_re.push_back(totErrArrI11[i]);
-            totErrArrI12_re.push_back(totErrArrI12[i]);
-            totErrArrI13_re.push_back(totErrArrI13[i]);
-            totErrArrI14_re.push_back(totErrArrI14[i]);
-            totErrArrI15_re.push_back(totErrArrI15[i]);
+          totArrI0_re.push_back(totArrI0[i]);
+          totArrI1_re.push_back(totArrI1[i]);
+          totArrI2_re.push_back(totArrI2[i]);
+          totArrI3_re.push_back(totArrI3[i]);
+          totArrI4_re.push_back(totArrI4[i]);
+          totArrI5_re.push_back(totArrI5[i]);
+          totArrI6_re.push_back(totArrI6[i]);
+          totArrI7_re.push_back(totArrI7[i]);
+          totArrI8_re.push_back(totArrI8[i]);
+          totArrI9_re.push_back(totArrI9[i]);
+          totArrI10_re.push_back(totArrI10[i]);
+          totArrI11_re.push_back(totArrI11[i]);
+          totArrI12_re.push_back(totArrI12[i]);
+          totArrI13_re.push_back(totArrI13[i]);
+          totArrI14_re.push_back(totArrI14[i]);
+          totArrI15_re.push_back(totArrI15[i]);
 
-            totSigArrI0_re.push_back(totSigArrI0[i]);
-            totSigArrI1_re.push_back(totSigArrI1[i]);
-            totSigArrI2_re.push_back(totSigArrI2[i]);
-            totSigArrI3_re.push_back(totSigArrI3[i]);
-            totSigArrI4_re.push_back(totSigArrI4[i]);
-            totSigArrI5_re.push_back(totSigArrI5[i]);
-            totSigArrI6_re.push_back(totSigArrI6[i]);
-            totSigArrI7_re.push_back(totSigArrI7[i]);
-            totSigArrI8_re.push_back(totSigArrI8[i]);
-            totSigArrI9_re.push_back(totSigArrI9[i]);
-            totSigArrI10_re.push_back(totSigArrI10[i]);
-            totSigArrI11_re.push_back(totSigArrI11[i]);
-            totSigArrI12_re.push_back(totSigArrI12[i]);
-            totSigArrI13_re.push_back(totSigArrI13[i]);
-            totSigArrI14_re.push_back(totSigArrI14[i]);
-            totSigArrI15_re.push_back(totSigArrI15[i]);
-           
-            totSigErrArrI0_re.push_back(totSigErrArrI0[i]);
-            totSigErrArrI1_re.push_back(totSigErrArrI1[i]);
-            totSigErrArrI2_re.push_back(totSigErrArrI2[i]);
-            totSigErrArrI3_re.push_back(totSigErrArrI3[i]);
-            totSigErrArrI4_re.push_back(totSigErrArrI4[i]);
-            totSigErrArrI5_re.push_back(totSigErrArrI5[i]);
-            totSigErrArrI6_re.push_back(totSigErrArrI6[i]);
-            totSigErrArrI7_re.push_back(totSigErrArrI7[i]);
-            totSigErrArrI8_re.push_back(totSigErrArrI8[i]);
-            totSigErrArrI9_re.push_back(totSigErrArrI9[i]);
-            totSigErrArrI10_re.push_back(totSigErrArrI10[i]);
-            totSigErrArrI11_re.push_back(totSigErrArrI11[i]);
-            totSigErrArrI12_re.push_back(totSigErrArrI12[i]);
-            totSigErrArrI13_re.push_back(totSigErrArrI13[i]);
-            totSigErrArrI14_re.push_back(totSigErrArrI14[i]);
-            totSigErrArrI15_re.push_back(totSigErrArrI15[i]);
-      }
+          totErrArrI0_re.push_back(totErrArrI0[i]);
+          totErrArrI1_re.push_back(totErrArrI1[i]);
+          totErrArrI2_re.push_back(totErrArrI2[i]);
+          totErrArrI3_re.push_back(totErrArrI3[i]);
+          totErrArrI4_re.push_back(totErrArrI4[i]);
+          totErrArrI5_re.push_back(totErrArrI5[i]);
+          totErrArrI6_re.push_back(totErrArrI6[i]);
+          totErrArrI7_re.push_back(totErrArrI7[i]);
+          totErrArrI8_re.push_back(totErrArrI8[i]);
+          totErrArrI9_re.push_back(totErrArrI9[i]);
+          totErrArrI10_re.push_back(totErrArrI10[i]);
+          totErrArrI11_re.push_back(totErrArrI11[i]);
+          totErrArrI12_re.push_back(totErrArrI12[i]);
+          totErrArrI13_re.push_back(totErrArrI13[i]);
+          totErrArrI14_re.push_back(totErrArrI14[i]);
+          totErrArrI15_re.push_back(totErrArrI15[i]);
 
-        while(chi2I0_new > chi2_error){
-            if(chi2I0_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
+          totSigArrI0_re.push_back(totSigArrI0[i]);
+          totSigArrI1_re.push_back(totSigArrI1[i]);
+          totSigArrI2_re.push_back(totSigArrI2[i]);
+          totSigArrI3_re.push_back(totSigArrI3[i]);
+          totSigArrI4_re.push_back(totSigArrI4[i]);
+          totSigArrI5_re.push_back(totSigArrI5[i]);
+          totSigArrI6_re.push_back(totSigArrI6[i]);
+          totSigArrI7_re.push_back(totSigArrI7[i]);
+          totSigArrI8_re.push_back(totSigArrI8[i]);
+          totSigArrI9_re.push_back(totSigArrI9[i]);
+          totSigArrI10_re.push_back(totSigArrI10[i]);
+          totSigArrI11_re.push_back(totSigArrI11[i]);
+          totSigArrI12_re.push_back(totSigArrI12[i]);
+          totSigArrI13_re.push_back(totSigArrI13[i]);
+          totSigArrI14_re.push_back(totSigArrI14[i]);
+          totSigArrI15_re.push_back(totSigArrI15[i]);
 
-                ncharge_re = ncharge_re - 1;
-                chargeArrI0_re.erase(chargeArrI0_re.begin() + n_max);
-                totArrI0_re.erase(totArrI0_re.begin() + n_max);
-                totSigArrI0_re.erase(totSigArrI0_re.begin() + n_max);
-                chargeErrArrI0_re.erase(chargeErrArrI0_re.begin() + n_max);
-                totErrArrI0_re.erase(totErrArrI0_re.begin() + n_max);
-                totSigErrArrI0_re.erase(totSigErrArrI0_re.begin() + n_max);
+          totSigErrArrI0_re.push_back(totSigErrArrI0[i]);
+          totSigErrArrI1_re.push_back(totSigErrArrI1[i]);
+          totSigErrArrI2_re.push_back(totSigErrArrI2[i]);
+          totSigErrArrI3_re.push_back(totSigErrArrI3[i]);
+          totSigErrArrI4_re.push_back(totSigErrArrI4[i]);
+          totSigErrArrI5_re.push_back(totSigErrArrI5[i]);
+          totSigErrArrI6_re.push_back(totSigErrArrI6[i]);
+          totSigErrArrI7_re.push_back(totSigErrArrI7[i]);
+          totSigErrArrI8_re.push_back(totSigErrArrI8[i]);
+          totSigErrArrI9_re.push_back(totSigErrArrI9[i]);
+          totSigErrArrI10_re.push_back(totSigErrArrI10[i]);
+          totSigErrArrI11_re.push_back(totSigErrArrI11[i]);
+          totSigErrArrI12_re.push_back(totSigErrArrI12[i]);
+          totSigErrArrI13_re.push_back(totSigErrArrI13[i]);
+          totSigErrArrI14_re.push_back(totSigErrArrI14[i]);
+          totSigErrArrI15_re.push_back(totSigErrArrI15[i]);
+        }
 
-                TGraphErrors grTotI0(ncharge_re, &chargeArrI0_re[0], &totArrI0_re[0], &chargeErrArrI0_re[0], &totErrArrI0_re[0]);
-                grTotI0.SetName(modName+"__grTotI0");
-                TGraphErrors grTotSigI0(ncharge_re, &chargeArrI0_re[0], &totSigArrI0_re[0], &chargeErrArrI0_re[0], &totSigErrArrI0_re[0]);
-                grTotSigI0.SetName(modName+"__grTotSigI0");
-                TF1 f1TotI0("f1TotI0",funcTot, FitStartingPoint, chargeArrI0_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI0("f1DispI0",funcDisp, FitStartingPoint, chargeArrI0_re[ncharge_re-1]+100, 2);
-                grTotI0.Fit(&f1TotI0,"MRQ");
-                grTotSigI0.Fit(&f1DispI0,"MRQ");
-                parAI0 = f1TotI0.GetParameter(0);
-                parEI0 = f1TotI0.GetParameter(1);
-                parCI0 = f1TotI0.GetParameter(2);
-                parP0I0 = f1DispI0.GetParameter(0);
-                parP1I0 = f1DispI0.GetParameter(1);
+        const double chi2_error = 0.05;
+        int ncharge_re = ncharge;
 
-                chi2I0_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI0 = totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) );
-                    chi2I0_new = chi2I0_new + sqrt(fitI0 * fitI0) / (ncharge_re - qthresh);
-                }
+        while(badcalI0_max > chi2_error){
+          if(badcalI0_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI0_re.erase(chargeArrI0_re.begin() + n_max);
+            totArrI0_re.erase(totArrI0_re.begin() + n_max);
+            totSigArrI0_re.erase(totSigArrI0_re.begin() + n_max);
+            chargeErrArrI0_re.erase(chargeErrArrI0_re.begin() + n_max);
+            totErrArrI0_re.erase(totErrArrI0_re.begin() + n_max);
+            totSigErrArrI0_re.erase(totSigErrArrI0_re.begin() + n_max);
+
+            TGraphErrors grTotI0(ncharge_re, &chargeArrI0_re[0], &totArrI0_re[0], &chargeErrArrI0_re[0], &totErrArrI0_re[0]);
+            grTotI0.SetName(modName+"__grTotI0");
+            TGraphErrors grTotSigI0(ncharge_re, &chargeArrI0_re[0], &totSigArrI0_re[0], &chargeErrArrI0_re[0], &totSigErrArrI0_re[0]);
+            grTotSigI0.SetName(modName+"__grTotSigI0");
+            TF1 f1TotI0("f1TotI0",funcTot, FitStartingPoint, chargeArrI0_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI0("f1DispI0",funcDisp, FitStartingPoint, chargeArrI0_re[ncharge_re-1]+100, 2);
+            grTotI0.Fit(&f1TotI0,"MRQ");
+            grTotSigI0.Fit(&f1DispI0,"MRQ");
+            parAI0 = f1TotI0.GetParameter(0);
+            parEI0 = f1TotI0.GetParameter(1);
+            parCI0 = f1TotI0.GetParameter(2);
+            parP0I0 = f1DispI0.GetParameter(0);
+            parP1I0 = f1DispI0.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI0[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI0[i] = abs( 1 - ( (parAI0 * parEI0 - parCI0 * totArrI0_re[i]) / (totArrI0_re[i] - parAI0) ) / chargeArrI0_re[i] );
+            }
+            badcalI0_max = *max_element(badcalI0, badcalI0 + 10);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I1_new > chi2_error){
-            if(chi2I1_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI1_re.erase(chargeArrI1_re.begin() + n_max);
-                totArrI1_re.erase(totArrI1_re.begin() + n_max);
-                totSigArrI1_re.erase(totSigArrI1_re.begin() + n_max);
-                chargeErrArrI1_re.erase(chargeErrArrI1_re.begin() + n_max);
-                totErrArrI1_re.erase(totErrArrI1_re.begin() + n_max);
-                totSigErrArrI1_re.erase(totSigErrArrI1_re.begin() + n_max);
-
-                TGraphErrors grTotI1(ncharge_re, &chargeArrI1_re[0], &totArrI1_re[0], &chargeErrArrI1_re[0], &totErrArrI1_re[0]);
-                grTotI1.SetName(modName+"__grTotI1");
-                TGraphErrors grTotSigI1(ncharge_re, &chargeArrI1_re[0], &totSigArrI1_re[0], &chargeErrArrI1_re[0], &totSigErrArrI1_re[0]);
-                grTotSigI1.SetName(modName+"__grTotSigI1");
-                TF1 f1TotI1("f1TotI1",funcTot, FitStartingPoint, chargeArrI1_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI1("f1DispI1",funcDisp, FitStartingPoint, chargeArrI1_re[ncharge_re-1]+100, 2);
-                grTotI1.Fit(&f1TotI1,"MRQ");
-                grTotSigI1.Fit(&f1DispI1,"MRQ");
-                parAI1 = f1TotI1.GetParameter(0);
-                parEI1 = f1TotI1.GetParameter(1);
-                parCI1 = f1TotI1.GetParameter(2);
-                parP0I1 = f1DispI1.GetParameter(0);
-                parP1I1 = f1DispI1.GetParameter(1);
-
-                chi2I1_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI1 = totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) );
-                    chi2I1_new = chi2I1_new + sqrt(fitI1 * fitI1) / (ncharge_re - qthresh);
-                }
+        while(badcalI1_max > chi2_error){
+          if(badcalI1_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI1_re.erase(chargeArrI1_re.begin() + n_max);
+            totArrI1_re.erase(totArrI1_re.begin() + n_max);
+            totSigArrI1_re.erase(totSigArrI1_re.begin() + n_max);
+            chargeErrArrI1_re.erase(chargeErrArrI1_re.begin() + n_max);
+            totErrArrI1_re.erase(totErrArrI1_re.begin() + n_max);
+            totSigErrArrI1_re.erase(totSigErrArrI1_re.begin() + n_max);
+
+            TGraphErrors grTotI1(ncharge_re, &chargeArrI1_re[0], &totArrI1_re[0], &chargeErrArrI1_re[0], &totErrArrI1_re[0]);
+            grTotI1.SetName(modName+"__grTotI1");
+            TGraphErrors grTotSigI1(ncharge_re, &chargeArrI1_re[0], &totSigArrI1_re[0], &chargeErrArrI1_re[0], &totSigErrArrI1_re[0]);
+            grTotSigI1.SetName(modName+"__grTotSigI1");
+            TF1 f1TotI1("f1TotI1",funcTot, FitStartingPoint, chargeArrI1_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI1("f1DispI1",funcDisp, FitStartingPoint, chargeArrI1_re[ncharge_re-1]+100, 2);
+            grTotI1.Fit(&f1TotI1,"MRQ");
+            grTotSigI1.Fit(&f1DispI1,"MRQ");
+            parAI1 = f1TotI1.GetParameter(0);
+            parEI1 = f1TotI1.GetParameter(1);
+            parCI1 = f1TotI1.GetParameter(2);
+            parP0I1 = f1DispI1.GetParameter(0);
+            parP1I1 = f1DispI1.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI1[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI1[i] = abs( 1 - ( (parAI1 * parEI1 - parCI1 * totArrI1_re[i]) / (totArrI1_re[i] - parAI1) ) / chargeArrI1_re[i]) ;
+            }
+            badcalI1_max = *max_element(badcalI1, badcalI1 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I2_new > chi2_error){
-            if(chi2I2_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI2_re.erase(chargeArrI2_re.begin() + n_max);
-                totArrI2_re.erase(totArrI2_re.begin() + n_max);
-                totSigArrI2_re.erase(totSigArrI2_re.begin() + n_max);
-                chargeErrArrI2_re.erase(chargeErrArrI2_re.begin() + n_max);
-                totErrArrI2_re.erase(totErrArrI2_re.begin() + n_max);
-                totSigErrArrI2_re.erase(totSigErrArrI2_re.begin() + n_max);
-
-                TGraphErrors grTotI2(ncharge_re, &chargeArrI2_re[0], &totArrI2_re[0], &chargeErrArrI2_re[0], &totErrArrI2_re[0]);
-                grTotI2.SetName(modName+"__grTotI2");
-                TGraphErrors grTotSigI2(ncharge_re, &chargeArrI2_re[0], &totSigArrI2_re[0], &chargeErrArrI2_re[0], &totSigErrArrI2_re[0]);
-                grTotSigI2.SetName(modName+"__grTotSigI2");
-                TF1 f1TotI2("f1TotI2",funcTot, FitStartingPoint, chargeArrI2_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI2("f1DispI2",funcDisp, FitStartingPoint, chargeArrI2_re[ncharge_re-1]+100, 2);
-                grTotI2.Fit(&f1TotI2,"MRQ");
-                grTotSigI2.Fit(&f1DispI2,"MRQ");
-                parAI2 = f1TotI2.GetParameter(0);
-                parEI2 = f1TotI2.GetParameter(1);
-                parCI2 = f1TotI2.GetParameter(2);
-                parP0I2 = f1DispI2.GetParameter(0);
-                parP1I2 = f1DispI2.GetParameter(1);
-
-                chi2I0_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI2 = totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) );
-                    chi2I2_new = chi2I2_new + sqrt(fitI2 * fitI2) / (ncharge_re - qthresh);
-                }
+        while(badcalI2_max > chi2_error){
+          if(badcalI2_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI2_re.erase(chargeArrI2_re.begin() + n_max);
+            totArrI2_re.erase(totArrI2_re.begin() + n_max);
+            totSigArrI2_re.erase(totSigArrI2_re.begin() + n_max);
+            chargeErrArrI2_re.erase(chargeErrArrI2_re.begin() + n_max);
+            totErrArrI2_re.erase(totErrArrI2_re.begin() + n_max);
+            totSigErrArrI2_re.erase(totSigErrArrI2_re.begin() + n_max);
+
+            TGraphErrors grTotI2(ncharge_re, &chargeArrI2_re[0], &totArrI2_re[0], &chargeErrArrI2_re[0], &totErrArrI2_re[0]);
+            grTotI2.SetName(modName+"__grTotI2");
+            TGraphErrors grTotSigI2(ncharge_re, &chargeArrI2_re[0], &totSigArrI2_re[0], &chargeErrArrI2_re[0], &totSigErrArrI2_re[0]);
+            grTotSigI2.SetName(modName+"__grTotSigI2");
+            TF1 f1TotI2("f1TotI2",funcTot, FitStartingPoint, chargeArrI2_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI2("f1DispI2",funcDisp, FitStartingPoint, chargeArrI2_re[ncharge_re-1]+100, 2);
+            grTotI2.Fit(&f1TotI2,"MRQ");
+            grTotSigI2.Fit(&f1DispI2,"MRQ");
+            parAI2 = f1TotI2.GetParameter(0);
+            parEI2 = f1TotI2.GetParameter(1);
+            parCI2 = f1TotI2.GetParameter(2);
+            parP0I2 = f1DispI2.GetParameter(0);
+            parP1I2 = f1DispI2.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI2[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI2[i] = abs( 1 - ( (parAI2 * parEI2 - parCI2 * totArrI2_re[i]) / (totArrI2_re[i] - parAI2) ) / chargeArrI2_re[i] );
+            }
+            badcalI2_max = *max_element(badcalI2, badcalI2 + ncharge_re);
+            if( badcalI2_max > 5000){badcalI2_max = -10;}
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I3_new > chi2_error){
-            if(chi2I3_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI3_re.erase(chargeArrI3_re.begin() + n_max);
-                totArrI3_re.erase(totArrI3_re.begin() + n_max);
-                totSigArrI3_re.erase(totSigArrI3_re.begin() + n_max);
-                chargeErrArrI3_re.erase(chargeErrArrI3_re.begin() + n_max);
-                totErrArrI3_re.erase(totErrArrI3_re.begin() + n_max);
-                totSigErrArrI3_re.erase(totSigErrArrI3_re.begin() + n_max);
-
-                TGraphErrors grTotI3(ncharge_re, &chargeArrI3_re[0], &totArrI3_re[0], &chargeErrArrI3_re[0], &totErrArrI3_re[0]);
-                grTotI3.SetName(modName+"__grTotI3");
-                TGraphErrors grTotSigI3(ncharge_re, &chargeArrI3_re[0], &totSigArrI3_re[0], &chargeErrArrI3_re[0], &totSigErrArrI3_re[0]);
-                grTotSigI3.SetName(modName+"__grTotSigI3");
-                TF3 f1TotI3("f1TotI3",funcTot, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 3);
-                TF3 f1DispI3("f1DispI3",funcDisp, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 2);
-                grTotI3.Fit(&f1TotI3,"MRQ");
-                grTotSigI3.Fit(&f1DispI3,"MRQ");
-                parAI3 = f1TotI3.GetParameter(0);
-                parEI3 = f1TotI3.GetParameter(1);
-                parCI3 = f1TotI3.GetParameter(2);
-                parP0I3 = f1DispI3.GetParameter(0);
-                parP1I3 = f1DispI3.GetParameter(1);
-
-                chi2I3_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI3 = totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) );
-                    chi2I3_new = chi2I3_new + sqrt(fitI3 * fitI3) / (ncharge_re - qthresh);
-                }
+        while(badcalI3_max > chi2_error){
+          if(badcalI3_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI3_re.erase(chargeArrI3_re.begin() + n_max);
+            totArrI3_re.erase(totArrI3_re.begin() + n_max);
+            totSigArrI3_re.erase(totSigArrI3_re.begin() + n_max);
+            chargeErrArrI3_re.erase(chargeErrArrI3_re.begin() + n_max);
+            totErrArrI3_re.erase(totErrArrI3_re.begin() + n_max);
+            totSigErrArrI3_re.erase(totSigErrArrI3_re.begin() + n_max);
+
+            TGraphErrors grTotI3(ncharge_re, &chargeArrI3_re[0], &totArrI3_re[0], &chargeErrArrI3_re[0], &totErrArrI3_re[0]);
+            grTotI3.SetName(modName+"__grTotI3");
+            TGraphErrors grTotSigI3(ncharge_re, &chargeArrI3_re[0], &totSigArrI3_re[0], &chargeErrArrI3_re[0], &totSigErrArrI3_re[0]);
+            grTotSigI3.SetName(modName+"__grTotSigI3");
+            TF3 f1TotI3("f1TotI3",funcTot, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 3);
+            TF3 f1DispI3("f1DispI3",funcDisp, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 2);
+            grTotI3.Fit(&f1TotI3,"MRQ");
+            grTotSigI3.Fit(&f1DispI3,"MRQ");
+            parAI3 = f1TotI3.GetParameter(0);
+            parEI3 = f1TotI3.GetParameter(1);
+            parCI3 = f1TotI3.GetParameter(2);
+            parP0I3 = f1DispI3.GetParameter(0);
+            parP1I3 = f1DispI3.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI3[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI3[i] = abs( 1 - ( (parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3) ) / chargeArrI3_re[i] );
+            }
+            badcalI3_max = *max_element(badcalI3, badcalI3 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I4_new > chi2_error){
-            if(chi2I4_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI4_re.erase(chargeArrI4_re.begin() + n_max);
-                totArrI4_re.erase(totArrI4_re.begin() + n_max);
-                totSigArrI4_re.erase(totSigArrI4_re.begin() + n_max);
-                chargeErrArrI4_re.erase(chargeErrArrI4_re.begin() + n_max);
-                totErrArrI4_re.erase(totErrArrI4_re.begin() + n_max);
-                totSigErrArrI4_re.erase(totSigErrArrI4_re.begin() + n_max);
-
-                TGraphErrors grTotI4(ncharge_re, &chargeArrI4_re[0], &totArrI4_re[0], &chargeErrArrI4_re[0], &totErrArrI4_re[0]);
-                grTotI4.SetName(modName+"__grTotI4");
-                TGraphErrors grTotSigI4(ncharge_re, &chargeArrI4_re[0], &totSigArrI4_re[0], &chargeErrArrI4_re[0], &totSigErrArrI4_re[0]);
-                grTotSigI4.SetName(modName+"__grTotSigI4");
-                TF1 f1TotI4("f1TotI4",funcTot, FitStartingPoint, chargeArrI4_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI4("f1DispI4",funcDisp, FitStartingPoint, chargeArrI4_re[ncharge_re-1]+100, 2);
-                grTotI4.Fit(&f1TotI4,"MRQ");
-                grTotSigI4.Fit(&f1DispI4,"MRQ");
-                parAI4 = f1TotI4.GetParameter(0);
-                parEI4 = f1TotI4.GetParameter(1);
-                parCI4 = f1TotI4.GetParameter(2);
-                parP0I4 = f1DispI4.GetParameter(0);
-                parP1I4 = f1DispI4.GetParameter(1);
-
-                chi2I4_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI4 = totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) );
-                    chi2I4_new = chi2I4_new + sqrt(fitI4 * fitI4) / (ncharge_re - qthresh);
-                }
+        while(badcalI4_max > chi2_error){
+          if(badcalI4_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI4_re.erase(chargeArrI4_re.begin() + n_max);
+            totArrI4_re.erase(totArrI4_re.begin() + n_max);
+            totSigArrI4_re.erase(totSigArrI4_re.begin() + n_max);
+            chargeErrArrI4_re.erase(chargeErrArrI4_re.begin() + n_max);
+            totErrArrI4_re.erase(totErrArrI4_re.begin() + n_max);
+            totSigErrArrI4_re.erase(totSigErrArrI4_re.begin() + n_max);
+
+            TGraphErrors grTotI4(ncharge_re, &chargeArrI4_re[0], &totArrI4_re[0], &chargeErrArrI4_re[0], &totErrArrI4_re[0]);
+            grTotI4.SetName(modName+"__grTotI4");
+            TGraphErrors grTotSigI4(ncharge_re, &chargeArrI4_re[0], &totSigArrI4_re[0], &chargeErrArrI4_re[0], &totSigErrArrI4_re[0]);
+            grTotSigI4.SetName(modName+"__grTotSigI4");
+            TF1 f1TotI4("f1TotI4",funcTot, FitStartingPoint, chargeArrI4_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI4("f1DispI4",funcDisp, FitStartingPoint, chargeArrI4_re[ncharge_re-1]+100, 2);
+            grTotI4.Fit(&f1TotI4,"MRQ");
+            grTotSigI4.Fit(&f1DispI4,"MRQ");
+            parAI4 = f1TotI4.GetParameter(0);
+            parEI4 = f1TotI4.GetParameter(1);
+            parCI4 = f1TotI4.GetParameter(2);
+            parP0I4 = f1DispI4.GetParameter(0);
+            parP1I4 = f1DispI4.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI4[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI4[i] = abs( 1 - ( (parAI4 * parEI4 - parCI4 * totArrI4_re[i]) / (totArrI4_re[i] - parAI4) ) / chargeArrI4_re[i] );
+            }
+            badcalI4_max = *max_element(badcalI4, badcalI4 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I5_new > chi2_error){
-            if(chi2I5_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI5_re.erase(chargeArrI5_re.begin() + n_max);
-                totArrI5_re.erase(totArrI5_re.begin() + n_max);
-                totSigArrI5_re.erase(totSigArrI5_re.begin() + n_max);
-                chargeErrArrI5_re.erase(chargeErrArrI5_re.begin() + n_max);
-                totErrArrI5_re.erase(totErrArrI5_re.begin() + n_max);
-                totSigErrArrI5_re.erase(totSigErrArrI5_re.begin() + n_max);
-
-                TGraphErrors grTotI5(ncharge_re, &chargeArrI5_re[0], &totArrI5_re[0], &chargeErrArrI5_re[0], &totErrArrI5_re[0]);
-                grTotI5.SetName(modName+"__grTotI5");
-                TGraphErrors grTotSigI5(ncharge_re, &chargeArrI5_re[0], &totSigArrI5_re[0], &chargeErrArrI5_re[0], &totSigErrArrI5_re[0]);
-                grTotSigI5.SetName(modName+"__grTotSigI5");
-                TF1 f1TotI5("f1TotI5",funcTot, FitStartingPoint, chargeArrI5_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI5("f1DispI5",funcDisp, FitStartingPoint, chargeArrI5_re[ncharge_re-1]+100, 2);
-                grTotI5.Fit(&f1TotI5,"MRQ");
-                grTotSigI5.Fit(&f1DispI5,"MRQ");
-                parAI5 = f1TotI5.GetParameter(0);
-                parEI5 = f1TotI5.GetParameter(1);
-                parCI5 = f1TotI5.GetParameter(2);
-                parP0I5 = f1DispI5.GetParameter(0);
-                parP1I5 = f1DispI5.GetParameter(1);
-
-                chi2I5_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI5 = totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) );
-                    chi2I5_new = chi2I5_new + sqrt(fitI5 * fitI5) / (ncharge_re - qthresh);
-                }
+        while(badcalI5_max > chi2_error){
+          if(badcalI5_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI5_re.erase(chargeArrI5_re.begin() + n_max);
+            totArrI5_re.erase(totArrI5_re.begin() + n_max);
+            totSigArrI5_re.erase(totSigArrI5_re.begin() + n_max);
+            chargeErrArrI5_re.erase(chargeErrArrI5_re.begin() + n_max);
+            totErrArrI5_re.erase(totErrArrI5_re.begin() + n_max);
+            totSigErrArrI5_re.erase(totSigErrArrI5_re.begin() + n_max);
+
+            TGraphErrors grTotI5(ncharge_re, &chargeArrI5_re[0], &totArrI5_re[0], &chargeErrArrI5_re[0], &totErrArrI5_re[0]);
+            grTotI5.SetName(modName+"__grTotI5");
+            TGraphErrors grTotSigI5(ncharge_re, &chargeArrI5_re[0], &totSigArrI5_re[0], &chargeErrArrI5_re[0], &totSigErrArrI5_re[0]);
+            grTotSigI5.SetName(modName+"__grTotSigI5");
+            TF1 f1TotI5("f1TotI5",funcTot, FitStartingPoint, chargeArrI5_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI5("f1DispI5",funcDisp, FitStartingPoint, chargeArrI5_re[ncharge_re-1]+100, 2);
+            grTotI5.Fit(&f1TotI5,"MRQ");
+            grTotSigI5.Fit(&f1DispI5,"MRQ");
+            parAI5 = f1TotI5.GetParameter(0);
+            parEI5 = f1TotI5.GetParameter(1);
+            parCI5 = f1TotI5.GetParameter(2);
+            parP0I5 = f1DispI5.GetParameter(0);
+            parP1I5 = f1DispI5.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI5[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI5[i] = abs( 1 - ( (parAI5 * parEI5 - parCI5 * totArrI5_re[i]) / (totArrI5_re[i] - parAI5) ) / chargeArrI5_re[i] );
+            }
+            badcalI5_max = *max_element(badcalI5, badcalI5 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I6_new > chi2_error){
-            if(chi2I6_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI6_re.erase(chargeArrI6_re.begin() + n_max);
-                totArrI6_re.erase(totArrI6_re.begin() + n_max);
-                totSigArrI6_re.erase(totSigArrI6_re.begin() + n_max);
-                chargeErrArrI6_re.erase(chargeErrArrI6_re.begin() + n_max);
-                totErrArrI6_re.erase(totErrArrI6_re.begin() + n_max);
-                totSigErrArrI6_re.erase(totSigErrArrI6_re.begin() + n_max);
-
-                TGraphErrors grTotI6(ncharge_re, &chargeArrI6_re[0], &totArrI6_re[0], &chargeErrArrI6_re[0], &totErrArrI6_re[0]);
-                grTotI6.SetName(modName+"__grTotI6");
-                TGraphErrors grTotSigI6(ncharge_re, &chargeArrI6_re[0], &totSigArrI6_re[0], &chargeErrArrI6_re[0], &totSigErrArrI6_re[0]);
-                grTotSigI6.SetName(modName+"__grTotSigI6");
-                TF1 f1TotI6("f1TotI6",funcTot, FitStartingPoint, chargeArrI6_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI6("f1DispI6",funcDisp, FitStartingPoint, chargeArrI6_re[ncharge_re-1]+100, 2);
-                grTotI6.Fit(&f1TotI6,"MRQ");
-                grTotSigI6.Fit(&f1DispI6,"MRQ");
-                parAI6 = f1TotI6.GetParameter(0);
-                parEI6 = f1TotI6.GetParameter(1);
-                parCI6 = f1TotI6.GetParameter(2);
-                parP0I6 = f1DispI6.GetParameter(0);
-                parP1I6 = f1DispI6.GetParameter(1);
-
-                chi2I6_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI6 = totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) );
-                    chi2I6_new = chi2I6_new + sqrt(fitI6 * fitI6) / (ncharge_re - qthresh);
-                }
+        while(badcalI6_max > chi2_error){
+          if(badcalI6_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI6_re.erase(chargeArrI6_re.begin() + n_max);
+            totArrI6_re.erase(totArrI6_re.begin() + n_max);
+            totSigArrI6_re.erase(totSigArrI6_re.begin() + n_max);
+            chargeErrArrI6_re.erase(chargeErrArrI6_re.begin() + n_max);
+            totErrArrI6_re.erase(totErrArrI6_re.begin() + n_max);
+            totSigErrArrI6_re.erase(totSigErrArrI6_re.begin() + n_max);
+
+            TGraphErrors grTotI6(ncharge_re, &chargeArrI6_re[0], &totArrI6_re[0], &chargeErrArrI6_re[0], &totErrArrI6_re[0]);
+            grTotI6.SetName(modName+"__grTotI6");
+            TGraphErrors grTotSigI6(ncharge_re, &chargeArrI6_re[0], &totSigArrI6_re[0], &chargeErrArrI6_re[0], &totSigErrArrI6_re[0]);
+            grTotSigI6.SetName(modName+"__grTotSigI6");
+            TF1 f1TotI6("f1TotI6",funcTot, FitStartingPoint, chargeArrI6_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI6("f1DispI6",funcDisp, FitStartingPoint, chargeArrI6_re[ncharge_re-1]+100, 2);
+            grTotI6.Fit(&f1TotI6,"MRQ");
+            grTotSigI6.Fit(&f1DispI6,"MRQ");
+            parAI6 = f1TotI6.GetParameter(0);
+            parEI6 = f1TotI6.GetParameter(1);
+            parCI6 = f1TotI6.GetParameter(2);
+            parP0I6 = f1DispI6.GetParameter(0);
+            parP1I6 = f1DispI6.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI6[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI6[i] = abs( 1 - ( (parAI6 * parEI6 - parCI6 * totArrI6_re[i]) / (totArrI6_re[i] - parAI6) ) / chargeArrI6_re[i] );
+            }
+            badcalI6_max = *max_element(badcalI6, badcalI6 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I7_new > chi2_error){
-            if(chi2I7_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI7_re.erase(chargeArrI7_re.begin() + n_max);
-                totArrI7_re.erase(totArrI7_re.begin() + n_max);
-                totSigArrI7_re.erase(totSigArrI7_re.begin() + n_max);
-                chargeErrArrI7_re.erase(chargeErrArrI7_re.begin() + n_max);
-                totErrArrI7_re.erase(totErrArrI7_re.begin() + n_max);
-                totSigErrArrI7_re.erase(totSigErrArrI7_re.begin() + n_max);
-
-                TGraphErrors grTotI7(ncharge_re, &chargeArrI7_re[0], &totArrI7_re[0], &chargeErrArrI7_re[0], &totErrArrI7_re[0]);
-                grTotI7.SetName(modName+"__grTotI7");
-                TGraphErrors grTotSigI7(ncharge_re, &chargeArrI7_re[0], &totSigArrI7_re[0], &chargeErrArrI7_re[0], &totSigErrArrI7_re[0]);
-                grTotSigI7.SetName(modName+"__grTotSigI7");
-                TF1 f1TotI7("f1TotI7",funcTot, FitStartingPoint, chargeArrI7_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI7("f1DispI7",funcDisp, FitStartingPoint, chargeArrI7_re[ncharge_re-1]+100, 2);
-                grTotI7.Fit(&f1TotI7,"MRQ");
-                grTotSigI7.Fit(&f1DispI7,"MRQ");
-                parAI7 = f1TotI7.GetParameter(0);
-                parEI7 = f1TotI7.GetParameter(1);
-                parCI7 = f1TotI7.GetParameter(2);
-                parP0I7 = f1DispI7.GetParameter(0);
-                parP1I7 = f1DispI7.GetParameter(1);
-
-                chi2I7_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI7 = totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) );
-                    chi2I7_new = chi2I7_new + sqrt(fitI7 * fitI7) / (ncharge_re - qthresh);
-                }
+        while(badcalI7_max > chi2_error){
+          if(badcalI7_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI7_re.erase(chargeArrI7_re.begin() + n_max);
+            totArrI7_re.erase(totArrI7_re.begin() + n_max);
+            totSigArrI7_re.erase(totSigArrI7_re.begin() + n_max);
+            chargeErrArrI7_re.erase(chargeErrArrI7_re.begin() + n_max);
+            totErrArrI7_re.erase(totErrArrI7_re.begin() + n_max);
+            totSigErrArrI7_re.erase(totSigErrArrI7_re.begin() + n_max);
+
+            TGraphErrors grTotI7(ncharge_re, &chargeArrI7_re[0], &totArrI7_re[0], &chargeErrArrI7_re[0], &totErrArrI7_re[0]);
+            grTotI7.SetName(modName+"__grTotI7");
+            TGraphErrors grTotSigI7(ncharge_re, &chargeArrI7_re[0], &totSigArrI7_re[0], &chargeErrArrI7_re[0], &totSigErrArrI7_re[0]);
+            grTotSigI7.SetName(modName+"__grTotSigI7");
+            TF1 f1TotI7("f1TotI7",funcTot, FitStartingPoint, chargeArrI7_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI7("f1DispI7",funcDisp, FitStartingPoint, chargeArrI7_re[ncharge_re-1]+100, 2);
+            grTotI7.Fit(&f1TotI7,"MRQ");
+            grTotSigI7.Fit(&f1DispI7,"MRQ");
+            parAI7 = f1TotI7.GetParameter(0);
+            parEI7 = f1TotI7.GetParameter(1);
+            parCI7 = f1TotI7.GetParameter(2);
+            parP0I7 = f1DispI7.GetParameter(0);
+            parP1I7 = f1DispI7.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI7[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI7[i] = abs( 1 - ( (parAI7 * parEI7 - parCI7 * totArrI7_re[i]) / (totArrI7_re[i] - parAI7) ) / chargeArrI7_re[i] );
+            }
+            badcalI7_max = *max_element(badcalI7, badcalI7 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I8_new > chi2_error){
-            if(chi2I8_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI8_re.erase(chargeArrI8_re.begin() + n_max);
-                totArrI8_re.erase(totArrI8_re.begin() + n_max);
-                totSigArrI8_re.erase(totSigArrI8_re.begin() + n_max);
-                chargeErrArrI8_re.erase(chargeErrArrI8_re.begin() + n_max);
-                totErrArrI8_re.erase(totErrArrI8_re.begin() + n_max);
-                totSigErrArrI8_re.erase(totSigErrArrI8_re.begin() + n_max);
-
-                TGraphErrors grTotI8(ncharge_re, &chargeArrI8_re[0], &totArrI8_re[0], &chargeErrArrI8_re[0], &totErrArrI8_re[0]);
-                grTotI8.SetName(modName+"__grTotI8");
-                TGraphErrors grTotSigI8(ncharge_re, &chargeArrI8_re[0], &totSigArrI8_re[0], &chargeErrArrI8_re[0], &totSigErrArrI8_re[0]);
-                grTotSigI8.SetName(modName+"__grTotSigI8");
-                TF1 f1TotI8("f1TotI8",funcTot, FitStartingPoint, chargeArrI8_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI8("f1DispI8",funcDisp, FitStartingPoint, chargeArrI8_re[ncharge_re-1]+100, 2);
-                grTotI8.Fit(&f1TotI8,"MRQ");
-                grTotSigI8.Fit(&f1DispI8,"MRQ");
-                parAI8 = f1TotI8.GetParameter(0);
-                parEI8 = f1TotI8.GetParameter(1);
-                parCI8 = f1TotI8.GetParameter(2);
-                parP0I8 = f1DispI8.GetParameter(0);
-                parP1I8 = f1DispI8.GetParameter(1);
-
-                chi2I8_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI8 = totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) );
-                    chi2I8_new = chi2I8_new + sqrt(fitI8 * fitI8) / (ncharge_re - qthresh);
-                }
+        while(badcalI8_max > chi2_error){
+          if(badcalI8_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI8_re.erase(chargeArrI8_re.begin() + n_max);
+            totArrI8_re.erase(totArrI8_re.begin() + n_max);
+            totSigArrI8_re.erase(totSigArrI8_re.begin() + n_max);
+            chargeErrArrI8_re.erase(chargeErrArrI8_re.begin() + n_max);
+            totErrArrI8_re.erase(totErrArrI8_re.begin() + n_max);
+            totSigErrArrI8_re.erase(totSigErrArrI8_re.begin() + n_max);
+
+            TGraphErrors grTotI8(ncharge_re, &chargeArrI8_re[0], &totArrI8_re[0], &chargeErrArrI8_re[0], &totErrArrI8_re[0]);
+            grTotI8.SetName(modName+"__grTotI8");
+            TGraphErrors grTotSigI8(ncharge_re, &chargeArrI8_re[0], &totSigArrI8_re[0], &chargeErrArrI8_re[0], &totSigErrArrI8_re[0]);
+            grTotSigI8.SetName(modName+"__grTotSigI8");
+            TF1 f1TotI8("f1TotI8",funcTot, FitStartingPoint, chargeArrI8_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI8("f1DispI8",funcDisp, FitStartingPoint, chargeArrI8_re[ncharge_re-1]+100, 2);
+            grTotI8.Fit(&f1TotI8,"MRQ");
+            grTotSigI8.Fit(&f1DispI8,"MRQ");
+            parAI8 = f1TotI8.GetParameter(0);
+            parEI8 = f1TotI8.GetParameter(1);
+            parCI8 = f1TotI8.GetParameter(2);
+            parP0I8 = f1DispI8.GetParameter(0);
+            parP1I8 = f1DispI8.GetParameter(1);
+            
+            for(int i = qthresh; i < ncharge; i++){ badcalI8[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI8[i] = abs( 1 - ( (parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8) ) / chargeArrI8_re[i] );
+            }
+            badcalI8_max = *max_element(badcalI8, badcalI8 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I9_new > chi2_error){
-            if(chi2I9_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI9_re.erase(chargeArrI9_re.begin() + n_max);
-                totArrI9_re.erase(totArrI9_re.begin() + n_max);
-                totSigArrI9_re.erase(totSigArrI9_re.begin() + n_max);
-                chargeErrArrI9_re.erase(chargeErrArrI9_re.begin() + n_max);
-                totErrArrI9_re.erase(totErrArrI9_re.begin() + n_max);
-                totSigErrArrI9_re.erase(totSigErrArrI9_re.begin() + n_max);
-
-                TGraphErrors grTotI9(ncharge_re, &chargeArrI9_re[0], &totArrI9_re[0], &chargeErrArrI9_re[0], &totErrArrI9_re[0]);
-                grTotI9.SetName(modName+"__grTotI9");
-                TGraphErrors grTotSigI9(ncharge_re, &chargeArrI9_re[0], &totSigArrI9_re[0], &chargeErrArrI9_re[0], &totSigErrArrI9_re[0]);
-                grTotSigI9.SetName(modName+"__grTotSigI9");
-                TF1 f1TotI9("f1TotI9",funcTot, FitStartingPoint, chargeArrI9_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI9("f1DispI9",funcDisp, FitStartingPoint, chargeArrI9_re[ncharge_re-1]+100, 2);
-                grTotI9.Fit(&f1TotI9,"MRQ");
-                grTotSigI9.Fit(&f1DispI9,"MRQ");
-                parAI9 = f1TotI9.GetParameter(0);
-                parEI9 = f1TotI9.GetParameter(1);
-                parCI9 = f1TotI9.GetParameter(2);
-                parP0I9 = f1DispI9.GetParameter(0);
-                parP1I9 = f1DispI9.GetParameter(1);
-
-                chi2I9_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI9 = totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) );
-                    chi2I9_new = chi2I9_new + sqrt(fitI9 * fitI9) / (ncharge_re - qthresh);
-                }
+        while(badcalI9_max > chi2_error){
+          if(badcalI9_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI9_re.erase(chargeArrI9_re.begin() + n_max);
+            totArrI9_re.erase(totArrI9_re.begin() + n_max);
+            totSigArrI9_re.erase(totSigArrI9_re.begin() + n_max);
+            chargeErrArrI9_re.erase(chargeErrArrI9_re.begin() + n_max);
+            totErrArrI9_re.erase(totErrArrI9_re.begin() + n_max);
+            totSigErrArrI9_re.erase(totSigErrArrI9_re.begin() + n_max);
+
+            TGraphErrors grTotI9(ncharge_re, &chargeArrI9_re[0], &totArrI9_re[0], &chargeErrArrI9_re[0], &totErrArrI9_re[0]);
+            grTotI9.SetName(modName+"__grTotI9");
+            TGraphErrors grTotSigI9(ncharge_re, &chargeArrI9_re[0], &totSigArrI9_re[0], &chargeErrArrI9_re[0], &totSigErrArrI9_re[0]);
+            grTotSigI9.SetName(modName+"__grTotSigI9");
+            TF1 f1TotI9("f1TotI9",funcTot, FitStartingPoint, chargeArrI9_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI9("f1DispI9",funcDisp, FitStartingPoint, chargeArrI9_re[ncharge_re-1]+100, 2);
+            grTotI9.Fit(&f1TotI9,"MRQ");
+            grTotSigI9.Fit(&f1DispI9,"MRQ");
+            parAI9 = f1TotI9.GetParameter(0);
+            parEI9 = f1TotI9.GetParameter(1);
+            parCI9 = f1TotI9.GetParameter(2);
+            parP0I9 = f1DispI9.GetParameter(0);
+            parP1I9 = f1DispI9.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI9[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI9[i] = abs( 1 - ( (parAI9 * parEI9 - parCI9 * totArrI9_re[i]) / (totArrI9_re[i] - parAI9) ) / chargeArrI9_re[i] );
+            }
+            badcalI9_max = *max_element(badcalI9, badcalI9 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I10_new > chi2_error){
-            if(chi2I10_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI10_re.erase(chargeArrI10_re.begin() + n_max);
-                totArrI10_re.erase(totArrI10_re.begin() + n_max);
-                totSigArrI10_re.erase(totSigArrI10_re.begin() + n_max);
-                chargeErrArrI10_re.erase(chargeErrArrI10_re.begin() + n_max);
-                totErrArrI10_re.erase(totErrArrI10_re.begin() + n_max);
-                totSigErrArrI10_re.erase(totSigErrArrI10_re.begin() + n_max);
-
-                TGraphErrors grTotI10(ncharge_re, &chargeArrI10_re[0], &totArrI10_re[0], &chargeErrArrI10_re[0], &totErrArrI10_re[0]);
-                grTotI10.SetName(modName+"__grTotI10");
-                TGraphErrors grTotSigI10(ncharge_re, &chargeArrI10_re[0], &totSigArrI10_re[0], &chargeErrArrI10_re[0], &totSigErrArrI10_re[0]);
-                grTotSigI10.SetName(modName+"__grTotSigI10");
-                TF1 f1TotI10("f1TotI10",funcTot, FitStartingPoint, chargeArrI10_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI10("f1DispI10",funcDisp, FitStartingPoint, chargeArrI10_re[ncharge_re-1]+100, 2);
-                grTotI10.Fit(&f1TotI10,"MRQ");
-                grTotSigI10.Fit(&f1DispI10,"MRQ");
-                parAI10 = f1TotI10.GetParameter(0);
-                parEI10 = f1TotI10.GetParameter(1);
-                parCI10 = f1TotI10.GetParameter(2);
-                parP0I10 = f1DispI10.GetParameter(0);
-                parP1I10 = f1DispI10.GetParameter(1);
-
-                chi2I10_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI10 = totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) );
-                    chi2I10_new = chi2I10_new + sqrt(fitI10 * fitI10) / (ncharge_re - qthresh);
-                }
+        while(badcalI10_max > chi2_error){
+          if(badcalI10_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI10_re.erase(chargeArrI10_re.begin() + n_max);
+            totArrI10_re.erase(totArrI10_re.begin() + n_max);
+            totSigArrI10_re.erase(totSigArrI10_re.begin() + n_max);
+            chargeErrArrI10_re.erase(chargeErrArrI10_re.begin() + n_max);
+            totErrArrI10_re.erase(totErrArrI10_re.begin() + n_max);
+            totSigErrArrI10_re.erase(totSigErrArrI10_re.begin() + n_max);
+
+            TGraphErrors grTotI10(ncharge_re, &chargeArrI10_re[0], &totArrI10_re[0], &chargeErrArrI10_re[0], &totErrArrI10_re[0]);
+            grTotI10.SetName(modName+"__grTotI10");
+            TGraphErrors grTotSigI10(ncharge_re, &chargeArrI10_re[0], &totSigArrI10_re[0], &chargeErrArrI10_re[0], &totSigErrArrI10_re[0]);
+            grTotSigI10.SetName(modName+"__grTotSigI10");
+            TF1 f1TotI10("f1TotI10",funcTot, FitStartingPoint, chargeArrI10_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI10("f1DispI10",funcDisp, FitStartingPoint, chargeArrI10_re[ncharge_re-1]+100, 2);
+            grTotI10.Fit(&f1TotI10,"MRQ");
+            grTotSigI10.Fit(&f1DispI10,"MRQ");
+            parAI10 = f1TotI10.GetParameter(0);
+            parEI10 = f1TotI10.GetParameter(1);
+            parCI10 = f1TotI10.GetParameter(2);
+            parP0I10 = f1DispI10.GetParameter(0);
+            parP1I10 = f1DispI10.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI10[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI10[i] = abs( 1 - ( (parAI10 * parEI10 - parCI10 * totArrI10_re[i]) / (totArrI10_re[i] - parAI10) ) / chargeArrI10_re[i] );
+            }
+            badcalI10_max = *max_element(badcalI10, badcalI10 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I11_new > chi2_error){
-            if(chi2I11_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI11_re.erase(chargeArrI11_re.begin() + n_max);
-                totArrI11_re.erase(totArrI11_re.begin() + n_max);
-                totSigArrI11_re.erase(totSigArrI11_re.begin() + n_max);
-                chargeErrArrI11_re.erase(chargeErrArrI11_re.begin() + n_max);
-                totErrArrI11_re.erase(totErrArrI11_re.begin() + n_max);
-                totSigErrArrI11_re.erase(totSigErrArrI11_re.begin() + n_max);
-
-                TGraphErrors grTotI11(ncharge_re, &chargeArrI11_re[0], &totArrI11_re[0], &chargeErrArrI11_re[0], &totErrArrI11_re[0]);
-                grTotI11.SetName(modName+"__grTotI11");
-                TGraphErrors grTotSigI11(ncharge_re, &chargeArrI11_re[0], &totSigArrI11_re[0], &chargeErrArrI11_re[0], &totSigErrArrI11_re[0]);
-                grTotSigI11.SetName(modName+"__grTotSigI11");
-                TF1 f1TotI11("f1TotI11",funcTot, FitStartingPoint, chargeArrI11_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI11("f1DispI11",funcDisp, FitStartingPoint, chargeArrI11_re[ncharge_re-1]+100, 2);
-                grTotI11.Fit(&f1TotI11,"MRQ");
-                grTotSigI11.Fit(&f1DispI11,"MRQ");
-                parAI11 = f1TotI11.GetParameter(0);
-                parEI11 = f1TotI11.GetParameter(1);
-                parCI11 = f1TotI11.GetParameter(2);
-                parP0I11 = f1DispI11.GetParameter(0);
-                parP1I11 = f1DispI11.GetParameter(1);
-
-                chi2I11_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI11 = totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) );
-                    chi2I11_new = chi2I11_new + sqrt(fitI11 * fitI11) / (ncharge_re - qthresh);
-                }
+        while(badcalI11_max > chi2_error){
+          if(badcalI11_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI11_re.erase(chargeArrI11_re.begin() + n_max);
+            totArrI11_re.erase(totArrI11_re.begin() + n_max);
+            totSigArrI11_re.erase(totSigArrI11_re.begin() + n_max);
+            chargeErrArrI11_re.erase(chargeErrArrI11_re.begin() + n_max);
+            totErrArrI11_re.erase(totErrArrI11_re.begin() + n_max);
+            totSigErrArrI11_re.erase(totSigErrArrI11_re.begin() + n_max);
+
+            TGraphErrors grTotI11(ncharge_re, &chargeArrI11_re[0], &totArrI11_re[0], &chargeErrArrI11_re[0], &totErrArrI11_re[0]);
+            grTotI11.SetName(modName+"__grTotI11");
+            TGraphErrors grTotSigI11(ncharge_re, &chargeArrI11_re[0], &totSigArrI11_re[0], &chargeErrArrI11_re[0], &totSigErrArrI11_re[0]);
+            grTotSigI11.SetName(modName+"__grTotSigI11");
+            TF1 f1TotI11("f1TotI11",funcTot, FitStartingPoint, chargeArrI11_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI11("f1DispI11",funcDisp, FitStartingPoint, chargeArrI11_re[ncharge_re-1]+100, 2);
+            grTotI11.Fit(&f1TotI11,"MRQ");
+            grTotSigI11.Fit(&f1DispI11,"MRQ");
+            parAI11 = f1TotI11.GetParameter(0);
+            parEI11 = f1TotI11.GetParameter(1);
+            parCI11 = f1TotI11.GetParameter(2);
+            parP0I11 = f1DispI11.GetParameter(0);
+            parP1I11 = f1DispI11.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI11[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI11[i] = abs( 1 - ( (parAI11 * parEI11 - parCI11 * totArrI11_re[i]) / (totArrI11_re[i] - parAI11) ) / chargeArrI11_re[i] );
+            }
+            badcalI11_max = *max_element(badcalI11, badcalI11 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I12_new > chi2_error){
-            if(chi2I12_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI12_re.erase(chargeArrI12_re.begin() + n_max);
-                totArrI12_re.erase(totArrI12_re.begin() + n_max);
-                totSigArrI12_re.erase(totSigArrI12_re.begin() + n_max);
-                chargeErrArrI12_re.erase(chargeErrArrI12_re.begin() + n_max);
-                totErrArrI12_re.erase(totErrArrI12_re.begin() + n_max);
-                totSigErrArrI12_re.erase(totSigErrArrI12_re.begin() + n_max);
-
-                TGraphErrors grTotI12(ncharge_re, &chargeArrI12_re[0], &totArrI12_re[0], &chargeErrArrI12_re[0], &totErrArrI12_re[0]);
-                grTotI12.SetName(modName+"__grTotI12");
-                TGraphErrors grTotSigI12(ncharge_re, &chargeArrI12_re[0], &totSigArrI12_re[0], &chargeErrArrI12_re[0], &totSigErrArrI12_re[0]);
-                grTotSigI12.SetName(modName+"__grTotSigI12");
-                TF1 f1TotI12("f1TotI12",funcTot, FitStartingPoint, chargeArrI12_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI12("f1DispI12",funcDisp, FitStartingPoint, chargeArrI12_re[ncharge_re-1]+100, 2);
-                grTotI12.Fit(&f1TotI12,"MRQ");
-                grTotSigI12.Fit(&f1DispI12,"MRQ");
-                parAI12 = f1TotI12.GetParameter(0);
-                parEI12 = f1TotI12.GetParameter(1);
-                parCI12 = f1TotI12.GetParameter(2);
-                parP0I12 = f1DispI12.GetParameter(0);
-                parP1I12 = f1DispI12.GetParameter(1);
-
-                chi2I12_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI12 = totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) );
-                    chi2I12_new = chi2I12_new + sqrt(fitI12 * fitI12) / (ncharge_re - qthresh);
-                }
+        while(badcalI12_max > chi2_error){
+          if(badcalI12_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI12_re.erase(chargeArrI12_re.begin() + n_max);
+            totArrI12_re.erase(totArrI12_re.begin() + n_max);
+            totSigArrI12_re.erase(totSigArrI12_re.begin() + n_max);
+            chargeErrArrI12_re.erase(chargeErrArrI12_re.begin() + n_max);
+            totErrArrI12_re.erase(totErrArrI12_re.begin() + n_max);
+            totSigErrArrI12_re.erase(totSigErrArrI12_re.begin() + n_max);
+
+            TGraphErrors grTotI12(ncharge_re, &chargeArrI12_re[0], &totArrI12_re[0], &chargeErrArrI12_re[0], &totErrArrI12_re[0]);
+            grTotI12.SetName(modName+"__grTotI12");
+            TGraphErrors grTotSigI12(ncharge_re, &chargeArrI12_re[0], &totSigArrI12_re[0], &chargeErrArrI12_re[0], &totSigErrArrI12_re[0]);
+            grTotSigI12.SetName(modName+"__grTotSigI12");
+            TF1 f1TotI12("f1TotI12",funcTot, FitStartingPoint, chargeArrI12_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI12("f1DispI12",funcDisp, FitStartingPoint, chargeArrI12_re[ncharge_re-1]+100, 2);
+            grTotI12.Fit(&f1TotI12,"MRQ");
+            grTotSigI12.Fit(&f1DispI12,"MRQ");
+            parAI12 = f1TotI12.GetParameter(0);
+            parEI12 = f1TotI12.GetParameter(1);
+            parCI12 = f1TotI12.GetParameter(2);
+            parP0I12 = f1DispI12.GetParameter(0);
+            parP1I12 = f1DispI12.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI12[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI12[i] = abs( 1 - ( (parAI12 * parEI12 - parCI12 * totArrI12_re[i]) / (totArrI12_re[i] - parAI12) ) / chargeArrI12_re[i] );
+            }
+            badcalI12_max = *max_element(badcalI12, badcalI12 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I13_new > chi2_error){
-            if(chi2I13_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI13_re.erase(chargeArrI13_re.begin() + n_max);
-                totArrI13_re.erase(totArrI13_re.begin() + n_max);
-                totSigArrI13_re.erase(totSigArrI13_re.begin() + n_max);
-                chargeErrArrI13_re.erase(chargeErrArrI13_re.begin() + n_max);
-                totErrArrI13_re.erase(totErrArrI13_re.begin() + n_max);
-                totSigErrArrI13_re.erase(totSigErrArrI13_re.begin() + n_max);
-
-                TGraphErrors grTotI13(ncharge_re, &chargeArrI13_re[0], &totArrI13_re[0], &chargeErrArrI13_re[0], &totErrArrI13_re[0]);
-                grTotI13.SetName(modName+"__grTotI13");
-                TGraphErrors grTotSigI13(ncharge_re, &chargeArrI13_re[0], &totSigArrI13_re[0], &chargeErrArrI13_re[0], &totSigErrArrI13_re[0]);
-                grTotSigI13.SetName(modName+"__grTotSigI13");
-                TF1 f1TotI13("f1TotI13",funcTot, FitStartingPoint, chargeArrI13_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI13("f1DispI13",funcDisp, FitStartingPoint, chargeArrI13_re[ncharge_re-1]+100, 2);
-                grTotI13.Fit(&f1TotI13,"MRQ");
-                grTotSigI13.Fit(&f1DispI13,"MRQ");
-                parAI13 = f1TotI13.GetParameter(0);
-                parEI13 = f1TotI13.GetParameter(1);
-                parCI13 = f1TotI13.GetParameter(2);
-                parP0I13 = f1DispI13.GetParameter(0);
-                parP1I13 = f1DispI13.GetParameter(1);
-
-                chi2I13_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI13 = totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) );
-                    chi2I13_new = chi2I13_new + sqrt(fitI13 * fitI13) / (ncharge_re - qthresh);
-                }
+        while(badcalI13_max > chi2_error){
+          if(badcalI13_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI13_re.erase(chargeArrI13_re.begin() + n_max);
+            totArrI13_re.erase(totArrI13_re.begin() + n_max);
+            totSigArrI13_re.erase(totSigArrI13_re.begin() + n_max);
+            chargeErrArrI13_re.erase(chargeErrArrI13_re.begin() + n_max);
+            totErrArrI13_re.erase(totErrArrI13_re.begin() + n_max);
+            totSigErrArrI13_re.erase(totSigErrArrI13_re.begin() + n_max);
+
+            TGraphErrors grTotI13(ncharge_re, &chargeArrI13_re[0], &totArrI13_re[0], &chargeErrArrI13_re[0], &totErrArrI13_re[0]);
+            grTotI13.SetName(modName+"__grTotI13");
+            TGraphErrors grTotSigI13(ncharge_re, &chargeArrI13_re[0], &totSigArrI13_re[0], &chargeErrArrI13_re[0], &totSigErrArrI13_re[0]);
+            grTotSigI13.SetName(modName+"__grTotSigI13");
+            TF1 f1TotI13("f1TotI13",funcTot, FitStartingPoint, chargeArrI13_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI13("f1DispI13",funcDisp, FitStartingPoint, chargeArrI13_re[ncharge_re-1]+100, 2);
+            grTotI13.Fit(&f1TotI13,"MRQ");
+            grTotSigI13.Fit(&f1DispI13,"MRQ");
+            parAI13 = f1TotI13.GetParameter(0);
+            parEI13 = f1TotI13.GetParameter(1);
+            parCI13 = f1TotI13.GetParameter(2);
+            parP0I13 = f1DispI13.GetParameter(0);
+            parP1I13 = f1DispI13.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI13[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI13[i] = abs( 1 - ( (parAI13 * parEI13 - parCI13 * totArrI13_re[i]) / (totArrI13_re[i] - parAI13) ) / chargeArrI13_re[i] );
+            }
+            badcalI13_max = *max_element(badcalI13, badcalI13 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I14_new > chi2_error){
-            if(chi2I14_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI14_re.erase(chargeArrI14_re.begin() + n_max);
-                totArrI14_re.erase(totArrI14_re.begin() + n_max);
-                totSigArrI14_re.erase(totSigArrI14_re.begin() + n_max);
-                chargeErrArrI14_re.erase(chargeErrArrI14_re.begin() + n_max);
-                totErrArrI14_re.erase(totErrArrI14_re.begin() + n_max);
-                totSigErrArrI14_re.erase(totSigErrArrI14_re.begin() + n_max);
-
-                TGraphErrors grTotI14(ncharge_re, &chargeArrI14_re[0], &totArrI14_re[0], &chargeErrArrI14_re[0], &totErrArrI14_re[0]);
-                grTotI14.SetName(modName+"__grTotI14");
-                TGraphErrors grTotSigI14(ncharge_re, &chargeArrI14_re[0], &totSigArrI14_re[0], &chargeErrArrI14_re[0], &totSigErrArrI14_re[0]);
-                grTotSigI14.SetName(modName+"__grTotSigI14");
-                TF1 f1TotI14("f1TotI14",funcTot, FitStartingPoint, chargeArrI14_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI14("f1DispI14",funcDisp, FitStartingPoint, chargeArrI14_re[ncharge_re-1]+100, 2);
-                grTotI14.Fit(&f1TotI14,"MRQ");
-                grTotSigI14.Fit(&f1DispI14,"MRQ");
-                parAI14 = f1TotI14.GetParameter(0);
-                parEI14 = f1TotI14.GetParameter(1);
-                parCI14 = f1TotI14.GetParameter(2);
-                parP0I14 = f1DispI14.GetParameter(0);
-                parP1I14 = f1DispI14.GetParameter(1);
-
-                chi2I14_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI14 = totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) );
-                    chi2I14_new = chi2I14_new + sqrt(fitI14 * fitI14) / (ncharge_re - qthresh);
-                }
+        while(badcalI14_max > chi2_error){
+          if(badcalI14_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI14_re.erase(chargeArrI14_re.begin() + n_max);
+            totArrI14_re.erase(totArrI14_re.begin() + n_max);
+            totSigArrI14_re.erase(totSigArrI14_re.begin() + n_max);
+            chargeErrArrI14_re.erase(chargeErrArrI14_re.begin() + n_max);
+            totErrArrI14_re.erase(totErrArrI14_re.begin() + n_max);
+            totSigErrArrI14_re.erase(totSigErrArrI14_re.begin() + n_max);
+
+            TGraphErrors grTotI14(ncharge_re, &chargeArrI14_re[0], &totArrI14_re[0], &chargeErrArrI14_re[0], &totErrArrI14_re[0]);
+            grTotI14.SetName(modName+"__grTotI14");
+            TGraphErrors grTotSigI14(ncharge_re, &chargeArrI14_re[0], &totSigArrI14_re[0], &chargeErrArrI14_re[0], &totSigErrArrI14_re[0]);
+            grTotSigI14.SetName(modName+"__grTotSigI14");
+            TF1 f1TotI14("f1TotI14",funcTot, FitStartingPoint, chargeArrI14_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI14("f1DispI14",funcDisp, FitStartingPoint, chargeArrI14_re[ncharge_re-1]+100, 2);
+            grTotI14.Fit(&f1TotI14,"MRQ");
+            grTotSigI14.Fit(&f1DispI14,"MRQ");
+            parAI14 = f1TotI14.GetParameter(0);
+            parEI14 = f1TotI14.GetParameter(1);
+            parCI14 = f1TotI14.GetParameter(2);
+            parP0I14 = f1DispI14.GetParameter(0);
+            parP1I14 = f1DispI14.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI14[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI14[i] = abs( 1 - ( (parAI14 * parEI14 - parCI14 * totArrI14_re[i]) / (totArrI14_re[i] - parAI14) ) / chargeArrI14_re[i] );
+            }
+            badcalI14_max = *max_element(badcalI14, badcalI14 + ncharge_re);
+          }
         }
 
         ncharge_re = ncharge;
 
-        while(chi2I15_new > chi2_error){
-            if(chi2I15_new < chi2_error){
-                break;
-            }else{
-                std::vector<Double_t> find_max;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    find_max.push_back(pow(totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) ), 2.0));
-                }
-                std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
-                size_t n_max = std::distance(find_max.begin(), iter);
-
-                ncharge_re = ncharge_re - 1;
-                chargeArrI15_re.erase(chargeArrI15_re.begin() + n_max);
-                totArrI15_re.erase(totArrI15_re.begin() + n_max);
-                totSigArrI15_re.erase(totSigArrI15_re.begin() + n_max);
-                chargeErrArrI15_re.erase(chargeErrArrI15_re.begin() + n_max);
-                totErrArrI15_re.erase(totErrArrI15_re.begin() + n_max);
-                totSigErrArrI15_re.erase(totSigErrArrI15_re.begin() + n_max);
-
-                TGraphErrors grTotI15(ncharge_re, &chargeArrI15_re[0], &totArrI15_re[0], &chargeErrArrI15_re[0], &totErrArrI15_re[0]);
-                grTotI15.SetName(modName+"__grTotI15");
-                TGraphErrors grTotSigI15(ncharge_re, &chargeArrI15_re[0], &totSigArrI15_re[0], &chargeErrArrI15_re[0], &totSigErrArrI15_re[0]);
-                grTotSigI15.SetName(modName+"__grTotSigI15");
-                TF1 f1TotI15("f1TotI15",funcTot, FitStartingPoint, chargeArrI15_re[ncharge_re-1]+100, 3);
-                TF1 f1DispI15("f1DispI15",funcDisp, FitStartingPoint, chargeArrI15_re[ncharge_re-1]+100, 2);
-                grTotI15.Fit(&f1TotI15,"MRQ");
-                grTotSigI15.Fit(&f1DispI15,"MRQ");
-                parAI15 = f1TotI15.GetParameter(0);
-                parEI15 = f1TotI15.GetParameter(1);
-                parCI15 = f1TotI15.GetParameter(2);
-                parP0I15 = f1DispI15.GetParameter(0);
-                parP1I15 = f1DispI15.GetParameter(1);
-
-                chi2I15_new = 0;
-                for(int i = qthresh+1; i < ncharge_re; i++){
-                    float fitI15 = totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) );
-                    chi2I15_new = chi2I15_new + sqrt(fitI15 * fitI15) / (ncharge_re - qthresh);
-                }
+        while(badcalI15_max > chi2_error){
+          if(badcalI15_max < chi2_error){
+            break;
+          }else{
+            std::vector<Double_t> find_max;
+            for(int i = qthresh+1; i < ncharge_re; i++){
+              find_max.push_back(pow(totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) ), 2.0));
             }
+            std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
+            size_t n_max = std::distance(find_max.begin(), iter);
+
+            ncharge_re = ncharge_re - 1;
+            chargeArrI15_re.erase(chargeArrI15_re.begin() + n_max);
+            totArrI15_re.erase(totArrI15_re.begin() + n_max);
+            totSigArrI15_re.erase(totSigArrI15_re.begin() + n_max);
+            chargeErrArrI15_re.erase(chargeErrArrI15_re.begin() + n_max);
+            totErrArrI15_re.erase(totErrArrI15_re.begin() + n_max);
+            totSigErrArrI15_re.erase(totSigErrArrI15_re.begin() + n_max);
+
+            TGraphErrors grTotI15(ncharge_re, &chargeArrI15_re[0], &totArrI15_re[0], &chargeErrArrI15_re[0], &totErrArrI15_re[0]);
+            grTotI15.SetName(modName+"__grTotI15");
+            TGraphErrors grTotSigI15(ncharge_re, &chargeArrI15_re[0], &totSigArrI15_re[0], &chargeErrArrI15_re[0], &totSigErrArrI15_re[0]);
+            grTotSigI15.SetName(modName+"__grTotSigI15");
+            TF1 f1TotI15("f1TotI15",funcTot, FitStartingPoint, chargeArrI15_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI15("f1DispI15",funcDisp, FitStartingPoint, chargeArrI15_re[ncharge_re-1]+100, 2);
+            grTotI15.Fit(&f1TotI15,"MRQ");
+            grTotSigI15.Fit(&f1DispI15,"MRQ");
+            parAI15 = f1TotI15.GetParameter(0);
+            parEI15 = f1TotI15.GetParameter(1);
+            parCI15 = f1TotI15.GetParameter(2);
+            parP0I15 = f1DispI15.GetParameter(0);
+            parP1I15 = f1DispI15.GetParameter(1);
+
+            for(int i = qthresh; i < ncharge; i++){ badcalI15[i] = 0; }
+            for(int i = qthresh; i < ncharge_re; i++){
+              badcalI15[i] = abs( 1 - ( (parAI15 * parEI15 - parCI15 * totArrI15_re[i]) / (totArrI15_re[i] - parAI15) ) / chargeArrI15_re[i] );
+            }
+            badcalI15_max = *max_element(badcalI15, badcalI15 + ncharge_re);
+          }
         }
 
         std::cout << modStr << std::endl;
-        std::cout << "I0 " 
+        std::cout << "I0 "
           << int(pcdMap[modStr]["I0"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsNorm"]) << " "
           << int(pcdMap[modStr]["I0"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I0"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I0"]["ThrLong"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsLong"]) << " "
@@ -2796,7 +2790,6 @@ void PixelCalib() {
           << parAI0 << " " << parEI0 << " " << parCI0 << " "
           << parLongAI0 << " " << parLongEI0 << " " << parLongCI0 << " "
           << parP0I0 << " " << parP1I0
-          << " " << chi2I0_new
           << std::endl;
 
         std::cout << "I1 "
@@ -2809,7 +2802,6 @@ void PixelCalib() {
           << parAI1 << " " << parEI1 << " " << parCI1 << " "
           << parLongAI1 << " " << parLongEI1 << " " << parLongCI1 << " "
           << parP0I1 << " " << parP1I1
-          << " " << chi2I1_new
           << std::endl;
 
         std::cout << "I2 "
@@ -2822,7 +2814,6 @@ void PixelCalib() {
           << parAI2 << " " << parEI2 << " " << parCI2 << " "
           << parLongAI2 << " " << parLongEI2 << " " << parLongCI2 << " "
           << parP0I2 << " " << parP1I2
-          << " " << chi2I2_new
           << std::endl;
 
         std::cout << "I3 "
@@ -2835,7 +2826,6 @@ void PixelCalib() {
           << parAI3 << " " << parEI3 << " " << parCI3 << " "
           << parLongAI3 << " " << parLongEI3 << " " << parLongCI3 << " "
           << parP0I3 << " " << parP1I3
-          << " " << chi2I3_new
           << std::endl;
 
         std::cout << "I4 "
@@ -2848,10 +2838,9 @@ void PixelCalib() {
           << parAI4 << " " << parEI4 << " " << parCI4 << " "
           << parLongAI4 << " " << parLongEI4 << " " << parLongCI4 << " "
           << parP0I4 << " " << parP1I4
-          << " " << chi2I4_new
           << std::endl;
 
-        std::cout << "I5 " 
+        std::cout << "I5 "
           << int(pcdMap[modStr]["I5"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I5"]["ThrRmsNorm"]) << " "
           << int(pcdMap[modStr]["I5"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I5"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I5"]["ThrLong"]) << " " << int(pcdMap[modStr]["I5"]["ThrRmsLong"]) << " "
@@ -2861,7 +2850,6 @@ void PixelCalib() {
           << parAI5 << " " << parEI5 << " " << parCI5 << " "
           << parLongAI5 << " " << parLongEI5 << " " << parLongCI5 << " "
           << parP0I5 << " " << parP1I5
-          << " " << chi2I5_new
           << std::endl;
 
         std::cout << "I6 "
@@ -2874,7 +2862,6 @@ void PixelCalib() {
           << parAI6 << " " << parEI6 << " " << parCI6 << " "
           << parLongAI6 << " " << parLongEI6 << " " << parLongCI6 << " "
           << parP0I6 << " " << parP1I6
-          << " " << chi2I6_new
           << std::endl;
 
         std::cout << "I7 "
@@ -2887,7 +2874,6 @@ void PixelCalib() {
           << parAI7 << " " << parEI7 << " " << parCI7 << " "
           << parLongAI7 << " " << parLongEI7 << " " << parLongCI7 << " "
           << parP0I7 << " " << parP1I7
-          << " " << chi2I7_new
           << std::endl;
 
         std::cout << "I8 "
@@ -2900,7 +2886,6 @@ void PixelCalib() {
           << parAI8 << " " << parEI8 << " " << parCI8 << " "
           << parLongAI8 << " " << parLongEI8 << " " << parLongCI8 << " "
           << parP0I8 << " " << parP1I8
-          << " " << chi2I8_new
           << std::endl;
 
         std::cout << "I9 "
@@ -2913,7 +2898,6 @@ void PixelCalib() {
           << parAI9 << " " << parEI9 << " " << parCI9 << " "
           << parLongAI9 << " " << parLongEI9 << " " << parLongCI9 << " "
           << parP0I9 << " " << parP1I9
-          << " " << chi2I9_new
           << std::endl;
 
         std::cout << "I10 "
@@ -2926,7 +2910,6 @@ void PixelCalib() {
           << parAI10 << " " << parEI10 << " " << parCI10 << " "
           << parLongAI10 << " " << parLongEI10 << " " << parLongCI10 << " "
           << parP0I10 << " " << parP1I10
-          << " " << chi2I10_new
           << std::endl;
 
         std::cout << "I11 "
@@ -2939,7 +2922,6 @@ void PixelCalib() {
           << parAI11 << " " << parEI11 << " " << parCI11 << " "
           << parLongAI11 << " " << parLongEI11 << " " << parLongCI11 << " "
           << parP0I11 << " " << parP1I11
-          << " " << chi2I11_new
           << std::endl;
 
         std::cout << "I12 "
@@ -2952,7 +2934,6 @@ void PixelCalib() {
           << parAI12 << " " << parEI12 << " " << parCI12 << " "
           << parLongAI12 << " " << parLongEI12 << " " << parLongCI12 << " "
           << parP0I12 << " " << parP1I12
-          << " " << chi2I12_new
           << std::endl;
 
         std::cout << "I13 "
@@ -2965,10 +2946,9 @@ void PixelCalib() {
           << parAI13 << " " << parEI13 << " " << parCI13 << " "
           << parLongAI13 << " " << parLongEI13 << " " << parLongCI13 << " "
           << parP0I13 << " " << parP1I13
-          << " " << chi2I13_new
           << std::endl;
 
-        std::cout << "I14 " 
+        std::cout << "I14 "
           << int(pcdMap[modStr]["I14"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I14"]["ThrRmsNorm"]) << " "
           << int(pcdMap[modStr]["I14"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I14"]["TimNorm"]) << " " 
           << int(pcdMap[modStr]["I14"]["ThrLong"]) << " " << int(pcdMap[modStr]["I14"]["ThrRmsLong"]) << " "
@@ -2978,7 +2958,6 @@ void PixelCalib() {
           << parAI14 << " " << parEI14 << " " << parCI14 << " "
           << parLongAI14 << " " << parLongEI14 << " " << parLongCI14 << " "
           << parP0I14 << " " << parP1I14
-          << " " << chi2I14_new
           << std::endl;
 
         std::cout << "I15 " //int(timMap[modStr]["I15"]["TimLong"])
@@ -2991,7 +2970,6 @@ void PixelCalib() {
           << parAI15 << " " << parEI15 << " " << parCI15 << " "
           << parLongAI15 << " " << parLongEI15 << " " << parLongCI15 << " "
           << parP0I15 << " " << parP1I15
-          << " " << chi2I15_new
           << std::endl;
 
         roTotDir->WriteTObject(&grTotI0);
@@ -3046,18 +3024,15 @@ void PixelCalib() {
         roTotDir->WriteTObject(&grTotLongI15);
       }
     }
-
     roTotDir->WriteTObject(&h1dTot7);
   }
-
-  TCanvas *chi2tot = new TCanvas("chi2tot");
-  h1Chi2Tot->Draw("histo");
-  chi2tot->Print("./Chi2Tot_10.pdf");
-
   roFile.Close();
-
+  fclose(outputfile);
 //  return 0;
 }
+
+
+
 //===========================================================
 // This getFEID method should not be used in the calibration
 // because the mapping convention is totally different between 
