@@ -35,6 +35,16 @@ double funcDisp(double* x, double* par) {
   return ret;
 }
 
+string getDatetodayStr() {
+  time_t t = time(nullptr);
+  const tm* localTime = localtime(&t);
+  std::stringstream s;
+  s << "20" << localTime->tm_year - 100;
+  s << setw(2) << setfill('0') << localTime->tm_mon + 1;
+  s << setw(2) << setfill('0') << localTime->tm_mday;
+  return s.str();
+}
+
 void PixelCalib() {
 
 
@@ -130,10 +140,13 @@ void PixelCalib() {
   TDirectory* roTotDir = roFile.mkdir("ToT");
 
   FILE *outputfile;
-  outputfile = fopen("summary.txt", "w");
-  if (outputfile == NULL) {          // オープンに失敗した場合
-    printf("cannot open\n");         // エラーメッセージを出して
-    exit(1);                         // 異常終了
+  std::string summaryName = getDatetodayStr();
+  summaryName += "_CalibSummary.dat";
+
+  outputfile = fopen(summaryName.c_str(), "w");
+  if (outputfile == NULL) {
+    printf("cannot open\n");
+    exit(1);                
   }
 
   if (!inThrFile.empty()) {
@@ -1817,9 +1830,6 @@ void PixelCalib() {
         float parLongP0I15 = f1DispLongI15.GetParameter(0);
         float parLongP1I15 = f1DispLongI15.GetParameter(1);
 
-        fprintf(outputfile, "%s", modStr.c_str());
-        fprintf(outputfile, "\n");
-
         float badcalI0[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float badcalI1[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         float badcalI2[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -1856,12 +1866,6 @@ void PixelCalib() {
             badcalI15[i] = abs( 1 - ( (parAI15 * parEI15 - parCI15 * totArrI15[i]) / (totArrI15[i] - parAI15) ) / chargeArr[i] );
         }
 
-        for (size_t i = 0; i < 10; i++)
-        {
-          fprintf(outputfile, "%f ", badcalI1[i]*100);
-        }
-        
-
         float badcalI0_max = *max_element(badcalI0, badcalI0 + ncharge);
         float badcalI1_max = *max_element(badcalI1, badcalI1 + ncharge);
         float badcalI2_max = *max_element(badcalI2, badcalI2 + ncharge);
@@ -1878,9 +1882,6 @@ void PixelCalib() {
         float badcalI13_max = *max_element(badcalI13, badcalI13 + ncharge);
         float badcalI14_max = *max_element(badcalI14, badcalI14 + ncharge);
         float badcalI15_max = *max_element(badcalI15, badcalI15 + ncharge);
-
-        fprintf(outputfile, "%f ", badcalI1_max*100);
-        fprintf(outputfile, "\n");
 
         std::vector<Double_t> chargeArrI0_re;
         std::vector<Double_t> chargeArrI1_re;
@@ -2090,18 +2091,52 @@ void PixelCalib() {
         }
 
         const double chi2_error = 0.05;
+        if(badcalI0_max > chi2_error){
+          TFile *fout = new TFile("graph_I0.root","recreate");
+          fout -> cd();
+          TCanvas *c30 = new TCanvas("c30");
+          TH1 *frame0 = c30->DrawFrame(0.0, 0.0, 45000, 60);
+          TF1 *f1Tot0  = new TF1("f1Tot0",  funcTot,  FitStartingPoint, chargeArr[ncharge-1]+100, 3);
+          TF1 *f1Disp0 = new TF1("f1Disp0", funcDisp, FitStartingPoint, chargeArr[ncharge-1]+100, 2);
+          TGraphErrors *grTot0 = new TGraphErrors(ncharge, chargeArr, totArrI0, chargeErrArr, totErrArrI0);
+          grTot0->SetMarkerStyle(20);
+          grTot0->SetMarkerSize(0.5);
+          grTot0->Draw("P");
+          f1Tot0->SetLineColor(kRed);
+          grTot0->Fit(f1Tot0);
+          grTot0->SetMarkerSize(1.0);
+          gStyle->SetStatX(0.93);
+          gStyle->SetStatY(0.93);
+          gStyle->SetOptFit();
+          c30->Print("./fitgraphNorm/"+modName+"_Norm_I0.pdf");
+          grTot0 ->Write();
+          fout -> Close();
+        }
+
+        fprintf(outputfile, "%s", modStr.c_str());
+        fprintf(outputfile, "\n");
+
         int ncharge_re = ncharge;
+        fprintf(outputfile, "I0: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI0_max > chi2_error){
           if(badcalI0_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI0_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI0_re.erase(chargeArrI0_re.begin() + n_max);
@@ -2125,26 +2160,37 @@ void PixelCalib() {
             parP0I0 = f1DispI0.GetParameter(0);
             parP1I0 = f1DispI0.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI0[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI0[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI0[i] = abs( 1 - ( (parAI0 * parEI0 - parCI0 * totArrI0_re[i]) / (totArrI0_re[i] - parAI0) ) / chargeArrI0_re[i] );
             }
             badcalI0_max = *max_element(badcalI0, badcalI0 + 10);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I1: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI1_max > chi2_error){
           if(badcalI1_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI1_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI1_re.erase(chargeArrI1_re.begin() + n_max);
@@ -2168,26 +2214,37 @@ void PixelCalib() {
             parP0I1 = f1DispI1.GetParameter(0);
             parP1I1 = f1DispI1.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI1[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI1[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI1[i] = abs( 1 - ( (parAI1 * parEI1 - parCI1 * totArrI1_re[i]) / (totArrI1_re[i] - parAI1) ) / chargeArrI1_re[i]) ;
             }
             badcalI1_max = *max_element(badcalI1, badcalI1 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I2: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI2_max > chi2_error){
           if(badcalI2_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI2_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI2_re.erase(chargeArrI2_re.begin() + n_max);
@@ -2211,7 +2268,7 @@ void PixelCalib() {
             parP0I2 = f1DispI2.GetParameter(0);
             parP1I2 = f1DispI2.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI2[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI2[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI2[i] = abs( 1 - ( (parAI2 * parEI2 - parCI2 * totArrI2_re[i]) / (totArrI2_re[i] - parAI2) ) / chargeArrI2_re[i] );
             }
@@ -2219,19 +2276,30 @@ void PixelCalib() {
             if( badcalI2_max > 5000){badcalI2_max = -10;}
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I3: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI3_max > chi2_error){
           if(badcalI3_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI3_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI3_re.erase(chargeArrI3_re.begin() + n_max);
@@ -2255,26 +2323,37 @@ void PixelCalib() {
             parP0I3 = f1DispI3.GetParameter(0);
             parP1I3 = f1DispI3.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI3[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI3[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI3[i] = abs( 1 - ( (parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3) ) / chargeArrI3_re[i] );
             }
             badcalI3_max = *max_element(badcalI3, badcalI3 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I4: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI4_max > chi2_error){
           if(badcalI4_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI4_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI4_re.erase(chargeArrI4_re.begin() + n_max);
@@ -2298,26 +2377,37 @@ void PixelCalib() {
             parP0I4 = f1DispI4.GetParameter(0);
             parP1I4 = f1DispI4.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI4[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI4[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI4[i] = abs( 1 - ( (parAI4 * parEI4 - parCI4 * totArrI4_re[i]) / (totArrI4_re[i] - parAI4) ) / chargeArrI4_re[i] );
             }
             badcalI4_max = *max_element(badcalI4, badcalI4 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I5: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI5_max > chi2_error){
           if(badcalI5_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI5_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI5_re.erase(chargeArrI5_re.begin() + n_max);
@@ -2341,26 +2431,37 @@ void PixelCalib() {
             parP0I5 = f1DispI5.GetParameter(0);
             parP1I5 = f1DispI5.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI5[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI5[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI5[i] = abs( 1 - ( (parAI5 * parEI5 - parCI5 * totArrI5_re[i]) / (totArrI5_re[i] - parAI5) ) / chargeArrI5_re[i] );
             }
             badcalI5_max = *max_element(badcalI5, badcalI5 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I6: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI6_max > chi2_error){
           if(badcalI6_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI6_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI6_re.erase(chargeArrI6_re.begin() + n_max);
@@ -2384,26 +2485,37 @@ void PixelCalib() {
             parP0I6 = f1DispI6.GetParameter(0);
             parP1I6 = f1DispI6.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI6[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI6[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI6[i] = abs( 1 - ( (parAI6 * parEI6 - parCI6 * totArrI6_re[i]) / (totArrI6_re[i] - parAI6) ) / chargeArrI6_re[i] );
             }
             badcalI6_max = *max_element(badcalI6, badcalI6 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I7: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI7_max > chi2_error){
           if(badcalI7_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI7_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI7_re.erase(chargeArrI7_re.begin() + n_max);
@@ -2427,26 +2539,37 @@ void PixelCalib() {
             parP0I7 = f1DispI7.GetParameter(0);
             parP1I7 = f1DispI7.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI7[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI7[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI7[i] = abs( 1 - ( (parAI7 * parEI7 - parCI7 * totArrI7_re[i]) / (totArrI7_re[i] - parAI7) ) / chargeArrI7_re[i] );
             }
             badcalI7_max = *max_element(badcalI7, badcalI7 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I8: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI8_max > chi2_error){
           if(badcalI8_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI8_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI8_re.erase(chargeArrI8_re.begin() + n_max);
@@ -2470,26 +2593,37 @@ void PixelCalib() {
             parP0I8 = f1DispI8.GetParameter(0);
             parP1I8 = f1DispI8.GetParameter(1);
             
-            for(int i = qthresh; i < ncharge; i++){ badcalI8[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI8[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI8[i] = abs( 1 - ( (parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8) ) / chargeArrI8_re[i] );
             }
             badcalI8_max = *max_element(badcalI8, badcalI8 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I9: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI9_max > chi2_error){
           if(badcalI9_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI9_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI9_re.erase(chargeArrI9_re.begin() + n_max);
@@ -2513,26 +2647,37 @@ void PixelCalib() {
             parP0I9 = f1DispI9.GetParameter(0);
             parP1I9 = f1DispI9.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI9[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI9[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI9[i] = abs( 1 - ( (parAI9 * parEI9 - parCI9 * totArrI9_re[i]) / (totArrI9_re[i] - parAI9) ) / chargeArrI9_re[i] );
             }
             badcalI9_max = *max_element(badcalI9, badcalI9 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I10: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI10_max > chi2_error){
           if(badcalI10_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI10_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI10_re.erase(chargeArrI10_re.begin() + n_max);
@@ -2556,26 +2701,37 @@ void PixelCalib() {
             parP0I10 = f1DispI10.GetParameter(0);
             parP1I10 = f1DispI10.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI10[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI10[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI10[i] = abs( 1 - ( (parAI10 * parEI10 - parCI10 * totArrI10_re[i]) / (totArrI10_re[i] - parAI10) ) / chargeArrI10_re[i] );
             }
             badcalI10_max = *max_element(badcalI10, badcalI10 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I11: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI11_max > chi2_error){
           if(badcalI11_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI11_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI11_re.erase(chargeArrI11_re.begin() + n_max);
@@ -2599,26 +2755,37 @@ void PixelCalib() {
             parP0I11 = f1DispI11.GetParameter(0);
             parP1I11 = f1DispI11.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI11[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI11[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI11[i] = abs( 1 - ( (parAI11 * parEI11 - parCI11 * totArrI11_re[i]) / (totArrI11_re[i] - parAI11) ) / chargeArrI11_re[i] );
             }
             badcalI11_max = *max_element(badcalI11, badcalI11 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I12: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI12_max > chi2_error){
           if(badcalI12_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI12_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI12_re.erase(chargeArrI12_re.begin() + n_max);
@@ -2642,26 +2809,37 @@ void PixelCalib() {
             parP0I12 = f1DispI12.GetParameter(0);
             parP1I12 = f1DispI12.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI12[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI12[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI12[i] = abs( 1 - ( (parAI12 * parEI12 - parCI12 * totArrI12_re[i]) / (totArrI12_re[i] - parAI12) ) / chargeArrI12_re[i] );
             }
             badcalI12_max = *max_element(badcalI12, badcalI12 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I13: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI13_max > chi2_error){
           if(badcalI13_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI13_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI13_re.erase(chargeArrI13_re.begin() + n_max);
@@ -2685,26 +2863,37 @@ void PixelCalib() {
             parP0I13 = f1DispI13.GetParameter(0);
             parP1I13 = f1DispI13.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI13[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI13[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI13[i] = abs( 1 - ( (parAI13 * parEI13 - parCI13 * totArrI13_re[i]) / (totArrI13_re[i] - parAI13) ) / chargeArrI13_re[i] );
             }
             badcalI13_max = *max_element(badcalI13, badcalI13 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I14: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI14_max > chi2_error){
           if(badcalI14_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI14_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI14_re.erase(chargeArrI14_re.begin() + n_max);
@@ -2728,26 +2917,37 @@ void PixelCalib() {
             parP0I14 = f1DispI14.GetParameter(0);
             parP1I14 = f1DispI14.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI14[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI14[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI14[i] = abs( 1 - ( (parAI14 * parEI14 - parCI14 * totArrI14_re[i]) / (totArrI14_re[i] - parAI14) ) / chargeArrI14_re[i] );
             }
             badcalI14_max = *max_element(badcalI14, badcalI14 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
 
         ncharge_re = ncharge;
+        fprintf(outputfile, "\n");
+        fprintf(outputfile, "I15: ");
+        fprintf(outputfile, "[ ");
 
         while(badcalI15_max > chi2_error){
           if(badcalI15_max < chi2_error){
             break;
           }else{
             std::vector<Double_t> find_max;
-            for(int i = qthresh+1; i < ncharge_re; i++){
-              find_max.push_back(pow(totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) ), 2.0));
+            for(int i = 0; i < ncharge_re; i++){
+              if( i < qthresh ){
+                find_max.push_back(0);
+              }else{
+                find_max.push_back(pow(totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) ), 2.0));
+              }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
+
+            fprintf(outputfile, "%f", chargeArrI15_re[n_max]);
+            fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
             chargeArrI15_re.erase(chargeArrI15_re.begin() + n_max);
@@ -2771,13 +2971,16 @@ void PixelCalib() {
             parP0I15 = f1DispI15.GetParameter(0);
             parP1I15 = f1DispI15.GetParameter(1);
 
-            for(int i = qthresh; i < ncharge; i++){ badcalI15[i] = 0; }
+            for(int i = 0; i < ncharge; i++){ badcalI15[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI15[i] = abs( 1 - ( (parAI15 * parEI15 - parCI15 * totArrI15_re[i]) / (totArrI15_re[i] - parAI15) ) / chargeArrI15_re[i] );
             }
             badcalI15_max = *max_element(badcalI15, badcalI15 + ncharge_re);
           }
         }
+        fprintf(outputfile, "]");
+
+        fprintf(outputfile, "\n");
 
         std::cout << modStr << std::endl;
         std::cout << "I0 "
