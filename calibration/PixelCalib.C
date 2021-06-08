@@ -141,7 +141,7 @@ void PixelCalib() {
 
   FILE *outputfile;
   std::string summaryName = getDatetodayStr();
-  summaryName += "_CalibSummary.dat";
+  summaryName += "_CalibSummary.txt";
 
   outputfile = fopen(summaryName.c_str(), "w");
   if (outputfile == NULL) {
@@ -2117,7 +2117,6 @@ void PixelCalib() {
         fprintf(outputfile, "\n");
 
         int ncharge_re = ncharge;
-        fprintf(outputfile, "I0: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI0_max > chi2_error){
@@ -2135,7 +2134,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI0_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI0_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2171,7 +2170,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I1: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI1_max > chi2_error){
@@ -2189,7 +2187,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI1_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI1_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2225,7 +2223,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I2: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI2_max > chi2_error){
@@ -2243,7 +2240,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI2_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI2_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2280,7 +2277,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I3: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI3_max > chi2_error){
@@ -2298,7 +2294,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI3_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI3_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2334,7 +2330,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I4: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI4_max > chi2_error){
@@ -2352,7 +2347,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI4_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI4_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2388,7 +2383,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I5: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI5_max > chi2_error){
@@ -2406,7 +2400,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI5_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI5_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2442,7 +2436,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I6: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI6_max > chi2_error){
@@ -2460,7 +2453,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI6_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI6_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2496,7 +2489,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I7: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI7_max > chi2_error){
@@ -2514,7 +2506,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI7_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI7_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2550,7 +2542,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I8: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI8_max > chi2_error){
@@ -2568,7 +2559,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI8_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI8_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2604,7 +2595,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I9: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI9_max > chi2_error){
@@ -2622,7 +2612,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI9_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI9_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2658,7 +2648,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I10: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI10_max > chi2_error){
@@ -2676,7 +2665,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI10_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI10_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2712,7 +2701,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I11: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI11_max > chi2_error){
@@ -2730,7 +2718,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI11_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI11_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2766,7 +2754,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I12: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI12_max > chi2_error){
@@ -2784,7 +2771,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI12_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI12_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2820,7 +2807,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I13: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI13_max > chi2_error){
@@ -2838,7 +2824,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI13_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI13_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2874,7 +2860,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I14: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI14_max > chi2_error){
@@ -2892,7 +2877,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI14_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI14_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
@@ -2928,7 +2913,6 @@ void PixelCalib() {
 
         ncharge_re = ncharge;
         fprintf(outputfile, "\n");
-        fprintf(outputfile, "I15: ");
         fprintf(outputfile, "[ ");
 
         while(badcalI15_max > chi2_error){
@@ -2946,7 +2930,7 @@ void PixelCalib() {
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
             size_t n_max = std::distance(find_max.begin(), iter);
 
-            fprintf(outputfile, "%f", chargeArrI15_re[n_max]);
+            fprintf(outputfile, "%d", (int) chargeArrI15_re[n_max]);
             fprintf(outputfile, " ");
 
             ncharge_re = ncharge_re - 1;
