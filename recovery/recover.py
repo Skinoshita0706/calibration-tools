@@ -52,17 +52,24 @@ def recover_diff(nth_FE, pixel_type, parameter, recover_list):
 test_data = open(input_data, "r")
 result    = open("partial_recover.dat","w+")
 
+path_to_summary = "./20210608_CalibSummary.txt" 
+
+summary   = open(path_to_summary, "r+")
+summary_line = summary.readlines()
+
+
 contents_part = test_data.read()
 test_data.close()
 elements_part = contents_part.splitlines()
 
-para_lists = {"normal" : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
-              "long"   : { "threshold" : [], "sigma" : [],  "noise" : [],  "intime" : [] },
-              "ganged" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
-              "inter_ganged" : { "noise" : []},
-              "fit_normal" : { "A" : [], "B" : [], "C" : [] },
-              "fit_longGanged" : { "A" : [], "B" : [], "C" : [] },
-              "quality/unused" : {"fit_quality" : [], "unused" : [] } }
+para_lists = {
+  "normal" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
+  "long"   : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
+  "ganged" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
+  "fit_normal" : { "A" : [], "B" : [], "C" : [] },
+  "fit_longGanged" : { "A" : [], "B" : [], "C" : [] },
+  "quality/unused" : {"fit_quality" : [], "unused" : [] }
+}
 
 recover_list = []
 
@@ -71,6 +78,9 @@ recover_list = []
 last = len(elements_part)
 head = 0
 module_num = 0
+
+n_line = 0
+
 print(last)
 
 while head < last:
@@ -82,7 +92,6 @@ while head < last:
   if not line.find("L") == 0 and not line.find("D") == 0:
     head += 1
     continue
-  print(head)
   # seek the tail of the block
   tail = head + 1
   while tail < last:
@@ -117,7 +126,40 @@ while head < last:
              "fit_normal" : { "A" : float(s[13]), "B" : float(s[14]), "C" : float(s[15]) },
              "fit_longGanged" : { "A" : float(s[16]), "B" : float(s[17]), "C" : float(s[18]) },
              "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
-             for s in splitted]
+             for s in splitted ]
+
+  data_summary = [ {
+    "normal" : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : ""  },
+    "long"   : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : ""  },
+    "ganged" : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : "" },
+    "fit_normal" : { "A" : "", "B" : "", "C" : "" },
+    "fit_longGanged" : { "A": "", "B": "", "C": "" },
+    "quality/unused" : {"fit_quality" : "", "unused" : "" } }
+    for s in splitted ]
+
+  for i in range(len(data)):
+    summary_text = ""
+    check_fe = 0
+    n_insert = head + i -7
+
+    pixtypes = data[i].keys()
+    for pixtype in pixtypes:
+      if pixtype == "FE":
+        continue
+      else:
+        parameters = data[i][pixtype].keys()
+        for parameter in parameters:
+          if data[i][pixtype][parameter] == 0 or data[i][pixtype][parameter] == -28284.3:
+            check_fe = check_fe + 1
+            summary_text = summary_text + pixtype + " " + parameter + ", "
+
+    if check_fe == 20:
+      summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
+    else:
+      summary_line[n_insert] = "I" + str(i) + ": [ Missing " + summary_text[:-2] + " ], " + summary_line[n_insert] 
+
+  
+
 
   for s in splitted:
     for i in range(len(s)):
@@ -224,7 +266,7 @@ def diffmodule(n_module, n_FE, pixel_type, para_type):
 
 partial_rec  = open("partial_recover.dat","r")
 all_recover  = open(output_data, "w")
-contents_all = pertial_rec.read() 
+contents_all = partial_rec.read() 
 elements_all = contents_all.splitlines()
 
 
@@ -301,8 +343,15 @@ while head2 < last2:
 
 all_recover.close()
 
+with open(path_to_summary, mode='w') as f:
+  f.writelines(summary_line)
+
+
 # delete partial_recover.dat
 os.remove("partial_recover.dat")
 
 print('number of "0" =', error_num)
 print( "processing done." )
+
+
+
