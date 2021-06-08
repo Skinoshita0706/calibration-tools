@@ -4,6 +4,7 @@ import csv
 import sys
 import math
 import os
+import datetime
 
 input_data  = sys.argv[1]
 output_data = sys.argv[2]
@@ -52,7 +53,10 @@ def recover_diff(nth_FE, pixel_type, parameter, recover_list):
 test_data = open(input_data, "r")
 result    = open("partial_recover.dat","w+")
 
-path_to_summary = "./20210608_CalibSummary.txt" 
+today_date = datetime.datetime.now()
+today = today_date.strftime( '%Y%m%d' )
+print(today)
+path_to_summary = "./" + today + "_CalibSummary.txt" 
 
 summary   = open(path_to_summary, "r+")
 summary_line = summary.readlines()
@@ -72,7 +76,7 @@ para_lists = {
 }
 
 recover_list = []
-
+module_list = []
 
 # parsing data file
 last = len(elements_part)
@@ -107,6 +111,7 @@ while head < last:
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
   module = elements_part[head]
   print( "processing module", module )
+  module_list.append(module)
   
   # rawBlock is the block lines, corresponding to each Pixel Module
   # for IBL, there are either 2 or 1 FEs
@@ -128,19 +133,10 @@ while head < last:
              "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
              for s in splitted ]
 
-  data_summary = [ {
-    "normal" : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : ""  },
-    "long"   : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : ""  },
-    "ganged" : { "threshold" : "", "sigma" : "", "noise" : "", "intime" : "" },
-    "fit_normal" : { "A" : "", "B" : "", "C" : "" },
-    "fit_longGanged" : { "A": "", "B": "", "C": "" },
-    "quality/unused" : {"fit_quality" : "", "unused" : "" } }
-    for s in splitted ]
-
   for i in range(len(data)):
     summary_text = ""
     check_fe = 0
-    n_insert = head + i -7
+    n_insert = head + i - 7
 
     pixtypes = data[i].keys()
     for pixtype in pixtypes:
@@ -157,8 +153,6 @@ while head < last:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
     else:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing " + summary_text[:-2] + " ], " + summary_line[n_insert] 
-
-  
 
 
   for s in splitted:
@@ -245,6 +239,7 @@ while head < last:
 
 result.close()
 
+print(module_list)
 # end of while head < last
 
 
