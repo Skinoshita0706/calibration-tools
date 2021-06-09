@@ -55,7 +55,6 @@ result    = open("partial_recover.dat","w+")
 
 today_date = datetime.datetime.now()
 today = today_date.strftime( '%Y%m%d' )
-print(today)
 path_to_summary = "./" + today + "_CalibSummary.txt" 
 
 summary   = open(path_to_summary, "r+")
@@ -106,7 +105,6 @@ while head < last:
       tail += 1
 
   module_num +=1
-#  print(module_num)
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
   module = elements_part[head]
@@ -239,7 +237,6 @@ while head < last:
 
 result.close()
 
-print(module_list)
 # end of while head < last
 
 
@@ -247,20 +244,18 @@ print(module_list)
 
 #....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-def diffmodule(n_module, n_FE, pixel_type, para_type):
+def diffmodule(data_diff, n_FE, pixel_type, para_type):
   recover = data2[n_FE][pixel_type][para_type]
-  if n_module != 1:
-    n_module = n_module - 2
   if recover == 0.0:
-    recover = sum(para_lists[pixel_type][para_type][n_module])/len(para_lists[pixel_type][para_type][n_module])
+    recover = data_diff[n_FE][pixel_type][para_type]
+#    recover = 0
   return float('%.6g' % recover)
 
 #....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 
-
-partial_rec  = open("partial_recover.dat","r")
 all_recover  = open(output_data, "w")
+partial_rec  = open("partial_recover.dat","r")
 contents_all = partial_rec.read() 
 elements_all = contents_all.splitlines()
 
@@ -268,7 +263,6 @@ elements_all = contents_all.splitlines()
 # parsing data file
 last2 = len(elements_all)
 head2 = 0
-module_num2 = 0
 
 print(len(elements_all))
 
@@ -289,9 +283,6 @@ while head2 < last2:
       break
     else:
       tail2 += 1
-
-  module_num2 +=1
-#  print(module_num2)
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
   module2 = elements_all[head2]
@@ -317,26 +308,150 @@ while head2 < last2:
              "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
              for s in splitted2]
 
+  diff_rec  = open("template.dat","r")
+  contents_diff = diff_rec.read() 
+  elements_diff = contents_diff.splitlines()
+  # parsing data file
+  last_diff = len(elements_diff)
+  head_diff = 0
+  while head_diff < last_diff:
+    line_diff = elements_diff[head_diff]
+    # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
+    if not line_diff.find("L") == 0 and not line_diff.find("D") == 0:
+      head_diff += 1
+      continue
+    # seek the tail of the block
+    tail_diff = head_diff + 1
+  
+    while tail_diff < last_diff:
+      tmp_diff = elements_diff[tail_diff]
+      if tmp_diff.find("L") == 0 or tmp_diff.find("D") == 0 or tail_diff == last_diff:
+        break
+      else:
+        tail_diff += 1
+    
+    # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
+    module_diff = elements_diff[head_diff]
+    if module_diff == module2:
+      rowBlock_diff = elements_diff[head_diff+1:tail_diff]
+      # split each line of the block
+      splitted_diff = [ line_diff.split() for line_diff in rowBlock_diff ] 
+      data_diff = [ { "FE" : s[0],
+                      "normal" : { "threshold" : float(s[1]), "sigma" : float(s[2]),  "noise" : float(s[3]),  "intime" : float(s[4])  },
+                      "long"   : { "threshold" : float(s[5]), "sigma" : float(s[6]),  "noise" : float(s[7]),  "intime" : float(s[8])  },
+                      "ganged" : { "threshold" : float(s[9]), "sigma" : float(s[10]), "noise" : float(s[11]), "intime" : float(s[12]) },
+                      "fit_normal" : { "A" : float(s[13]), "B" : float(s[14]), "C" : float(s[15]) },
+                      "fit_longGanged" : { "A" : float(s[16]), "B" : float(s[17]), "C" : float(s[18]) },
+                      "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
+                      for s in splitted_diff] 
+      break
+    head_diff = tail_diff
+
   data_recover_all = [[splitted[i][0],
-                    diffmodule(module_num2, i, "normal", "threshold"), diffmodule(module_num2, i, "normal", "sigma"), diffmodule(module_num2, i, "normal", "noise"), diffmodule(module_num2, i, "normal", "intime"),
-                    diffmodule(module_num2, i, "long", "threshold"),   diffmodule(module_num2, i, "long", "sigma"),   diffmodule(module_num2, i, "long", "noise"),   diffmodule(module_num2, i, "long", "intime"),
-                    diffmodule(module_num2, i, "ganged", "threshold"), diffmodule(module_num2, i, "ganged", "sigma"), diffmodule(module_num2, i, "ganged", "noise"), diffmodule(module_num2, i, "ganged", "intime"),
-                    diffmodule(module_num2, i, "fit_normal", "A"),     diffmodule(module_num2, i, "fit_normal", "B"),     diffmodule(module_num2, i, "fit_normal", "C"),
-                    diffmodule(module_num2, i, "fit_longGanged", "A"), diffmodule(module_num2, i, "fit_longGanged", "B"), diffmodule(module_num2, i, "fit_longGanged", "C"),
-                    diffmodule(module_num2, i, "quality/unused", "fit_quality"), diffmodule(module_num2, i, "quality/unused", "unused")] 
+                    diffmodule(data_diff, i, "normal", "threshold"), diffmodule(data_diff, i, "normal", "sigma"), diffmodule(data_diff, i, "normal", "noise"), diffmodule(data_diff, i, "normal", "intime"),
+                    diffmodule(data_diff, i, "long", "threshold"),   diffmodule(data_diff, i, "long", "sigma"),   diffmodule(data_diff, i, "long", "noise"),   diffmodule(data_diff, i, "long", "intime"),
+                    diffmodule(data_diff, i, "ganged", "threshold"), diffmodule(data_diff, i, "ganged", "sigma"), diffmodule(data_diff, i, "ganged", "noise"), diffmodule(data_diff, i, "ganged", "intime"),
+                    diffmodule(data_diff, i, "fit_normal", "A"),     diffmodule(data_diff, i, "fit_normal", "B"),     diffmodule(data_diff, i, "fit_normal", "C"),
+                    diffmodule(data_diff, i, "fit_longGanged", "A"), diffmodule(data_diff, i, "fit_longGanged", "B"), diffmodule(data_diff, i, "fit_longGanged", "C"),
+                    diffmodule(data_diff, i, "quality/unused", "fit_quality"), diffmodule(data_diff, i, "quality/unused", "unused")] 
                     for i in range(len(splitted2))]
 
   # write recovered data to file
   writer = csv.writer(all_recover, delimiter = " ")
   writer.writerows(data_recover_all)
 
-#  print(diffmodule(1, 1, "normal", "threshold", para_lists["normal"]["threshold"][1]))
-
   head2 = tail2
 
 # end of while head2 < last2
 
+
+#------------- copy modules which was not performed scans ----------------------------------------
+
+def read_header_and_get_macro(header_filepath):
+  with open(header_filepath, mode='r') as f:
+    lst = [s.strip() for s in f.readlines()]
+  comment_flg = False
+  for l in lst:
+    items = l.split()
+    if len(items) != 0 and items[0] == "/*":
+      comment_flg = True
+      continue
+    if comment_flg == True:
+      if len(items) != 0 and items[0] == "*/":
+        comment_flg = False
+      continue
+    if len(items) < 2 or items[0] != "#define":
+      continue
+    if items[1] in globals():
+      if items[2] == 'true':
+        globals()[items[1]] = True
+      elif items[2] == 'false':
+        globals()[items[1]] = False
+      else:
+        try:
+          globals()[items[1]] = float(items[2])
+        except ValueError:
+          try:
+            globals()[items[1]] = int(items[2])
+          except ValueError:
+            globals()[items[1]] = items[2]
+
+golden_modules = []
+module_file = open('../calibration/pixelMapping.h', 'r')
+module_data = module_file.read()
+module_lines = module_data.splitlines()
+
+for modules in module_lines:
+  modulename = ""
+  modules = modules.split()
+  if len(modules) != 0:
+    if modules[0] == "else" and modules[1] == "if":
+      geographicalID = modules[2].split('"')
+      modulename = geographicalID[1]
+    elif modules[0] == "if":
+      geographicalID = modules[1].split('"')
+      modulename = geographicalID[1]
+  if modulename:
+    golden_modules.append(modulename)
+
+list_sa = list(set(golden_modules) - set(module_list))
+
 all_recover.close()
+
+copy_rec  = open("template.dat","r")
+contents_copy = copy_rec.read() 
+elements_copy = contents_copy.splitlines()
+
+last3 = len(elements_copy)
+head3 = 0
+
+while head3 < last3:
+  line3 = elements_copy[head3]
+  # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
+  if not line3.find("L") == 0 and not line3.find("D") == 0:
+    head3 += 1
+    continue
+  # seek the tail of the block
+  tail3 = head3 + 1
+
+  while tail3 < last3:
+    tmp3 = elements_copy[tail3]
+    if tmp3.find("L") == 0 or tmp3.find("D") == 0 or tail3 == last3:
+      break
+    else:
+      tail3 += 1
+  
+  # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
+  module3 = elements_copy[head3]
+  print( "processing module", module3 )
+  if module3 in list_sa:
+    with open(output_data, "a") as f:
+      for i in range(tail3 - head3):
+        f.writelines(elements_copy[head3 + i] + "\n")
+  else:
+    print("The result for this module exists")
+  
+  head3 = tail3
 
 with open(path_to_summary, mode='w') as f:
   f.writelines(summary_line)
