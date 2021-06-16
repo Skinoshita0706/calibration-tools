@@ -55,7 +55,7 @@ result    = open("partial_recover.dat","w+")
 
 today_date = datetime.datetime.now()
 today = today_date.strftime( '%Y%m%d' )
-path_to_summary = "./" + today + "_CalibSummary.txt" 
+path_to_summary = "./" + today + "_CalibSummary.txt"
 
 summary   = open(path_to_summary, "r+")
 summary_line = summary.readlines()
@@ -110,7 +110,7 @@ while head < last:
   module = elements_part[head]
   print( "processing module", module )
   module_list.append(module)
-  
+
   # rawBlock is the block lines, corresponding to each Pixel Module
   # for IBL, there are either 2 or 1 FEs
   # else, there are 16 FEs
@@ -150,7 +150,7 @@ while head < last:
     if check_fe == 20:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
     else:
-      summary_line[n_insert] = "I" + str(i) + ": [ Missing " + summary_text[:-2] + " ], " + summary_line[n_insert] 
+      summary_line[n_insert] = "I" + str(i) + ": [ " + summary_text[:-2] + " ], " + summary_line[n_insert]
 
 
   for s in splitted:
@@ -240,7 +240,7 @@ result.close()
 # end of while head < last
 
 
-#------------- recover the dead module ----------------------------------------
+#------------------- recover the dead & missing module ------------------------
 
 #....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -256,7 +256,7 @@ def diffmodule(data_diff, n_FE, pixel_type, para_type):
 
 all_recover  = open(output_data, "w")
 partial_rec  = open("partial_recover.dat","r")
-contents_all = partial_rec.read() 
+contents_all = partial_rec.read()
 elements_all = contents_all.splitlines()
 
 
@@ -309,7 +309,7 @@ while head2 < last2:
              for s in splitted2]
 
   diff_rec  = open("template.dat","r")
-  contents_diff = diff_rec.read() 
+  contents_diff = diff_rec.read()
   elements_diff = contents_diff.splitlines()
   # parsing data file
   last_diff = len(elements_diff)
@@ -322,20 +322,20 @@ while head2 < last2:
       continue
     # seek the tail of the block
     tail_diff = head_diff + 1
-  
+
     while tail_diff < last_diff:
       tmp_diff = elements_diff[tail_diff]
       if tmp_diff.find("L") == 0 or tmp_diff.find("D") == 0 or tail_diff == last_diff:
         break
       else:
         tail_diff += 1
-    
+
     # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
     module_diff = elements_diff[head_diff]
     if module_diff == module2:
       rowBlock_diff = elements_diff[head_diff+1:tail_diff]
       # split each line of the block
-      splitted_diff = [ line_diff.split() for line_diff in rowBlock_diff ] 
+      splitted_diff = [ line_diff.split() for line_diff in rowBlock_diff ]
       data_diff = [ { "FE" : s[0],
                       "normal" : { "threshold" : float(s[1]), "sigma" : float(s[2]),  "noise" : float(s[3]),  "intime" : float(s[4])  },
                       "long"   : { "threshold" : float(s[5]), "sigma" : float(s[6]),  "noise" : float(s[7]),  "intime" : float(s[8])  },
@@ -343,7 +343,7 @@ while head2 < last2:
                       "fit_normal" : { "A" : float(s[13]), "B" : float(s[14]), "C" : float(s[15]) },
                       "fit_longGanged" : { "A" : float(s[16]), "B" : float(s[17]), "C" : float(s[18]) },
                       "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
-                      for s in splitted_diff] 
+                      for s in splitted_diff]
       break
     head_diff = tail_diff
 
@@ -353,8 +353,11 @@ while head2 < last2:
                     diffmodule(data_diff, i, "ganged", "threshold"), diffmodule(data_diff, i, "ganged", "sigma"), diffmodule(data_diff, i, "ganged", "noise"), diffmodule(data_diff, i, "ganged", "intime"),
                     diffmodule(data_diff, i, "fit_normal", "A"),     diffmodule(data_diff, i, "fit_normal", "B"),     diffmodule(data_diff, i, "fit_normal", "C"),
                     diffmodule(data_diff, i, "fit_longGanged", "A"), diffmodule(data_diff, i, "fit_longGanged", "B"), diffmodule(data_diff, i, "fit_longGanged", "C"),
-                    diffmodule(data_diff, i, "quality/unused", "fit_quality"), diffmodule(data_diff, i, "quality/unused", "unused")] 
+                    diffmodule(data_diff, i, "quality/unused", "fit_quality"), diffmodule(data_diff, i, "quality/unused", "unused")]
                     for i in range(len(splitted2))]
+
+  n_insert = head2 - 8
+  summary_line[n_insert] = module2 + ": [ Parameters were recovered by using previous scan ] \n"
 
   # write recovered data to file
   writer = csv.writer(all_recover, delimiter = " ")
@@ -419,11 +422,12 @@ list_sa = list(set(golden_modules) - set(module_list))
 all_recover.close()
 
 copy_rec  = open("template.dat","r")
-contents_copy = copy_rec.read() 
+contents_copy = copy_rec.read()
 elements_copy = contents_copy.splitlines()
 
 last3 = len(elements_copy)
 head3 = 0
+n_new = 0
 
 while head3 < last3:
   line3 = elements_copy[head3]
@@ -440,7 +444,7 @@ while head3 < last3:
       break
     else:
       tail3 += 1
-  
+
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
   module3 = elements_copy[head3]
   print( "processing module", module3 )
@@ -448,9 +452,10 @@ while head3 < last3:
     with open(output_data, "a") as f:
       for i in range(tail3 - head3):
         f.writelines(elements_copy[head3 + i] + "\n")
+    summary_line.append(module3 + ": [ Scans were not performed for this module and copied from previous scan ]\n")
   else:
     print("The result for this module exists")
-  
+
   head3 = tail3
 
 with open(path_to_summary, mode='w') as f:
@@ -462,6 +467,3 @@ os.remove("partial_recover.dat")
 
 print('number of "0" =', error_num)
 print( "processing done." )
-
-
-
