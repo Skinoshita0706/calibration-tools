@@ -462,6 +462,7 @@ template_summary = [
   "##===================================================================================\n",
   "## This file shows the way to recover data loss and caribration failure. \n",
   "## \n",
+  "## \n",
   "## Example of an output for a module: \n",
   "##   L0_B08_S1_A6_M2A: \n"
   "##   I2: [ normal threshold ], [ ] ---> Parameters that become '0' is listed \n",
