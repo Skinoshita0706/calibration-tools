@@ -147,6 +147,7 @@ while head < last:
             check_fe = check_fe + 1
             summary_text = summary_text + pixtype + " " + parameter + ", "
 
+    summary_line[n_insert] = "I" + str(i) + ": [  ], " + summary_line[n_insert]
     if check_fe == 20:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
     else:
@@ -465,8 +466,8 @@ template_summary = [
   "## \n",
   "## Example of an output for a module: \n",
   "##   L0_B08_S1_A6_M2A: \n"
-  "##   I2: [ normal threshold ], [ ] ---> Parameters that become '0' is listed \n",
-  "##   I8: [ ], [ 30000 400000 ] -------> Injected charges that removed is listed \n"
+  "##   I2: [ normal threshold ], [ ] <--- Parameters that become '0' is listed \n",
+  "##   I8: [ ], [ 30000 400000 ] <------- Injected charges that removed is listed \n"
   "## \n"
   "## \n"
   "## Mapping convention for FE-I3 in the calibration.\n",
@@ -486,11 +487,20 @@ template_summary = [
   "\n"
   ]
 
-summary_line = template_summary + summary_line
+new_summary_line = []
 
+for item in summary_line:
+  try:
+    print(str(item.split(":")[1]))
+    if item.split(":")[1] != " [  ], [ ]\n":
+      new_summary_line.append(item)
+  except:
+    continue
+
+new_summary_line = template_summary + new_summary_line
 
 with open(path_to_summary, mode='w') as f:
-  f.writelines(summary_line)
+  f.writelines(new_summary_line)
 
 # delete partial_recover.dat
 os.remove("partial_recover.dat")

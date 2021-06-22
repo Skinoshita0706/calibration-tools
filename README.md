@@ -13,3 +13,4 @@ How to modify the black-box in the calibration map:
 $ cd recover
 $ python recover.py input.dat output.dat
 ```
+The scripts output summary text file: {date}_CalibSummary.txt
