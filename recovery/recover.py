@@ -458,9 +458,38 @@ while head3 < last3:
 
   head3 = tail3
 
+template_summary = [
+  "##===================================================================================\n",
+  "## This file shows the way to recover data loss and caribration failure. \n",
+  "## \n",
+  "## Example of an output for a module: \n",
+  "##   L0_B08_S1_A6_M2A: \n"
+  "##   I2: [ normal threshold ], [ ] ---> Parameters that become '0' is listed \n",
+  "##   I8: [ ], [ 30000 400000 ] -------> Injected charges that removed is listed \n"
+  "## \n"
+  "## \n"
+  "## Mapping convention for FE-I3 in the calibration.\n",
+  "##     ^ \n",
+  "##  phi| \n",
+  "##  320| \n",
+  "##     | FE15 FE14 FE13 ... FE9 FE8 \n",
+  "##  160| \n",
+  "##     | FE0  FE1  FE2  ... FE6 FE7 \n",
+  "##     | \n",
+  "##    0+------------------------------> \n",
+  "##     0    18   36     ...   126 144  \n",
+  "##                                  eta \n",
+  "## \n"
+  "##==================================================================================\n",
+  "\n",
+  "\n"
+  ]
+
+summary_line = template_summary + summary_line
+
+
 with open(path_to_summary, mode='w') as f:
   f.writelines(summary_line)
-
 
 # delete partial_recover.dat
 os.remove("partial_recover.dat")
