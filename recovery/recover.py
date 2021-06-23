@@ -147,7 +147,7 @@ while head < last:
             check_fe = check_fe + 1
             summary_text = summary_text + pixtype + " " + parameter + ", "
 
-    summary_line[n_insert] = "I" + str(i) + ": [  ], " + summary_line[n_insert]
+#    summary_line[n_insert] = "I" + str(i) + ": [  ], " + summary_line[n_insert]
     if check_fe == 20:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
     else:
@@ -461,13 +461,28 @@ while head3 < last3:
 
 template_summary = [
   "##===================================================================================\n",
-  "## This file shows the way to recover data loss and caribration failure. \n",
+  "## This file shows the way to recover data loss and calibration failure. \n",
+  "## \n",
+  "## How to recover parameters:\n",
+  "## 1. If there is a data loss in output data:\n",
+  "##   - Case1: Partial loss in a module \n",
+  "##     - Threshold: Recover using average of same FE\n",
+  "##     - Others:    Recover using average of different FEs\n",
+  "## \n",
+  "##   - Case2: All values loss in a module\n",
+  "##     - Previous scan result is used for the recovery \n",
+  "## \n",
+  "## \n",
+  "## 2. If there is a calibration failure:\n",
+  "##   - Remove incorrect injected charge & refitting\n",
+  "##   - Removed charges are listed in order of deletion\n",
+  "## \n",
   "## \n",
   "## \n",
   "## Example of an output for a module: \n",
   "##   L0_B08_S1_A6_M2A: \n"
   "##   I2: [ normal threshold ], [ ] <--- Parameters that become '0' is listed \n",
-  "##   I8: [ ], [ 30000 400000 ] <------- Injected charges that removed is listed \n"
+  "##   I8: [ ], [ 30000 40000 ] <-------- Injected charges that removed is listed \n"
   "## \n"
   "## \n"
   "## Mapping convention for FE-I3 in the calibration.\n",

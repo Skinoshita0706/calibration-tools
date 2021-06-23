@@ -15,7 +15,7 @@
 //     | FE0  FE1  FE2  ... FE6 FE7
 //     |
 //    0+------------------------------>
-//     0    18   36     ...   126 144 
+//     0    18   36     ...   126 144
 //                                  eta
 //======================================================================
 
@@ -29,7 +29,7 @@ double funcTot(double* x, double* par) {
   return ret;
 }
 
-double funcDisp(double* x, double* par) {  
+double funcDisp(double* x, double* par) {
   double ret = 9.9e10;
   ret = par[0]+par[1]*x[0];
   return ret;
@@ -50,8 +50,8 @@ void PixelCalib() {
 
   /*  Calibration during TS2 September 19, 2017
   IBL:
-    THR: 67422 (Note that LI_S06_C_M1_C1 does not have its final tuning here. 
-                We did not do a full threshold after tuning but I can pass 
+    THR: 67422 (Note that LI_S06_C_M1_C1 does not have its final tuning here.
+                We did not do a full threshold after tuning but I can pass
                 the short (1 in 32 pixels) threshold if that would suffice.)
     TOT Calib: 67489
 
@@ -146,7 +146,7 @@ void PixelCalib() {
   outputfile = fopen(summaryName.c_str(), "w");
   if (outputfile == NULL) {
     printf("cannot open\n");
-    exit(1);                
+    exit(1);
   }
 
   if (!inThrFile.empty()) {
@@ -456,7 +456,7 @@ void PixelCalib() {
                 h1dThrNormI15.Fill(thr);
                 h1dSigNormI15.Fill(sig);
               }
-            }        
+            }
             else if (pixtype==2){
               if (circ==0) {
                 h1dThrGangI0.Fill(thr);
@@ -685,7 +685,7 @@ void PixelCalib() {
     TFile riTimFile(inTimFile.c_str(),"READ");
 
     TString timHistName = "SCURVE_MEAN";
- 
+
     TDirectoryFile* scanDir = (TDirectoryFile*)((TKey*)riTimFile.GetListOfKeys()->First())->ReadObj();
     TList* rodKeyList = (TList*)scanDir->GetListOfKeys();
     TIter rodItr(rodKeyList);
@@ -715,7 +715,7 @@ void PixelCalib() {
         TString timHistDirPath = modName + "/" + timHistName + "/A0/B0";
         TDirectoryFile* timHistDir = (TDirectoryFile*)rodDir->Get(timHistDirPath);
         TH2F* h2dTim = (TH2F*)((TKey*)timHistDir->GetListOfKeys()->First())->ReadObj();
- 
+
         TH1F h1dTimNormI0("h1dTimNormI0","",200,3000,7000);
         TH1F h1dTimNormI1("h1dTimNormI1","",200,3000,7000);
         TH1F h1dTimNormI2("h1dTimNormI2","",200,3000,7000);
@@ -822,7 +822,7 @@ void PixelCalib() {
               else if (circ==13) { h1dTimNormI13.Fill(tim); }
               else if (circ==14) { h1dTimNormI14.Fill(tim); }
               else if (circ==15) { h1dTimNormI15.Fill(tim); }
-            }          
+            }
             else if (pixtype==2) {
               if      (circ==0) { h1dTimGangI0.Fill(tim); }
               else if (circ==1) { h1dTimGangI1.Fill(tim); }
@@ -896,7 +896,7 @@ void PixelCalib() {
         timMap[modStr]["I15"]["TimGang"] = h1dTimGangI15.GetMean();
       }
     }
-  } 
+  }
 
   // std::cout << pcdMap.size() << std::endl;
 
@@ -1141,7 +1141,7 @@ void PixelCalib() {
               //==================
               // Fill information
               //==================
-             
+
               if (pixtype>0) {
                 if (circ==0) {
                   h1dTotLongI0.Fill(tot);
@@ -1206,8 +1206,8 @@ void PixelCalib() {
                 else if (circ==15) {
                   h1dTotLongI15.Fill(tot);
                   h1dTotSigLongI15.Fill(totSig);
-                } 
-              } 
+                }
+              }
               else {
                 if (circ==0) {
                   h1dTotI0.Fill(tot);
@@ -1378,7 +1378,7 @@ void PixelCalib() {
           totErrLongArrI14[i] = h1dTotLongI14.GetMeanError();
           totErrLongArrI15[i] = h1dTotLongI15.GetMeanError();
 
-        } 
+        }
 
         float FitStartingPoint = chargeArr[qthresh]-100;
 
@@ -2091,27 +2091,27 @@ void PixelCalib() {
         }
 
         const double chi2_error = 0.05;
-        if(badcalI0_max > chi2_error){
-          TFile *fout = new TFile("graph_I0.root","recreate");
-          fout -> cd();
-          TCanvas *c30 = new TCanvas("c30");
-          TH1 *frame0 = c30->DrawFrame(0.0, 0.0, 45000, 60);
-          TF1 *f1Tot0  = new TF1("f1Tot0",  funcTot,  FitStartingPoint, chargeArr[ncharge-1]+100, 3);
-          TF1 *f1Disp0 = new TF1("f1Disp0", funcDisp, FitStartingPoint, chargeArr[ncharge-1]+100, 2);
-          TGraphErrors *grTot0 = new TGraphErrors(ncharge, chargeArr, totArrI0, chargeErrArr, totErrArrI0);
-          grTot0->SetMarkerStyle(20);
-          grTot0->SetMarkerSize(0.5);
-          grTot0->Draw("P");
-          f1Tot0->SetLineColor(kRed);
-          grTot0->Fit(f1Tot0);
-          grTot0->SetMarkerSize(1.0);
-          gStyle->SetStatX(0.93);
-          gStyle->SetStatY(0.93);
-          gStyle->SetOptFit();
-          c30->Print("./fitgraphNorm/"+modName+"_Norm_I0.pdf");
-          grTot0 ->Write();
-          fout -> Close();
-        }
+//        if(badcalI0_max > chi2_error){
+//          TFile *fout = new TFile("graph_I0.root","recreate");
+//          fout -> cd();
+//          TCanvas *c30 = new TCanvas("c30");
+//          TH1 *frame0 = c30->DrawFrame(0.0, 0.0, 45000, 60);
+//          TF1 *f1Tot0  = new TF1("f1Tot0",  funcTot,  FitStartingPoint, chargeArr[ncharge-1]+100, 3);
+//          TF1 *f1Disp0 = new TF1("f1Disp0", funcDisp, FitStartingPoint, chargeArr[ncharge-1]+100, 2);
+//          TGraphErrors *grTot0 = new TGraphErrors(ncharge, chargeArr, totArrI0, chargeErrArr, totErrArrI0);
+//          grTot0->SetMarkerStyle(20);
+//          grTot0->SetMarkerSize(0.5);
+//          grTot0->Draw("P");
+//          f1Tot0->SetLineColor(kRed);
+//          grTot0->Fit(f1Tot0);
+//          grTot0->SetMarkerSize(1.0);
+//          gStyle->SetStatX(0.93);
+//          gStyle->SetStatY(0.93);
+//          gStyle->SetOptFit();
+//          c30->Print("./fitgraphNorm/"+modName+"_Norm_I0.pdf");
+//          grTot0 ->Write();
+//          fout -> Close();
+//        }
 
         fprintf(outputfile, "%s", modStr.c_str());
         fprintf(outputfile, "\n");
@@ -2128,7 +2128,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI0_re[i] - ( parAI0 * (parEI0 + chargeArrI0_re[i]) / (parCI0 + chargeArrI0_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI0_re[i] - ((parAI0 * parEI0 - parCI0 * totArrI0_re[i]) / (totArrI0_re[i] - parAI0))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2181,7 +2181,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI1_re[i] - ( parAI1 * (parEI1 + chargeArrI1_re[i]) / (parCI1 + chargeArrI1_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI1_re[i] - ((parAI1 * parEI1 - parCI1 * totArrI1_re[i]) / (totArrI1_re[i] - parAI1))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2234,7 +2234,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI2_re[i] - ( parAI2 * (parEI2 + chargeArrI2_re[i]) / (parCI2 + chargeArrI2_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI2_re[i] - ((parAI2 * parEI2 - parCI2 * totArrI2_re[i]) / (totArrI2_re[i] - parAI2))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2288,7 +2288,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI3_re[i] - ( parAI3 * (parEI3 + chargeArrI3_re[i]) / (parCI3 + chargeArrI3_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI3_re[i] - ((parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2341,7 +2341,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI4_re[i] - ( parAI4 * (parEI4 + chargeArrI4_re[i]) / (parCI4 + chargeArrI4_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI4_re[i] - ((parAI4 * parEI4 - parCI4 * totArrI4_re[i]) / (totArrI4_re[i] - parAI4))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2394,7 +2394,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI5_re[i] - ( parAI5 * (parEI5 + chargeArrI5_re[i]) / (parCI5 + chargeArrI5_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI5_re[i] - ((parAI5 * parEI5 - parCI5 * totArrI5_re[i]) / (totArrI5_re[i] - parAI5))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2447,7 +2447,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI6_re[i] - ( parAI6 * (parEI6 + chargeArrI6_re[i]) / (parCI6 + chargeArrI6_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI6_re[i] - ((parAI6 * parEI6 - parCI6 * totArrI6_re[i]) / (totArrI6_re[i] - parAI6))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2500,7 +2500,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI7_re[i] - ( parAI7 * (parEI7 + chargeArrI7_re[i]) / (parCI7 + chargeArrI7_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI7_re[i] - ((parAI7 * parEI7 - parCI7 * totArrI7_re[i]) / (totArrI7_re[i] - parAI7))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2553,7 +2553,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI8_re[i] - ( parAI8 * (parEI8 + chargeArrI8_re[i]) / (parCI8 + chargeArrI8_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI8_re[i] - ((parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2583,7 +2583,7 @@ void PixelCalib() {
             parCI8 = f1TotI8.GetParameter(2);
             parP0I8 = f1DispI8.GetParameter(0);
             parP1I8 = f1DispI8.GetParameter(1);
-            
+
             for(int i = 0; i < ncharge; i++){ badcalI8[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI8[i] = abs( 1 - ( (parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8) ) / chargeArrI8_re[i] );
@@ -2606,7 +2606,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI9_re[i] - ( parAI9 * (parEI9 + chargeArrI9_re[i]) / (parCI9 + chargeArrI9_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI9_re[i] - ((parAI9 * parEI9 - parCI9 * totArrI9_re[i]) / (totArrI9_re[i] - parAI9))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2659,7 +2659,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI10_re[i] - ( parAI10 * (parEI10 + chargeArrI10_re[i]) / (parCI10 + chargeArrI10_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI10_re[i] - ((parAI10 * parEI10 - parCI10 * totArrI10_re[i]) / (totArrI10_re[i] - parAI10))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2712,7 +2712,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI11_re[i] - ( parAI11 * (parEI11 + chargeArrI11_re[i]) / (parCI11 + chargeArrI11_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI11_re[i] - ((parAI11 * parEI11 - parCI11 * totArrI11_re[i]) / (totArrI11_re[i] - parAI11))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2765,7 +2765,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI12_re[i] - ( parAI12 * (parEI12 + chargeArrI12_re[i]) / (parCI12 + chargeArrI12_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI12_re[i] - ((parAI12 * parEI12 - parCI12 * totArrI12_re[i]) / (totArrI12_re[i] - parAI12))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2818,7 +2818,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI13_re[i] - ( parAI13 * (parEI13 + chargeArrI13_re[i]) / (parCI13 + chargeArrI13_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI13_re[i] - ((parAI13 * parEI13 - parCI13 * totArrI13_re[i]) / (totArrI13_re[i] - parAI13))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2871,7 +2871,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI14_re[i] - ( parAI14 * (parEI14 + chargeArrI14_re[i]) / (parCI14 + chargeArrI14_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI14_re[i] - ((parAI14 * parEI14 - parCI14 * totArrI14_re[i]) / (totArrI14_re[i] - parAI14))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2924,7 +2924,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(pow(totArrI15_re[i] - ( parAI15 * (parEI15 + chargeArrI15_re[i]) / (parCI15 + chargeArrI15_re[i]) ), 2.0));
+                find_max.push_back(abs(chargeArrI15_re[i] - ((parAI15 * parEI15 - parCI15 * totArrI15_re[i]) / (totArrI15_re[i] - parAI15))));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2973,7 +2973,7 @@ void PixelCalib() {
           << int(pcdMap[modStr]["I0"]["ThrLong"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I0"]["ThrSigLong"]) << " " << int(timMap[modStr]["I0"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I0"]["ThrGang"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I0"]["ThrSigGang"]) << " " << int(timMap[modStr]["I0"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I0"]["ThrSigGang"]) << " " << int(timMap[modStr]["I0"]["TimGang"]) << " "
           << parAI0 << " " << parEI0 << " " << parCI0 << " "
           << parLongAI0 << " " << parLongEI0 << " " << parLongCI0 << " "
           << parP0I0 << " " << parP1I0
@@ -2981,7 +2981,7 @@ void PixelCalib() {
 
         std::cout << "I1 "
           << int(pcdMap[modStr]["I1"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I1"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I1"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I1"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I1"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I1"]["ThrLong"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I1"]["ThrSigLong"]) << " " << int(timMap[modStr]["I1"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I1"]["ThrGang"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsGang"]) << " "
@@ -2993,11 +2993,11 @@ void PixelCalib() {
 
         std::cout << "I2 "
           << int(pcdMap[modStr]["I2"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I2"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I2"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I2"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I2"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I2"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I2"]["ThrLong"]) << " " << int(pcdMap[modStr]["I2"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I2"]["ThrSigLong"]) << " " << int(timMap[modStr]["I2"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I2"]["ThrGang"]) << " " << int(pcdMap[modStr]["I2"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I2"]["ThrSigGang"]) << " " << int(timMap[modStr]["I2"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I2"]["ThrSigGang"]) << " " << int(timMap[modStr]["I2"]["TimGang"]) << " "
           << parAI2 << " " << parEI2 << " " << parCI2 << " "
           << parLongAI2 << " " << parLongEI2 << " " << parLongCI2 << " "
           << parP0I2 << " " << parP1I2
@@ -3009,7 +3009,7 @@ void PixelCalib() {
           << int(pcdMap[modStr]["I3"]["ThrLong"]) << " " << int(pcdMap[modStr]["I3"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I3"]["ThrSigLong"]) << " " << int(timMap[modStr]["I3"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I3"]["ThrGang"]) << " " << int(pcdMap[modStr]["I3"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I3"]["ThrSigGang"]) << " " << int(timMap[modStr]["I3"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I3"]["ThrSigGang"]) << " " << int(timMap[modStr]["I3"]["TimGang"]) << " "
           << parAI3 << " " << parEI3 << " " << parCI3 << " "
           << parLongAI3 << " " << parLongEI3 << " " << parLongCI3 << " "
           << parP0I3 << " " << parP1I3
@@ -3017,11 +3017,11 @@ void PixelCalib() {
 
         std::cout << "I4 "
           << int(pcdMap[modStr]["I4"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I4"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I4"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I4"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I4"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I4"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I4"]["ThrLong"]) << " " << int(pcdMap[modStr]["I4"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I4"]["ThrSigLong"]) << " " << int(timMap[modStr]["I4"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I4"]["ThrGang"]) << " " << int(pcdMap[modStr]["I4"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I4"]["ThrSigGang"]) << " " << int(timMap[modStr]["I4"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I4"]["ThrSigGang"]) << " " << int(timMap[modStr]["I4"]["TimGang"]) << " "
           << parAI4 << " " << parEI4 << " " << parCI4 << " "
           << parLongAI4 << " " << parLongEI4 << " " << parLongCI4 << " "
           << parP0I4 << " " << parP1I4
@@ -3033,7 +3033,7 @@ void PixelCalib() {
           << int(pcdMap[modStr]["I5"]["ThrLong"]) << " " << int(pcdMap[modStr]["I5"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I5"]["ThrSigLong"]) << " " << int(timMap[modStr]["I5"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I5"]["ThrGang"]) << " " << int(pcdMap[modStr]["I5"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I5"]["ThrSigGang"]) << " " << int(timMap[modStr]["I5"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I5"]["ThrSigGang"]) << " " << int(timMap[modStr]["I5"]["TimGang"]) << " "
           << parAI5 << " " << parEI5 << " " << parCI5 << " "
           << parLongAI5 << " " << parLongEI5 << " " << parLongCI5 << " "
           << parP0I5 << " " << parP1I5
@@ -3041,11 +3041,11 @@ void PixelCalib() {
 
         std::cout << "I6 "
           << int(pcdMap[modStr]["I6"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I6"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I6"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I6"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I6"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I6"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I6"]["ThrLong"]) << " " << int(pcdMap[modStr]["I6"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I6"]["ThrSigLong"]) << " " << int(timMap[modStr]["I6"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I6"]["ThrGang"]) << " " << int(pcdMap[modStr]["I6"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I6"]["ThrSigGang"]) << " " << int(timMap[modStr]["I6"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I6"]["ThrSigGang"]) << " " << int(timMap[modStr]["I6"]["TimGang"]) << " "
           << parAI6 << " " << parEI6 << " " << parCI6 << " "
           << parLongAI6 << " " << parLongEI6 << " " << parLongCI6 << " "
           << parP0I6 << " " << parP1I6
@@ -3053,11 +3053,11 @@ void PixelCalib() {
 
         std::cout << "I7 "
           << int(pcdMap[modStr]["I7"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I7"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I7"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I7"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I7"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I7"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I7"]["ThrLong"]) << " " << int(pcdMap[modStr]["I7"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I7"]["ThrSigLong"]) << " " << int(timMap[modStr]["I7"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I7"]["ThrGang"]) << " " << int(pcdMap[modStr]["I7"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I7"]["ThrSigGang"]) << " " << int(timMap[modStr]["I7"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I7"]["ThrSigGang"]) << " " << int(timMap[modStr]["I7"]["TimGang"]) << " "
           << parAI7 << " " << parEI7 << " " << parCI7 << " "
           << parLongAI7 << " " << parLongEI7 << " " << parLongCI7 << " "
           << parP0I7 << " " << parP1I7
@@ -3065,7 +3065,7 @@ void PixelCalib() {
 
         std::cout << "I8 "
           << int(pcdMap[modStr]["I8"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I8"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I8"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I8"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I8"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I8"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I8"]["ThrLong"]) << " " << int(pcdMap[modStr]["I8"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I8"]["ThrSigLong"]) << " " << int(timMap[modStr]["I8"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I8"]["ThrGang"]) << " " << int(pcdMap[modStr]["I8"]["ThrRmsGang"]) << " "
@@ -3077,7 +3077,7 @@ void PixelCalib() {
 
         std::cout << "I9 "
           << int(pcdMap[modStr]["I9"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I9"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I9"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I9"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I9"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I9"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I9"]["ThrLong"]) << " " << int(pcdMap[modStr]["I9"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I9"]["ThrSigLong"]) << " " << int(timMap[modStr]["I9"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I9"]["ThrGang"]) << " " << int(pcdMap[modStr]["I9"]["ThrRmsGang"]) << " "
@@ -3093,7 +3093,7 @@ void PixelCalib() {
           << int(pcdMap[modStr]["I10"]["ThrLong"]) << " " << int(pcdMap[modStr]["I10"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I10"]["ThrSigLong"]) << " " << int(timMap[modStr]["I10"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I10"]["ThrGang"]) << " " << int(pcdMap[modStr]["I10"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I10"]["ThrSigGang"]) << " " << int(timMap[modStr]["I10"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I10"]["ThrSigGang"]) << " " << int(timMap[modStr]["I10"]["TimGang"]) << " "
           << parAI10 << " " << parEI10 << " " << parCI10 << " "
           << parLongAI10 << " " << parLongEI10 << " " << parLongCI10 << " "
           << parP0I10 << " " << parP1I10
@@ -3113,7 +3113,7 @@ void PixelCalib() {
 
         std::cout << "I12 "
           << int(pcdMap[modStr]["I12"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I12"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I12"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I12"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I12"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I12"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I12"]["ThrLong"]) << " " << int(pcdMap[modStr]["I12"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I12"]["ThrSigLong"]) << " " << int(timMap[modStr]["I12"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I12"]["ThrGang"]) << " " << int(pcdMap[modStr]["I12"]["ThrRmsGang"]) << " "
@@ -3129,7 +3129,7 @@ void PixelCalib() {
           << int(pcdMap[modStr]["I13"]["ThrLong"]) << " " << int(pcdMap[modStr]["I13"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I13"]["ThrSigLong"]) << " " << int(timMap[modStr]["I13"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I13"]["ThrGang"]) << " " << int(pcdMap[modStr]["I13"]["ThrRmsGang"]) << " "
-          << int(pcdMap[modStr]["I13"]["ThrSigGang"]) << " " << int(timMap[modStr]["I13"]["TimGang"]) << " " 
+          << int(pcdMap[modStr]["I13"]["ThrSigGang"]) << " " << int(timMap[modStr]["I13"]["TimGang"]) << " "
           << parAI13 << " " << parEI13 << " " << parCI13 << " "
           << parLongAI13 << " " << parLongEI13 << " " << parLongCI13 << " "
           << parP0I13 << " " << parP1I13
@@ -3137,7 +3137,7 @@ void PixelCalib() {
 
         std::cout << "I14 "
           << int(pcdMap[modStr]["I14"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I14"]["ThrRmsNorm"]) << " "
-          << int(pcdMap[modStr]["I14"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I14"]["TimNorm"]) << " " 
+          << int(pcdMap[modStr]["I14"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I14"]["TimNorm"]) << " "
           << int(pcdMap[modStr]["I14"]["ThrLong"]) << " " << int(pcdMap[modStr]["I14"]["ThrRmsLong"]) << " "
           << int(pcdMap[modStr]["I14"]["ThrSigLong"]) << " " << int(timMap[modStr]["I14"]["TimLong"]) << " "
           << int(pcdMap[modStr]["I14"]["ThrGang"]) << " " << int(pcdMap[modStr]["I14"]["ThrRmsGang"]) << " "
@@ -3222,7 +3222,7 @@ void PixelCalib() {
 
 //===========================================================
 // This getFEID method should not be used in the calibration
-// because the mapping convention is totally different between 
+// because the mapping convention is totally different between
 // actual detector alignment and calibrtion.
 //===========================================================
 // Identify FE chip ID in athena
@@ -3260,7 +3260,7 @@ void getFEID(int iphi, int ieta, int phi_module, int *circ, int *pixtype) {
   }
   else if (col==0 || col==columnsPerFE-1) {
     if (row>=rowsFGanged-1) {
-      *pixtype = 2; // treat long ganged (3) as ganged 
+      *pixtype = 2; // treat long ganged (3) as ganged
     }
     else {
       *pixtype = 1; // long
@@ -3270,5 +3270,3 @@ void getFEID(int iphi, int ieta, int phi_module, int *circ, int *pixtype) {
     *pixtype = 0; // treat it as normal
   }
 }
-
-
