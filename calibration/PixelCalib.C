@@ -2145,6 +2145,19 @@ void PixelCalib() {
             totErrArrI0_re.erase(totErrArrI0_re.begin() + n_max);
             totSigErrArrI0_re.erase(totSigErrArrI0_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI0_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI0_re.erase(chargeArrI0_re.begin() + n_max);
+              totArrI0_re.erase(totArrI0_re.begin() + n_max);
+              totSigArrI0_re.erase(totSigArrI0_re.begin() + n_max);
+              chargeErrArrI0_re.erase(chargeErrArrI0_re.begin() + n_max);
+              totErrArrI0_re.erase(totErrArrI0_re.begin() + n_max);
+              totSigErrArrI0_re.erase(totSigErrArrI0_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI0(ncharge_re, &chargeArrI0_re[0], &totArrI0_re[0], &chargeErrArrI0_re[0], &totErrArrI0_re[0]);
             grTotI0.SetName(modName+"__grTotI0");
             TGraphErrors grTotSigI0(ncharge_re, &chargeArrI0_re[0], &totSigArrI0_re[0], &chargeErrArrI0_re[0], &totSigErrArrI0_re[0]);
@@ -2198,6 +2211,19 @@ void PixelCalib() {
             totErrArrI1_re.erase(totErrArrI1_re.begin() + n_max);
             totSigErrArrI1_re.erase(totSigErrArrI1_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI1_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI1_re.erase(chargeArrI1_re.begin() + n_max);
+              totArrI1_re.erase(totArrI1_re.begin() + n_max );
+              totSigArrI1_re.erase(totSigArrI1_re.begin() + n_max );
+              chargeErrArrI1_re.erase(chargeErrArrI1_re.begin() + n_max);
+              totErrArrI1_re.erase(totErrArrI1_re.begin() + n_max );
+              totSigErrArrI1_re.erase(totSigErrArrI1_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI1(ncharge_re, &chargeArrI1_re[0], &totArrI1_re[0], &chargeErrArrI1_re[0], &totErrArrI1_re[0]);
             grTotI1.SetName(modName+"__grTotI1");
             TGraphErrors grTotSigI1(ncharge_re, &chargeArrI1_re[0], &totSigArrI1_re[0], &chargeErrArrI1_re[0], &totSigErrArrI1_re[0]);
@@ -2250,6 +2276,19 @@ void PixelCalib() {
             chargeErrArrI2_re.erase(chargeErrArrI2_re.begin() + n_max);
             totErrArrI2_re.erase(totErrArrI2_re.begin() + n_max);
             totSigErrArrI2_re.erase(totSigErrArrI2_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI2_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI2_re.erase(chargeArrI2_re.begin() + n_max);
+              totArrI2_re.erase(totArrI2_re.begin() + n_max);
+              totSigArrI2_re.erase(totSigArrI2_re.begin() + n_max);
+              chargeErrArrI2_re.erase(chargeErrArrI2_re.begin() + n_max);
+              totErrArrI2_re.erase(totErrArrI2_re.begin() + n_max);
+              totSigErrArrI2_re.erase(totSigErrArrI2_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI2(ncharge_re, &chargeArrI2_re[0], &totArrI2_re[0], &chargeErrArrI2_re[0], &totErrArrI2_re[0]);
             grTotI2.SetName(modName+"__grTotI2");
@@ -2305,6 +2344,19 @@ void PixelCalib() {
             totErrArrI3_re.erase(totErrArrI3_re.begin() + n_max);
             totSigErrArrI3_re.erase(totSigErrArrI3_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI3_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI3_re.erase(chargeArrI3_re.begin() + n_max);
+              totArrI3_re.erase(totArrI3_re.begin() + n_max);
+              totSigArrI3_re.erase(totSigArrI3_re.begin() + n_max);
+              chargeErrArrI3_re.erase(chargeErrArrI3_re.begin() + n_max);
+              totErrArrI3_re.erase(totErrArrI3_re.begin() + n_max);
+              totSigErrArrI3_re.erase(totSigErrArrI3_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI3(ncharge_re, &chargeArrI3_re[0], &totArrI3_re[0], &chargeErrArrI3_re[0], &totErrArrI3_re[0]);
             grTotI3.SetName(modName+"__grTotI3");
             TGraphErrors grTotSigI3(ncharge_re, &chargeArrI3_re[0], &totSigArrI3_re[0], &chargeErrArrI3_re[0], &totSigErrArrI3_re[0]);
@@ -2357,6 +2409,19 @@ void PixelCalib() {
             chargeErrArrI4_re.erase(chargeErrArrI4_re.begin() + n_max);
             totErrArrI4_re.erase(totErrArrI4_re.begin() + n_max);
             totSigErrArrI4_re.erase(totSigErrArrI4_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI4_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI4_re.erase(chargeArrI4_re.begin() + n_max);
+              totArrI4_re.erase(totArrI4_re.begin() + n_max);
+              totSigArrI4_re.erase(totSigArrI4_re.begin() + n_max);
+              chargeErrArrI4_re.erase(chargeErrArrI4_re.begin() + n_max);
+              totErrArrI4_re.erase(totErrArrI4_re.begin() + n_max);
+              totSigErrArrI4_re.erase(totSigErrArrI4_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI4(ncharge_re, &chargeArrI4_re[0], &totArrI4_re[0], &chargeErrArrI4_re[0], &totErrArrI4_re[0]);
             grTotI4.SetName(modName+"__grTotI4");
@@ -2411,6 +2476,19 @@ void PixelCalib() {
             totErrArrI5_re.erase(totErrArrI5_re.begin() + n_max);
             totSigErrArrI5_re.erase(totSigErrArrI5_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI5_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI5_re.erase(chargeArrI5_re.begin() + n_max);
+              totArrI5_re.erase(totArrI5_re.begin() + n_max);
+              totSigArrI5_re.erase(totSigArrI5_re.begin() + n_max);
+              chargeErrArrI5_re.erase(chargeErrArrI5_re.begin() + n_max);
+              totErrArrI5_re.erase(totErrArrI5_re.begin() + n_max);
+              totSigErrArrI5_re.erase(totSigErrArrI5_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI5(ncharge_re, &chargeArrI5_re[0], &totArrI5_re[0], &chargeErrArrI5_re[0], &totErrArrI5_re[0]);
             grTotI5.SetName(modName+"__grTotI5");
             TGraphErrors grTotSigI5(ncharge_re, &chargeArrI5_re[0], &totSigArrI5_re[0], &chargeErrArrI5_re[0], &totSigErrArrI5_re[0]);
@@ -2463,6 +2541,19 @@ void PixelCalib() {
             chargeErrArrI6_re.erase(chargeErrArrI6_re.begin() + n_max);
             totErrArrI6_re.erase(totErrArrI6_re.begin() + n_max);
             totSigErrArrI6_re.erase(totSigErrArrI6_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI6_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI6_re.erase(chargeArrI6_re.begin() + n_max);
+              totArrI6_re.erase(totArrI6_re.begin() + n_max);
+              totSigArrI6_re.erase(totSigArrI6_re.begin() + n_max);
+              chargeErrArrI6_re.erase(chargeErrArrI6_re.begin() + n_max);
+              totErrArrI6_re.erase(totErrArrI6_re.begin() + n_max);
+              totSigErrArrI6_re.erase(totSigErrArrI6_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI6(ncharge_re, &chargeArrI6_re[0], &totArrI6_re[0], &chargeErrArrI6_re[0], &totErrArrI6_re[0]);
             grTotI6.SetName(modName+"__grTotI6");
@@ -2517,6 +2608,19 @@ void PixelCalib() {
             totErrArrI7_re.erase(totErrArrI7_re.begin() + n_max);
             totSigErrArrI7_re.erase(totSigErrArrI7_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI7_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI7_re.erase(chargeArrI7_re.begin() + n_max);
+              totArrI7_re.erase(totArrI7_re.begin() + n_max);
+              totSigArrI7_re.erase(totSigArrI7_re.begin() + n_max);
+              chargeErrArrI7_re.erase(chargeErrArrI7_re.begin() + n_max);
+              totErrArrI7_re.erase(totErrArrI7_re.begin() + n_max);
+              totSigErrArrI7_re.erase(totSigErrArrI7_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI7(ncharge_re, &chargeArrI7_re[0], &totArrI7_re[0], &chargeErrArrI7_re[0], &totErrArrI7_re[0]);
             grTotI7.SetName(modName+"__grTotI7");
             TGraphErrors grTotSigI7(ncharge_re, &chargeArrI7_re[0], &totSigArrI7_re[0], &chargeErrArrI7_re[0], &totSigErrArrI7_re[0]);
@@ -2569,6 +2673,19 @@ void PixelCalib() {
             chargeErrArrI8_re.erase(chargeErrArrI8_re.begin() + n_max);
             totErrArrI8_re.erase(totErrArrI8_re.begin() + n_max);
             totSigErrArrI8_re.erase(totSigErrArrI8_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI8_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI8_re.erase(chargeArrI8_re.begin() + n_max);
+              totArrI8_re.erase(totArrI8_re.begin() + n_max);
+              totSigArrI8_re.erase(totSigArrI8_re.begin() + n_max);
+              chargeErrArrI8_re.erase(chargeErrArrI8_re.begin() + n_max);
+              totErrArrI8_re.erase(totErrArrI8_re.begin() + n_max);
+              totSigErrArrI8_re.erase(totSigErrArrI8_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI8(ncharge_re, &chargeArrI8_re[0], &totArrI8_re[0], &chargeErrArrI8_re[0], &totErrArrI8_re[0]);
             grTotI8.SetName(modName+"__grTotI8");
@@ -2623,6 +2740,19 @@ void PixelCalib() {
             totErrArrI9_re.erase(totErrArrI9_re.begin() + n_max);
             totSigErrArrI9_re.erase(totSigErrArrI9_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI9_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI9_re.erase(chargeArrI9_re.begin() + n_max);
+              totArrI9_re.erase(totArrI9_re.begin() + n_max);
+              totSigArrI9_re.erase(totSigArrI9_re.begin() + n_max);
+              chargeErrArrI9_re.erase(chargeErrArrI9_re.begin() + n_max);
+              totErrArrI9_re.erase(totErrArrI9_re.begin() + n_max);
+              totSigErrArrI9_re.erase(totSigErrArrI9_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI9(ncharge_re, &chargeArrI9_re[0], &totArrI9_re[0], &chargeErrArrI9_re[0], &totErrArrI9_re[0]);
             grTotI9.SetName(modName+"__grTotI9");
             TGraphErrors grTotSigI9(ncharge_re, &chargeArrI9_re[0], &totSigArrI9_re[0], &chargeErrArrI9_re[0], &totSigErrArrI9_re[0]);
@@ -2675,6 +2805,19 @@ void PixelCalib() {
             chargeErrArrI10_re.erase(chargeErrArrI10_re.begin() + n_max);
             totErrArrI10_re.erase(totErrArrI10_re.begin() + n_max);
             totSigErrArrI10_re.erase(totSigErrArrI10_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI10_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI10_re.erase(chargeArrI10_re.begin() + n_max);
+              totArrI10_re.erase(totArrI10_re.begin() + n_max);
+              totSigArrI10_re.erase(totSigArrI10_re.begin() + n_max);
+              chargeErrArrI10_re.erase(chargeErrArrI10_re.begin() + n_max);
+              totErrArrI10_re.erase(totErrArrI10_re.begin() + n_max);
+              totSigErrArrI10_re.erase(totSigErrArrI10_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI10(ncharge_re, &chargeArrI10_re[0], &totArrI10_re[0], &chargeErrArrI10_re[0], &totErrArrI10_re[0]);
             grTotI10.SetName(modName+"__grTotI10");
@@ -2729,6 +2872,19 @@ void PixelCalib() {
             totErrArrI11_re.erase(totErrArrI11_re.begin() + n_max);
             totSigErrArrI11_re.erase(totSigErrArrI11_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI11_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI11_re.erase(chargeArrI11_re.begin() + n_max);
+              totArrI11_re.erase(totArrI11_re.begin() + n_max);
+              totSigArrI11_re.erase(totSigArrI11_re.begin() + n_max);
+              chargeErrArrI11_re.erase(chargeErrArrI11_re.begin() + n_max);
+              totErrArrI11_re.erase(totErrArrI11_re.begin() + n_max);
+              totSigErrArrI11_re.erase(totSigErrArrI11_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI11(ncharge_re, &chargeArrI11_re[0], &totArrI11_re[0], &chargeErrArrI11_re[0], &totErrArrI11_re[0]);
             grTotI11.SetName(modName+"__grTotI11");
             TGraphErrors grTotSigI11(ncharge_re, &chargeArrI11_re[0], &totSigArrI11_re[0], &chargeErrArrI11_re[0], &totSigErrArrI11_re[0]);
@@ -2781,6 +2937,19 @@ void PixelCalib() {
             chargeErrArrI12_re.erase(chargeErrArrI12_re.begin() + n_max);
             totErrArrI12_re.erase(totErrArrI12_re.begin() + n_max);
             totSigErrArrI12_re.erase(totSigErrArrI12_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI12_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI12_re.erase(chargeArrI12_re.begin() + n_max);
+              totArrI12_re.erase(totArrI12_re.begin() + n_max);
+              totSigArrI12_re.erase(totSigArrI12_re.begin() + n_max);
+              chargeErrArrI12_re.erase(chargeErrArrI12_re.begin() + n_max);
+              totErrArrI12_re.erase(totErrArrI12_re.begin() + n_max);
+              totSigErrArrI12_re.erase(totSigErrArrI12_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI12(ncharge_re, &chargeArrI12_re[0], &totArrI12_re[0], &chargeErrArrI12_re[0], &totErrArrI12_re[0]);
             grTotI12.SetName(modName+"__grTotI12");
@@ -2835,6 +3004,19 @@ void PixelCalib() {
             totErrArrI13_re.erase(totErrArrI13_re.begin() + n_max);
             totSigErrArrI13_re.erase(totSigErrArrI13_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI13_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI13_re.erase(chargeArrI13_re.begin() + n_max);
+              totArrI13_re.erase(totArrI13_re.begin() + n_max);
+              totSigArrI13_re.erase(totSigArrI13_re.begin() + n_max);
+              chargeErrArrI13_re.erase(chargeErrArrI13_re.begin() + n_max);
+              totErrArrI13_re.erase(totErrArrI13_re.begin() + n_max);
+              totSigErrArrI13_re.erase(totSigErrArrI13_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI13(ncharge_re, &chargeArrI13_re[0], &totArrI13_re[0], &chargeErrArrI13_re[0], &totErrArrI13_re[0]);
             grTotI13.SetName(modName+"__grTotI13");
             TGraphErrors grTotSigI13(ncharge_re, &chargeArrI13_re[0], &totSigArrI13_re[0], &chargeErrArrI13_re[0], &totSigErrArrI13_re[0]);
@@ -2888,6 +3070,19 @@ void PixelCalib() {
             totErrArrI14_re.erase(totErrArrI14_re.begin() + n_max);
             totSigErrArrI14_re.erase(totSigErrArrI14_re.begin() + n_max);
 
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI14_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI14_re.erase(chargeArrI14_re.begin() + n_max);
+              totArrI14_re.erase(totArrI14_re.begin() + n_max);
+              totSigArrI14_re.erase(totSigArrI14_re.begin() + n_max);
+              chargeErrArrI14_re.erase(chargeErrArrI14_re.begin() + n_max);
+              totErrArrI14_re.erase(totErrArrI14_re.begin() + n_max);
+              totSigErrArrI14_re.erase(totSigErrArrI14_re.begin() + n_max);
+            }
+
             TGraphErrors grTotI14(ncharge_re, &chargeArrI14_re[0], &totArrI14_re[0], &chargeErrArrI14_re[0], &totErrArrI14_re[0]);
             grTotI14.SetName(modName+"__grTotI14");
             TGraphErrors grTotSigI14(ncharge_re, &chargeArrI14_re[0], &totSigArrI14_re[0], &chargeErrArrI14_re[0], &totSigErrArrI14_re[0]);
@@ -2940,6 +3135,19 @@ void PixelCalib() {
             chargeErrArrI15_re.erase(chargeErrArrI15_re.begin() + n_max);
             totErrArrI15_re.erase(totErrArrI15_re.begin() + n_max);
             totSigErrArrI15_re.erase(totSigErrArrI15_re.begin() + n_max);
+
+            if ( (ncharge == ncharge_re + 1 ) && ( n_max == ncharge_re - 1 ) ){
+              fprintf(outputfile, "%d", (int) chargeArrI15_re[n_max]);
+              fprintf(outputfile, " ");
+
+              ncharge_re = ncharge_re - 1;
+              chargeArrI15_re.erase(chargeArrI15_re.begin() + n_max);
+              totArrI15_re.erase(totArrI15_re.begin() + n_max);
+              totSigArrI15_re.erase(totSigArrI15_re.begin() + n_max);
+              chargeErrArrI15_re.erase(chargeErrArrI15_re.begin() + n_max);
+              totErrArrI15_re.erase(totErrArrI15_re.begin() + n_max);
+              totSigErrArrI15_re.erase(totSigErrArrI15_re.begin() + n_max);
+            }
 
             TGraphErrors grTotI15(ncharge_re, &chargeArrI15_re[0], &totArrI15_re[0], &chargeErrArrI15_re[0], &totErrArrI15_re[0]);
             grTotI15.SetName(modName+"__grTotI15");
