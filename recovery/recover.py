@@ -358,7 +358,7 @@ while head2 < last2:
                     for i in range(len(splitted2))]
 
   n_insert = head2 - 8
-  summary_line[n_insert] = module2 + ": [ Parameters were recovered by using previous scan ] \n"
+  summary_line[n_insert] = module2 + ": \n" #+ ": [ Parameters were recovered by using previous scan ] \n"
 
   # write recovered data to file
   writer = csv.writer(all_recover, delimiter = " ")
@@ -506,7 +506,7 @@ new_summary_line = []
 
 for item in summary_line:
   try:
-    print(str(item.split(":")[1]))
+#    str(item.split(":")[1])
     if item.split(":")[1] != " [  ], [ ]\n":
       new_summary_line.append(item)
   except:

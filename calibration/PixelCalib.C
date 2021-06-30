@@ -94,9 +94,11 @@ void PixelCalib() {
   }
   if (WhichPart==1) {
      std::cout << "Running on BLayer" << std::endl;
-     inThrFile = "../../data/20170925_ALL/SCAN_S000067530.root";
+//     inThrFile = "../../data/20170925_ALL/SCAN_S000067530.root";
+     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
      inTimFile = "";
-     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
+//     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
+     inTotFile = "../../data/20180920_ALL/SCAN_S000072946.root";
      Output = "Out_BLayer";
   }
   if (WhichPart==2) {
@@ -124,9 +126,11 @@ void PixelCalib() {
   int nrow = 320;   // y-axis
   int ncol = 144;   // x-axis
 
-  const int ncharge = 10;  // injected charges
-  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
-  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0};
+  const int ncharge = 11;  // injected charges
+//  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
+  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 25000, 30000, 35000};
+//  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0};
+  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0};
 //  float chargeArr[ncharge]    = {2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000};
 //  float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
 
@@ -2371,6 +2375,24 @@ void PixelCalib() {
             parP0I3 = f1DispI3.GetParameter(0);
             parP1I3 = f1DispI3.GetParameter(1);
 
+//            std::cout << "parameter: " << parAI3 << " " << parEI3 << " " << parCI3 << std::endl;
+//            TCanvas *c33 = new TCanvas("c33");
+//            TH1 *frame3 = c33->DrawFrame(0.0, 0.0, 45000, 70);
+//            TF1 *f1Tot3 = new TF1("f1Tot3", funcTot, FitStartingPoint, chargeArr[ncharge - 1] + 100, 3);
+//            TGraphErrors *grTot3 = new TGraphErrors(ncharge_re, &chargeArrI3_re[0], &totArrI3_re[0], &chargeErrArrI3_re[0], &totErrArrI3_re[0]);
+//            grTot3->SetMarkerStyle(20);
+//            grTot3->SetMarkerSize(1.0);
+//            grTot3->Draw("P");
+//            f1Tot3->SetLineColor(kRed);
+//            grTot3->Fit(f1Tot3);
+//            gStyle->SetStatX(0.93);
+//            gStyle->SetStatY(0.93);
+//            gStyle->SetOptFit();
+//            std::string str_n;
+//            str_n = std::to_string(ncharge_re);
+//            c33->Print("./fitgraphNorm2/" + modName + "_Norm_I3_" + str_n + ".pdf");
+//            c33->Clear();
+//
             for(int i = 0; i < ncharge; i++){ badcalI3[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI3[i] = abs( 1 - ( (parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3) ) / chargeArrI3_re[i] );
