@@ -2365,8 +2365,8 @@ void PixelCalib() {
             grTotI3.SetName(modName+"__grTotI3");
             TGraphErrors grTotSigI3(ncharge_re, &chargeArrI3_re[0], &totSigArrI3_re[0], &chargeErrArrI3_re[0], &totSigErrArrI3_re[0]);
             grTotSigI3.SetName(modName+"__grTotSigI3");
-            TF3 f1TotI3("f1TotI3",funcTot, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 3);
-            TF3 f1DispI3("f1DispI3",funcDisp, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 2);
+            TF1 f1TotI3("f1TotI3",funcTot, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 3);
+            TF1 f1DispI3("f1DispI3",funcDisp, FitStartingPoint, chargeArrI3_re[ncharge_re-1]+100, 2);
             grTotI3.Fit(&f1TotI3,"MRQ");
             grTotSigI3.Fit(&f1DispI3,"MRQ");
             parAI3 = f1TotI3.GetParameter(0);
@@ -2375,24 +2375,6 @@ void PixelCalib() {
             parP0I3 = f1DispI3.GetParameter(0);
             parP1I3 = f1DispI3.GetParameter(1);
 
-//            std::cout << "parameter: " << parAI3 << " " << parEI3 << " " << parCI3 << std::endl;
-//            TCanvas *c33 = new TCanvas("c33");
-//            TH1 *frame3 = c33->DrawFrame(0.0, 0.0, 45000, 70);
-//            TF1 *f1Tot3 = new TF1("f1Tot3", funcTot, FitStartingPoint, chargeArr[ncharge - 1] + 100, 3);
-//            TGraphErrors *grTot3 = new TGraphErrors(ncharge_re, &chargeArrI3_re[0], &totArrI3_re[0], &chargeErrArrI3_re[0], &totErrArrI3_re[0]);
-//            grTot3->SetMarkerStyle(20);
-//            grTot3->SetMarkerSize(1.0);
-//            grTot3->Draw("P");
-//            f1Tot3->SetLineColor(kRed);
-//            grTot3->Fit(f1Tot3);
-//            gStyle->SetStatX(0.93);
-//            gStyle->SetStatY(0.93);
-//            gStyle->SetOptFit();
-//            std::string str_n;
-//            str_n = std::to_string(ncharge_re);
-//            c33->Print("./fitgraphNorm2/" + modName + "_Norm_I3_" + str_n + ".pdf");
-//            c33->Clear();
-//
             for(int i = 0; i < ncharge; i++){ badcalI3[i] = 0; }
             for(int i = qthresh; i < ncharge_re; i++){
               badcalI3[i] = abs( 1 - ( (parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3) ) / chargeArrI3_re[i] );
