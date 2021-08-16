@@ -95,10 +95,12 @@ void PixelCalib() {
   if (WhichPart==1) {
      std::cout << "Running on BLayer" << std::endl;
 //     inThrFile = "../../data/20170925_ALL/SCAN_S000067530.root";
-     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
+     inThrFile = "../../data/newscan/SCAN_S000084602.root";
+//     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
      inTimFile = "";
-//     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
-     inTotFile = "../../data/20180920_ALL/SCAN_S000072946.root";
+     //     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
+     //     inTotFile = "../../data/20180920_ALL/SCAN_S000072946.root";
+     inTotFile = "../../data/newscan/SCAN_S000084828.root";
      Output = "Out_BLayer";
   }
   if (WhichPart==2) {
@@ -119,18 +121,20 @@ void PixelCalib() {
   // selecting Q threshold
   int qthresh = -1;
   if (WhichPart==0) qthresh = 0;
-  if (WhichPart==1) qthresh = 3;
+  if (WhichPart==1) qthresh = 5;
   if (WhichPart==2) qthresh = 1;
   if (WhichPart==3) qthresh = 3;
 
   int nrow = 320;   // y-axis
   int ncol = 144;   // x-axis
 
-  const int ncharge = 11;  // injected charges
+  const int ncharge = 21;  // injected charges
 //  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
-  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 25000, 30000, 35000};
+//  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 25000, 30000, 35000};
+  float chargeArr[ncharge]    = {3000, 3500, 4000, 4500, 5000, 5500, 6000, 6500, 7000, 7500, 8000, 8500, 9000, 9500, 10000, 12000, 14000, 16000, 18000, 20000, 25000}; //low 21steps
 //  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0};
-  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0};
+//  float chargeErrArr[ncharge] = {   0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0};
+  float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0}; //low
 //  float chargeArr[ncharge]    = {2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000};
 //  float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
 
@@ -2095,28 +2099,6 @@ void PixelCalib() {
         }
 
         const double chi2_error = 0.05;
-//        if(badcalI0_max > chi2_error){
-//          TFile *fout = new TFile("graph_I0.root","recreate");
-//          fout -> cd();
-//          TCanvas *c30 = new TCanvas("c30");
-//          TH1 *frame0 = c30->DrawFrame(0.0, 0.0, 45000, 60);
-//          TF1 *f1Tot0  = new TF1("f1Tot0",  funcTot,  FitStartingPoint, chargeArr[ncharge-1]+100, 3);
-//          TF1 *f1Disp0 = new TF1("f1Disp0", funcDisp, FitStartingPoint, chargeArr[ncharge-1]+100, 2);
-//          TGraphErrors *grTot0 = new TGraphErrors(ncharge, chargeArr, totArrI0, chargeErrArr, totErrArrI0);
-//          grTot0->SetMarkerStyle(20);
-//          grTot0->SetMarkerSize(0.5);
-//          grTot0->Draw("P");
-//          f1Tot0->SetLineColor(kRed);
-//          grTot0->Fit(f1Tot0);
-//          grTot0->SetMarkerSize(1.0);
-//          gStyle->SetStatX(0.93);
-//          gStyle->SetStatY(0.93);
-//          gStyle->SetOptFit();
-//          c30->Print("./fitgraphNorm/"+modName+"_Norm_I0.pdf");
-//          grTot0 ->Write();
-//          fout -> Close();
-//        }
-
         fprintf(outputfile, "%s", modStr.c_str());
         fprintf(outputfile, "\n");
 

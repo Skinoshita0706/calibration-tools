@@ -8,7 +8,30 @@ import datetime
 
 input_data  = sys.argv[1]
 output_data = sys.argv[2]
-error_num   = 0
+error_num   = {
+  "Number of FEs with all values zero": 0,
+  "normal threshold": 0, "normal sigma": 0, "normal noise": 0, "normal intime": 0,
+  "long threshold": 0,   "long sigma": 0,   "long noise": 0,   "long intime": 0,
+  "ganged threshold": 0, "ganged sigma": 0, "ganged noise": 0, "ganged intime": 0,
+  "fit_normal A": 0,      "fit_normal E": 0,      "fit_normal C": 0,
+  "fit_longGanged A": 0, "fit_longGanged E": 0, "fit_longGanged C": 0,
+  "quality/unused fit_quality": 0,"quality/unused unused": 0
+}
+
+bad_num = {
+  "LI": 0,
+  "L0": 0,
+  "L1": 0,
+  "L2": 0,
+  "Disk": 0
+}
+not_scan = {
+  "LI": 0,
+  "L0": 0,
+  "L1": 0,
+  "L2": 0,
+  "Disk": 0
+}
 
 #------------- recovery equations ---------------------------------------------
 def avg(a, b):
@@ -48,7 +71,7 @@ def recover_diff(nth_FE, pixel_type, parameter, recover_list):
 
 
 
-#------------- recover the partially "0" component ----------------------------
+#------------- Count number of bad fits by summary file ----------------------------
 
 test_data = open(input_data, "r")
 result    = open("partial_recover.dat","w+")
@@ -58,9 +81,48 @@ today = today_date.strftime( '%Y%m%d' )
 path_to_summary = "./" + today + "_CalibSummary.txt"
 
 summary   = open(path_to_summary, "r+")
+contents_sum = summary.read()
+elements_sum = contents_sum.splitlines()
+lastsum = len(elements_sum)
+headsum = 0
+
+#print(summary_line)
+while headsum < lastsum:
+  linesum = elements_sum[headsum]
+  # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
+  if not linesum.find("L") == 0 and not linesum.find("D") == 0:
+    headsum += 1
+    continue
+  # seek the tail of the block
+  tailsum = headsum + 1
+
+  while tailsum < lastsum:
+    tmpsum = elements_sum[tailsum]
+    if tmpsum.find("L") == 0 or tmpsum.find("D") == 0 or tailsum == lastsum:
+      break
+    else:
+      tailsum += 1
+
+  # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
+  modulesum = elements_sum[headsum]
+  print(modulesum)
+
+  for i in range(tailsum - headsum -1):
+    if elements_sum[headsum + i + 1 ] != "[ ]":
+      if modulesum[0] != "D":
+        bad_num[modulesum[:2]] += 1
+      else:
+        bad_num["Disk"] += 1
+
+  headsum = tailsum
+print(bad_num)
+summary.close()
+
+
+#------------- recover the partially "0" component ----------------------------
+
+summary   = open(path_to_summary, "r+")
 summary_line = summary.readlines()
-
-
 contents_part = test_data.read()
 test_data.close()
 elements_part = contents_part.splitlines()
@@ -69,8 +131,8 @@ para_lists = {
   "normal" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
   "long"   : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
   "ganged" : { "threshold" : [], "sigma" : [], "noise" : [], "intime" : [] },
-  "fit_normal" : { "A" : [], "B" : [], "C" : [] },
-  "fit_longGanged" : { "A" : [], "B" : [], "C" : [] },
+  "fit_normal" : { "A" : [], "E" : [], "C" : [] },
+  "fit_longGanged" : { "A" : [], "E" : [], "C" : [] },
   "quality/unused" : {"fit_quality" : [], "unused" : [] }
 }
 
@@ -126,8 +188,8 @@ while head < last:
              "normal" : { "threshold" : float(s[1]), "sigma" : float(s[2]),  "noise" : float(s[3]),  "intime" : float(s[4])  },
              "long"   : { "threshold" : float(s[5]), "sigma" : float(s[6]),  "noise" : float(s[7]),  "intime" : float(s[8])  },
              "ganged" : { "threshold" : float(s[9]), "sigma" : float(s[10]), "noise" : float(s[11]), "intime" : float(s[12]) },
-             "fit_normal" : { "A" : float(s[13]), "B" : float(s[14]), "C" : float(s[15]) },
-             "fit_longGanged" : { "A" : float(s[16]), "B" : float(s[17]), "C" : float(s[18]) },
+             "fit_normal" : { "A" : float(s[13]), "E" : float(s[14]), "C" : float(s[15]) },
+             "fit_longGanged" : { "A" : float(s[16]), "E" : float(s[17]), "C" : float(s[18]) },
              "quality/unused" : {"fit_quality" : float(s[19]), "unused" : float(s[20]) } }
              for s in splitted ]
 
@@ -146,18 +208,20 @@ while head < last:
           if data[i][pixtype][parameter] == 0 or data[i][pixtype][parameter] == -28284.3:
             check_fe = check_fe + 1
             summary_text = summary_text + pixtype + " " + parameter + ", "
+            error_num[pixtype + " " + parameter] = error_num[pixtype + " " + parameter] + 1
 
 #    summary_line[n_insert] = "I" + str(i) + ": [  ], " + summary_line[n_insert]
     if check_fe == 20:
       summary_line[n_insert] = "I" + str(i) + ": [ Missing all values for this FE. ], " + summary_line[n_insert]
+      error_num["Number of FEs with all values zero"] += 1
     else:
       summary_line[n_insert] = "I" + str(i) + ": [ " + summary_text[:-2] + " ], " + summary_line[n_insert]
 
 
-  for s in splitted:
-    for i in range(len(s)):
-      if s[i] == "0":
-        error_num += 1
+#  for s in splitted:
+#    for i in range(len(s)):
+#      if s[i] == "0":
+#        error_num += 1
 
   # Make lists to recover dead channel using different FEs
   # normal threshold, sigma, noise, intime-thr
@@ -177,11 +241,11 @@ while head < last:
   ganged_intime = [data[i]["ganged"]["intime"]     for i in range(n_FEs) if data[i]["ganged"]["intime"] != 0]
   # normal parameter A, B, C
   normal_A = [data[i]["fit_normal"]["A"] for i in range(n_FEs) if data[i]["fit_normal"]["A"] != 0]
-  normal_B = [data[i]["fit_normal"]["B"] for i in range(n_FEs) if data[i]["fit_normal"]["B"] != 0 and data[i]["fit_normal"]["B"] != -28284.3]
+  normal_B = [data[i]["fit_normal"]["E"] for i in range(n_FEs) if data[i]["fit_normal"]["E"] != 0 and data[i]["fit_normal"]["E"] != -28284.3]
   normal_C = [data[i]["fit_normal"]["C"] for i in range(n_FEs) if data[i]["fit_normal"]["C"] != 0]
   # long/ganged parameter A, B, C
   longGanged_A = [data[i]["fit_longGanged"]["A"] for i in range(n_FEs) if data[i]["fit_longGanged"]["A"] != 0]
-  longGanged_B = [data[i]["fit_longGanged"]["B"] for i in range(n_FEs) if data[i]["fit_longGanged"]["B"] != 0 and data[i]["fit_longGanged"]["B"] != -28284.3]
+  longGanged_B = [data[i]["fit_longGanged"]["E"] for i in range(n_FEs) if data[i]["fit_longGanged"]["E"] != 0 and data[i]["fit_longGanged"]["E"] != -28284.3]
   longGanged_C = [data[i]["fit_longGanged"]["C"] for i in range(n_FEs) if data[i]["fit_longGanged"]["C"] != 0]
   # fit quality/unused
   qty    = [data[i]["quality/unused"]["fit_quality"] for i in range(n_FEs) if data[i]["quality/unused"]["fit_quality"] != 0]
@@ -194,8 +258,8 @@ while head < last:
      recover_thr(i, "normal", "threshold", normal_thr), recover_diff(i, "normal", "sigma", normal_sigma), recover_diff(i, "normal", "noise", normal_noise), recover_diff(i, "normal", "intime", normal_intime),
      recover_thr(i, "long", "threshold", long_thr),     recover_diff(i, "long", "sigma", long_sigma),     recover_diff(i, "long", "noise", long_noise),     recover_diff(i, "long", "intime", long_intime),
      recover_thr(i, "ganged", "threshold", ganged_thr), recover_diff(i, "ganged", "sigma", ganged_sigma), recover_diff(i, "ganged", "noise", ganged_noise), recover_diff(i, "ganged", "intime", ganged_intime),
-     recover_diff(i, "fit_normal", "A", normal_A),         recover_diff(i, "fit_normal", "B", normal_B),         recover_diff(i, "fit_normal", "C", normal_C),
-     recover_diff(i, "fit_longGanged", "A", longGanged_A), recover_diff(i, "fit_longGanged", "B", longGanged_B), recover_diff(i, "fit_longGanged", "C", longGanged_C),
+     recover_diff(i, "fit_normal", "A", normal_A),         recover_diff(i, "fit_normal", "E", normal_B),         recover_diff(i, "fit_normal", "C", normal_C),
+     recover_diff(i, "fit_longGanged", "A", longGanged_A), recover_diff(i, "fit_longGanged", "E", longGanged_B), recover_diff(i, "fit_longGanged", "C", longGanged_C),
      recover_diff(i, "quality/unused", "fit_quality", qty), recover_diff(i, "quality/unused", "unused", unused)]
    for i in range(len(splitted))]
 
@@ -224,11 +288,11 @@ while head < last:
   para_lists["ganged"]["intime"].append([recover_diff(i, "ganged", "intime", ganged_intime) for i in range(len(splitted))])
   # normal pixel fit parameters
   para_lists["fit_normal"]["A"].append([recover_diff(i, "fit_normal", "A", normal_A) for i in range(len(splitted))])
-  para_lists["fit_normal"]["B"].append([recover_diff(i, "fit_normal", "B", normal_B) for i in range(len(splitted))])
+  para_lists["fit_normal"]["E"].append([recover_diff(i, "fit_normal", "E", normal_B) for i in range(len(splitted))])
   para_lists["fit_normal"]["C"].append([recover_diff(i, "fit_normal", "C", normal_C) for i in range(len(splitted))])
   # long/ganged pixel fit parameters
   para_lists["fit_longGanged"]["A"].append([recover_diff(i, "fit_longGanged", "A", longGanged_A) for i in range(len(splitted))])
-  para_lists["fit_longGanged"]["B"].append([recover_diff(i, "fit_longGanged", "B", longGanged_B) for i in range(len(splitted))])
+  para_lists["fit_longGanged"]["E"].append([recover_diff(i, "fit_longGanged", "E", longGanged_B) for i in range(len(splitted))])
   para_lists["fit_longGanged"]["C"].append([recover_diff(i, "fit_longGanged", "C", longGanged_C) for i in range(len(splitted))])
   # fit quality/unused
   para_lists["quality/unused"]["fit_quality"].append([recover_diff(i, "quality/unused", "fit_quality", qty) for i in range(len(splitted))])
@@ -349,11 +413,11 @@ while head2 < last2:
     head_diff = tail_diff
 
   data_recover_all = [[splitted[i][0],
-                    diffmodule(data_diff, i, "normal", "threshold"), diffmodule(data_diff, i, "normal", "sigma"), diffmodule(data_diff, i, "normal", "noise"), diffmodule(data_diff, i, "normal", "intime"),
-                    diffmodule(data_diff, i, "long", "threshold"),   diffmodule(data_diff, i, "long", "sigma"),   diffmodule(data_diff, i, "long", "noise"),   diffmodule(data_diff, i, "long", "intime"),
-                    diffmodule(data_diff, i, "ganged", "threshold"), diffmodule(data_diff, i, "ganged", "sigma"), diffmodule(data_diff, i, "ganged", "noise"), diffmodule(data_diff, i, "ganged", "intime"),
-                    diffmodule(data_diff, i, "fit_normal", "A"),     diffmodule(data_diff, i, "fit_normal", "B"),     diffmodule(data_diff, i, "fit_normal", "C"),
-                    diffmodule(data_diff, i, "fit_longGanged", "A"), diffmodule(data_diff, i, "fit_longGanged", "B"), diffmodule(data_diff, i, "fit_longGanged", "C"),
+                    int(diffmodule(data_diff, i, "normal", "threshold")), int(diffmodule(data_diff, i, "normal", "sigma")), int(diffmodule(data_diff, i, "normal", "noise")), int(diffmodule(data_diff, i, "normal", "intime")),
+                    int(diffmodule(data_diff, i, "long", "threshold")),   int(diffmodule(data_diff, i, "long", "sigma")),   int(diffmodule(data_diff, i, "long", "noise")),   int(diffmodule(data_diff, i, "long", "intime")),
+                    int(diffmodule(data_diff, i, "ganged", "threshold")), int(diffmodule(data_diff, i, "ganged", "sigma")), int(diffmodule(data_diff, i, "ganged", "noise")), int(diffmodule(data_diff, i, "ganged", "intime")),
+                    '{:.6g}'.format(diffmodule(data_diff, i, "fit_normal", "A")),     '{:.6g}'.format(diffmodule(data_diff, i, "fit_normal", "B")),     '{:.6g}'.format(diffmodule(data_diff, i, "fit_normal", "C")),
+                    '{:.6g}'.format(diffmodule(data_diff, i, "fit_longGanged", "A")), '{:.6g}'.format(diffmodule(data_diff, i, "fit_longGanged", "B")), '{:.6g}'.format(diffmodule(data_diff, i, "fit_longGanged", "C")),
                     diffmodule(data_diff, i, "quality/unused", "fit_quality"), diffmodule(data_diff, i, "quality/unused", "unused")]
                     for i in range(len(splitted2))]
 
@@ -422,6 +486,8 @@ list_sa = list(set(golden_modules) - set(module_list))
 
 all_recover.close()
 
+
+
 copy_rec  = open("template.dat","r")
 contents_copy = copy_rec.read()
 elements_copy = contents_copy.splitlines()
@@ -454,10 +520,56 @@ while head3 < last3:
       for i in range(tail3 - head3):
         f.writelines(elements_copy[head3 + i] + "\n")
     summary_line.append(module3 + ": [ Scans were not performed for this module and copied from previous scan ]\n")
+    if module3[0] != "D":
+      not_scan[module3[:2]] += 1
+    else:
+      not_scan["Disk"] += 1
   else:
     print("The result for this module exists")
-
   head3 = tail3
+
+
+golden_dict = {}
+for i, item in enumerate(golden_modules):
+  golden_dict[item] = i
+
+sort_rec = open(output_data,"r")
+contents_sort = sort_rec.read()
+elements_sort = contents_sort.splitlines()
+last3 = len(elements_sort)
+head3 = 0
+n_new = 0
+
+sort_dict = {}
+while head3 < last3:
+  line3 = elements_sort[head3]
+  # seek the head of the blocks ("L" : IBL, BLayer, L1L2. "D" : disk)
+  if not line3.find("L") == 0 and not line3.find("D") == 0:
+    head3 += 1
+    continue
+  # seek the tail of the block
+  tail3 = head3 + 1
+
+  while tail3 < last3:
+    tmp3 = elements_sort[tail3]
+    if tmp3.find("L") == 0 or tmp3.find("D") == 0 or tail3 == last3:
+      break
+    else:
+      tail3 += 1
+
+  # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
+  module3 = elements_sort[head3]
+  sort_num = golden_dict[module3]
+  sort_dict[sort_num] = [ elements_sort[head3 + i] + "\n" for i in range(tail3-head3) ]
+
+  print( "processing module", module3 )
+  head3 = tail3
+
+print("sorting in hash ID...")
+with open(output_data, "w") as f:
+  for i in range(len(golden_modules)):
+    for item in sort_dict[i]:
+      f.writelines(item)
 
 template_summary = [
   "##===================================================================================\n",
@@ -501,6 +613,29 @@ template_summary = [
   "\n",
   "\n"
   ]
+
+template_summary.append("~~~~~~~~ Summary for the recovery ~~~~~~~~ \n")
+template_summary.append("1. Number of parameters that were 0\n")
+for parameter in error_num:
+  template_summary.append(parameter + ": " + str(error_num[parameter]) + "\n")
+template_summary.append("\n")
+
+template_summary.append("2. Number of FEs that had bad fits\n")
+template_summary.append("IBL: " + str(bad_num["LI"]) + "\n")
+template_summary.append("B-Layer: " + str(bad_num["L0"]) + "\n")
+template_summary.append("Layer1: " + str(bad_num["L1"]) + "\n")
+template_summary.append("Layer2: " + str(bad_num["L2"]) + "\n")
+template_summary.append("Disk: " + str(bad_num["Disk"]) + "\n")
+template_summary.append("\n")
+
+template_summary.append("3. Number of modules that were not scanned\n")
+template_summary.append("IBL: " + str(not_scan["LI"]) + "\n")
+template_summary.append("B-Layer: " + str(not_scan["L0"]) + "\n")
+template_summary.append("Layer1: " + str(not_scan["L1"]) + "\n")
+template_summary.append("Layer2: " + str(not_scan["L2"]) + "\n")
+template_summary.append("Disk: " + str(not_scan["Disk"]) + "\n")
+
+template_summary.append("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" + "\n")
 
 new_summary_line = []
 
