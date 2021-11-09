@@ -75,7 +75,7 @@ void PixelCalib() {
   */
 
  //******************************************************
-  int WhichPart = 1; // 0=IBL, 1=BLayer, 2=L1L2, 3=disk;
+  int WhichPart = 3; // 0=IBL, 1=BLayer, 2=L1L2, 3=disk;
  //******************************************************
 
   std::string inThrFile = "";
@@ -87,47 +87,59 @@ void PixelCalib() {
   // selcting inputs file
   if (WhichPart==0) {
      std::cout << "Running on IBL" << std::endl;
-     inThrFile = "../../data/TOT_Calub/SCAN_S000070879.root";
+     inThrFile = "../../data/202110_ALL/SCAN_S000086064.root";
      inTimFile = "";
-     inTotFile = "../../data/TOT_Calub/SCAN_S000072038.root";
+//     inTotFile = "../../data/TOT_Calub/SCAN_S000072038.root";
+     inTotFile = "../../data/202110_ALL/SCAN_S000086070.root";
      Output = "Out_IBL";
   }
   if (WhichPart==1) {
      std::cout << "Running on BLayer" << std::endl;
 //     inThrFile = "../../data/20170925_ALL/SCAN_S000067530.root";
-     inThrFile = "../../data/newscan/SCAN_S000084602.root";
-//     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
-     inTimFile = "";
+     inThrFile = "../../data/sep/SCAN_S000085685.root";
+     //     inThrFile = "../../data/20180622_ALL/SCAN_S000071759.root";
+     inTimFile = "../../data/sep/SCAN_S000085681.root";
      //     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
      //     inTotFile = "../../data/20180920_ALL/SCAN_S000072946.root";
-     inTotFile = "../../data/newscan/SCAN_S000084828.root";
+     inTotFile = "../../data/sep/SCAN_S000085766.root";
      Output = "Out_BLayer";
   }
   if (WhichPart==2) {
      std::cout << "Running on L1L2" << std::endl; //usally 2 scan, not merging the root life but the txt file
-     inThrFile = "../../data/20170925_ALL/SCAN_S000067465.root";
-     inTimFile = "";
-     inTotFile = "../../data/20170925_ALL/SCAN_S000067504.root"; // 67502 + 67504
+     inThrFile = "../../data/sep/SCAN_S000085642.root";
+     inTimFile = "../../data/sep/SCAN_S000085646.root";
+     inTotFile = "../../data/sep/SCAN_S000085766.root"; // 67502 + 67504
      Output = "Out_L1L2";
   }
   if (WhichPart==3) {
      std::cout << "Running on Disk" << std::endl;
-     inThrFile = "../../data/20170925_ALL/SCAN_S000067482.root";
-     inTimFile = "";
-     inTotFile = "../../data/20170925_ALL/SCAN_S000067531.root";
+     inThrFile = "../../data/202109_ALL/SCAN_S000085671.root";
+     inTimFile = "../../data/202109_ALL/SCAN_S000085673.root";
+     inTotFile = "../../data/202109_ALL/SCAN_S000085766.root";
      Output = "Out_Disk";
   }
 
   // selecting Q threshold
   int qthresh = -1;
-  if (WhichPart==0) qthresh = 0;
+  if (WhichPart==0) qthresh = 8;
   if (WhichPart==1) qthresh = 5;
-  if (WhichPart==2) qthresh = 1;
-  if (WhichPart==3) qthresh = 3;
+  if (WhichPart==2) qthresh = 5;
+  if (WhichPart==3) qthresh = 5;
 
-  int nrow = 320;   // y-axis
-  int ncol = 144;   // x-axis
+  int nrow = -1;     // y-axis
+  int ncol = -1; // x-axis
+  if (WhichPart == 0)
+  {
+    nrow = 336;
+    ncol = 160;
+  }
+  else
+  {
+    nrow = 320; // y-axis
+    ncol = 144; // x-axis
+  }
 
+//  const int ncharge = 22;  // injected charges
   const int ncharge = 21;  // injected charges
 //  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 30000, 40000};
 //  float chargeArr[ncharge]    = {3000, 3500, 4000, 6000, 10000, 15000, 20000, 25000, 25000, 30000, 35000};
@@ -137,6 +149,8 @@ void PixelCalib() {
   float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0}; //low
 //  float chargeArr[ncharge]    = {2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000};
 //  float chargeErrArr[ncharge] = {   0,    0,    0,    0,    0,    0,    0,    0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0,     0};
+//  float chargeArr[ncharge] = {1400, 1500, 1750, 2000, 2500, 3000, 3500, 4000, 5000, 6000, 8000, 10000, 12000, 14000, 16000, 18000, 20000, 22000, 24000, 26000, 28000, 30000}; //19 steps with 0Preset_HitDisConfig
+//  float chargeErrArr[ncharge] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
   std::map<std::string,std::map<std::string,std::map<std::string, float> > > pcdMap;
   std::map<std::string,std::map<std::string,std::map<std::string, float> > > timMap;
@@ -184,503 +198,602 @@ void PixelCalib() {
       while ((modKey=(TKey*)modItr())) {
         TString modName(modKey->GetName());
         std::string modStr(modKey->GetName());
-        if (modName=="DSP_ERRORS") { continue; }
+        if (modStr.substr(0,1) == "D")
+        { // for FE-I3
+          if (modName == "DSP_ERRORS")
+          {
+            continue;
+          }
 
-        // get module map
-        int hashID = -1;
-        int bec = -1;
-        int layer = -1;
-        int phi_module = -1;
-        int eta_module = -1;
-        pixelMapping(modStr, &hashID, &bec, &layer, &phi_module, &eta_module);
+          // get module map
+          int hashID = -1;
+          int bec = -1;
+          int layer = -1;
+          int phi_module = -1;
+          int eta_module = -1;
+          pixelMapping(modStr, &hashID, &bec, &layer, &phi_module, &eta_module);
 
+          TString st(modName(3, 3));
+          TString chi2HistDirPath = modName + "/" + chi2HistName + "/A0/B0";
+          TDirectoryFile *chi2HistDir = (TDirectoryFile *)rodDir->Get(chi2HistDirPath);
+          TH2F *h2dChi2 = (TH2F *)((TKey *)chi2HistDir->GetListOfKeys()->First())->ReadObj();
+          //chi2HistMap[modName] = h2dChi2;
+          TString thrHistDirPath = modName + "/" + thrHistName + "/A0/B0";
+          TDirectoryFile *thrHistDir = (TDirectoryFile *)rodDir->Get(thrHistDirPath);
+          TH2F *h2dThr = (TH2F *)((TKey *)thrHistDir->GetListOfKeys()->First())->ReadObj();
+          //thrHistMap[modName] = h2dThr;
+          TString sigHistDirPath = modName + "/" + sigHistName + "/A0/B0";
+          TDirectoryFile *sigHistDir = (TDirectoryFile *)rodDir->Get(sigHistDirPath);
+          TH2F *h2dSig = (TH2F *)((TKey *)sigHistDir->GetListOfKeys()->First())->ReadObj();
+          //sigHistMap[modName] = h2dSig;
 
-        TString st(modName(3,3));
-        TString chi2HistDirPath = modName + "/" + chi2HistName + "/A0/B0";
-        TDirectoryFile* chi2HistDir = (TDirectoryFile*)rodDir->Get(chi2HistDirPath);
-        TH2F* h2dChi2 = (TH2F*)((TKey*)chi2HistDir->GetListOfKeys()->First())->ReadObj();
-        //chi2HistMap[modName] = h2dChi2;
-        TString thrHistDirPath = modName + "/" + thrHistName + "/A0/B0";
-        TDirectoryFile* thrHistDir = (TDirectoryFile*)rodDir->Get(thrHistDirPath);
-        TH2F* h2dThr = (TH2F*)((TKey*)thrHistDir->GetListOfKeys()->First())->ReadObj();
-        //thrHistMap[modName] = h2dThr;
-        TString sigHistDirPath = modName + "/" + sigHistName + "/A0/B0";
-        TDirectoryFile* sigHistDir = (TDirectoryFile*)rodDir->Get(sigHistDirPath);
-        TH2F* h2dSig = (TH2F*)((TKey*)sigHistDir->GetListOfKeys()->First())->ReadObj();
-        //sigHistMap[modName] = h2dSig;
+          TH1F h1dThrNormI0("h1dThrNormI0", "", 200, 0, 6000);
+          TH1F h1dThrNormI1("h1dThrNormI1", "", 200, 0, 6000);
+          TH1F h1dThrNormI2("h1dThrNormI2", "", 200, 0, 6000);
+          TH1F h1dThrNormI3("h1dThrNormI3", "", 200, 0, 6000);
+          TH1F h1dThrNormI4("h1dThrNormI4", "", 200, 0, 6000);
+          TH1F h1dThrNormI5("h1dThrNormI5", "", 200, 0, 6000);
+          TH1F h1dThrNormI6("h1dThrNormI6", "", 200, 0, 6000);
+          TH1F h1dThrNormI7("h1dThrNormI7", "", 200, 0, 6000);
+          TH1F h1dThrNormI8("h1dThrNormI8", "", 200, 0, 6000);
+          TH1F h1dThrNormI9("h1dThrNormI9", "", 200, 0, 6000);
+          TH1F h1dThrNormI10("h1dThrNormI10", "", 200, 0, 6000);
+          TH1F h1dThrNormI11("h1dThrNormI11", "", 200, 0, 6000);
+          TH1F h1dThrNormI12("h1dThrNormI12", "", 200, 0, 6000);
+          TH1F h1dThrNormI13("h1dThrNormI13", "", 200, 0, 6000);
+          TH1F h1dThrNormI14("h1dThrNormI14", "", 200, 0, 6000);
+          TH1F h1dThrNormI15("h1dThrNormI15", "", 200, 0, 6000);
+          TH1F h1dSigNormI0("h1dSigNormI0", "", 200, 0, 500);
+          TH1F h1dSigNormI1("h1dSigNormI1", "", 200, 0, 500);
+          TH1F h1dSigNormI2("h1dSigNormI2", "", 200, 0, 500);
+          TH1F h1dSigNormI3("h1dSigNormI3", "", 200, 0, 500);
+          TH1F h1dSigNormI4("h1dSigNormI4", "", 200, 0, 500);
+          TH1F h1dSigNormI5("h1dSigNormI5", "", 200, 0, 500);
+          TH1F h1dSigNormI6("h1dSigNormI6", "", 200, 0, 500);
+          TH1F h1dSigNormI7("h1dSigNormI7", "", 200, 0, 500);
+          TH1F h1dSigNormI8("h1dSigNormI8", "", 200, 0, 500);
+          TH1F h1dSigNormI9("h1dSigNormI9", "", 200, 0, 500);
+          TH1F h1dSigNormI10("h1dSigNormI10", "", 200, 0, 500);
+          TH1F h1dSigNormI11("h1dSigNormI11", "", 200, 0, 500);
+          TH1F h1dSigNormI12("h1dSigNormI12", "", 200, 0, 500);
+          TH1F h1dSigNormI13("h1dSigNormI13", "", 200, 0, 500);
+          TH1F h1dSigNormI14("h1dSigNormI14", "", 200, 0, 500);
+          TH1F h1dSigNormI15("h1dSigNormI15", "", 200, 0, 500);
 
-        TH1F h1dThrNormI0("h1dThrNormI0","",200,0,6000);
-        TH1F h1dThrNormI1("h1dThrNormI1","",200,0,6000);
-        TH1F h1dThrNormI2("h1dThrNormI2","",200,0,6000);
-        TH1F h1dThrNormI3("h1dThrNormI3","",200,0,6000);
-        TH1F h1dThrNormI4("h1dThrNormI4","",200,0,6000);
-        TH1F h1dThrNormI5("h1dThrNormI5","",200,0,6000);
-        TH1F h1dThrNormI6("h1dThrNormI6","",200,0,6000);
-        TH1F h1dThrNormI7("h1dThrNormI7","",200,0,6000);
-        TH1F h1dThrNormI8("h1dThrNormI8","",200,0,6000);
-        TH1F h1dThrNormI9("h1dThrNormI9","",200,0,6000);
-        TH1F h1dThrNormI10("h1dThrNormI10","",200,0,6000);
-        TH1F h1dThrNormI11("h1dThrNormI11","",200,0,6000);
-        TH1F h1dThrNormI12("h1dThrNormI12","",200,0,6000);
-        TH1F h1dThrNormI13("h1dThrNormI13","",200,0,6000);
-        TH1F h1dThrNormI14("h1dThrNormI14","",200,0,6000);
-        TH1F h1dThrNormI15("h1dThrNormI15","",200,0,6000);
-        TH1F h1dSigNormI0("h1dSigNormI0","",200,0,500);
-        TH1F h1dSigNormI1("h1dSigNormI1","",200,0,500);
-        TH1F h1dSigNormI2("h1dSigNormI2","",200,0,500);
-        TH1F h1dSigNormI3("h1dSigNormI3","",200,0,500);
-        TH1F h1dSigNormI4("h1dSigNormI4","",200,0,500);
-        TH1F h1dSigNormI5("h1dSigNormI5","",200,0,500);
-        TH1F h1dSigNormI6("h1dSigNormI6","",200,0,500);
-        TH1F h1dSigNormI7("h1dSigNormI7","",200,0,500);
-        TH1F h1dSigNormI8("h1dSigNormI8","",200,0,500);
-        TH1F h1dSigNormI9("h1dSigNormI9","",200,0,500);
-        TH1F h1dSigNormI10("h1dSigNormI10","",200,0,500);
-        TH1F h1dSigNormI11("h1dSigNormI11","",200,0,500);
-        TH1F h1dSigNormI12("h1dSigNormI12","",200,0,500);
-        TH1F h1dSigNormI13("h1dSigNormI13","",200,0,500);
-        TH1F h1dSigNormI14("h1dSigNormI14","",200,0,500);
-        TH1F h1dSigNormI15("h1dSigNormI15","",200,0,500);
+          TH1F h1dThrLongI0("h1dThrLongI0", "", 200, 0, 6000);
+          TH1F h1dThrLongI1("h1dThrLongI1", "", 200, 0, 6000);
+          TH1F h1dThrLongI2("h1dThrLongI2", "", 200, 0, 6000);
+          TH1F h1dThrLongI3("h1dThrLongI3", "", 200, 0, 6000);
+          TH1F h1dThrLongI4("h1dThrLongI4", "", 200, 0, 6000);
+          TH1F h1dThrLongI5("h1dThrLongI5", "", 200, 0, 6000);
+          TH1F h1dThrLongI6("h1dThrLongI6", "", 200, 0, 6000);
+          TH1F h1dThrLongI7("h1dThrLongI7", "", 200, 0, 6000);
+          TH1F h1dThrLongI8("h1dThrLongI8", "", 200, 0, 6000);
+          TH1F h1dThrLongI9("h1dThrLongI9", "", 200, 0, 6000);
+          TH1F h1dThrLongI10("h1dThrLongI10", "", 200, 0, 6000);
+          TH1F h1dThrLongI11("h1dThrLongI11", "", 200, 0, 6000);
+          TH1F h1dThrLongI12("h1dThrLongI12", "", 200, 0, 6000);
+          TH1F h1dThrLongI13("h1dThrLongI13", "", 200, 0, 6000);
+          TH1F h1dThrLongI14("h1dThrLongI14", "", 200, 0, 6000);
+          TH1F h1dThrLongI15("h1dThrLongI15", "", 200, 0, 6000);
+          TH1F h1dSigLongI0("h1dSigLongI0", "", 200, 0, 500);
+          TH1F h1dSigLongI1("h1dSigLongI1", "", 200, 0, 500);
+          TH1F h1dSigLongI2("h1dSigLongI2", "", 200, 0, 500);
+          TH1F h1dSigLongI3("h1dSigLongI3", "", 200, 0, 500);
+          TH1F h1dSigLongI4("h1dSigLongI4", "", 200, 0, 500);
+          TH1F h1dSigLongI5("h1dSigLongI5", "", 200, 0, 500);
+          TH1F h1dSigLongI6("h1dSigLongI6", "", 200, 0, 500);
+          TH1F h1dSigLongI7("h1dSigLongI7", "", 200, 0, 500);
+          TH1F h1dSigLongI8("h1dSigLongI8", "", 200, 0, 500);
+          TH1F h1dSigLongI9("h1dSigLongI9", "", 200, 0, 500);
+          TH1F h1dSigLongI10("h1dSigLongI10", "", 200, 0, 500);
+          TH1F h1dSigLongI11("h1dSigLongI11", "", 200, 0, 500);
+          TH1F h1dSigLongI12("h1dSigLongI12", "", 200, 0, 500);
+          TH1F h1dSigLongI13("h1dSigLongI13", "", 200, 0, 500);
+          TH1F h1dSigLongI14("h1dSigLongI14", "", 200, 0, 500);
+          TH1F h1dSigLongI15("h1dSigLongI15", "", 200, 0, 500);
 
-        TH1F h1dThrLongI0("h1dThrLongI0","",200,0,6000);
-        TH1F h1dThrLongI1("h1dThrLongI1","",200,0,6000);
-        TH1F h1dThrLongI2("h1dThrLongI2","",200,0,6000);
-        TH1F h1dThrLongI3("h1dThrLongI3","",200,0,6000);
-        TH1F h1dThrLongI4("h1dThrLongI4","",200,0,6000);
-        TH1F h1dThrLongI5("h1dThrLongI5","",200,0,6000);
-        TH1F h1dThrLongI6("h1dThrLongI6","",200,0,6000);
-        TH1F h1dThrLongI7("h1dThrLongI7","",200,0,6000);
-        TH1F h1dThrLongI8("h1dThrLongI8","",200,0,6000);
-        TH1F h1dThrLongI9("h1dThrLongI9","",200,0,6000);
-        TH1F h1dThrLongI10("h1dThrLongI10","",200,0,6000);
-        TH1F h1dThrLongI11("h1dThrLongI11","",200,0,6000);
-        TH1F h1dThrLongI12("h1dThrLongI12","",200,0,6000);
-        TH1F h1dThrLongI13("h1dThrLongI13","",200,0,6000);
-        TH1F h1dThrLongI14("h1dThrLongI14","",200,0,6000);
-        TH1F h1dThrLongI15("h1dThrLongI15","",200,0,6000);
-        TH1F h1dSigLongI0("h1dSigLongI0","",200,0,500);
-        TH1F h1dSigLongI1("h1dSigLongI1","",200,0,500);
-        TH1F h1dSigLongI2("h1dSigLongI2","",200,0,500);
-        TH1F h1dSigLongI3("h1dSigLongI3","",200,0,500);
-        TH1F h1dSigLongI4("h1dSigLongI4","",200,0,500);
-        TH1F h1dSigLongI5("h1dSigLongI5","",200,0,500);
-        TH1F h1dSigLongI6("h1dSigLongI6","",200,0,500);
-        TH1F h1dSigLongI7("h1dSigLongI7","",200,0,500);
-        TH1F h1dSigLongI8("h1dSigLongI8","",200,0,500);
-        TH1F h1dSigLongI9("h1dSigLongI9","",200,0,500);
-        TH1F h1dSigLongI10("h1dSigLongI10","",200,0,500);
-        TH1F h1dSigLongI11("h1dSigLongI11","",200,0,500);
-        TH1F h1dSigLongI12("h1dSigLongI12","",200,0,500);
-        TH1F h1dSigLongI13("h1dSigLongI13","",200,0,500);
-        TH1F h1dSigLongI14("h1dSigLongI14","",200,0,500);
-        TH1F h1dSigLongI15("h1dSigLongI15","",200,0,500);
+          TH1F h1dThrGangI0("h1dThrGangI0", "", 200, 0, 6000);
+          TH1F h1dThrGangI1("h1dThrGangI1", "", 200, 0, 6000);
+          TH1F h1dThrGangI2("h1dThrGangI2", "", 200, 0, 6000);
+          TH1F h1dThrGangI3("h1dThrGangI3", "", 200, 0, 6000);
+          TH1F h1dThrGangI4("h1dThrGangI4", "", 200, 0, 6000);
+          TH1F h1dThrGangI5("h1dThrGangI5", "", 200, 0, 6000);
+          TH1F h1dThrGangI6("h1dThrGangI6", "", 200, 0, 6000);
+          TH1F h1dThrGangI7("h1dThrGangI7", "", 200, 0, 6000);
+          TH1F h1dThrGangI8("h1dThrGangI8", "", 200, 0, 6000);
+          TH1F h1dThrGangI9("h1dThrGangI9", "", 200, 0, 6000);
+          TH1F h1dThrGangI10("h1dThrGangI10", "", 200, 0, 6000);
+          TH1F h1dThrGangI11("h1dThrGangI11", "", 200, 0, 6000);
+          TH1F h1dThrGangI12("h1dThrGangI12", "", 200, 0, 6000);
+          TH1F h1dThrGangI13("h1dThrGangI13", "", 200, 0, 6000);
+          TH1F h1dThrGangI14("h1dThrGangI14", "", 200, 0, 6000);
+          TH1F h1dThrGangI15("h1dThrGangI15", "", 200, 0, 6000);
+          TH1F h1dSigGangI0("h1dSigGangI0", "", 200, 0, 500);
+          TH1F h1dSigGangI1("h1dSigGangI1", "", 200, 0, 500);
+          TH1F h1dSigGangI2("h1dSigGangI2", "", 200, 0, 500);
+          TH1F h1dSigGangI3("h1dSigGangI3", "", 200, 0, 500);
+          TH1F h1dSigGangI4("h1dSigGangI4", "", 200, 0, 500);
+          TH1F h1dSigGangI5("h1dSigGangI5", "", 200, 0, 500);
+          TH1F h1dSigGangI6("h1dSigGangI6", "", 200, 0, 500);
+          TH1F h1dSigGangI7("h1dSigGangI7", "", 200, 0, 500);
+          TH1F h1dSigGangI8("h1dSigGangI8", "", 200, 0, 500);
+          TH1F h1dSigGangI9("h1dSigGangI9", "", 200, 0, 500);
+          TH1F h1dSigGangI10("h1dSigGangI10", "", 200, 0, 500);
+          TH1F h1dSigGangI11("h1dSigGangI11", "", 200, 0, 500);
+          TH1F h1dSigGangI12("h1dSigGangI12", "", 200, 0, 500);
+          TH1F h1dSigGangI13("h1dSigGangI13", "", 200, 0, 500);
+          TH1F h1dSigGangI14("h1dSigGangI14", "", 200, 0, 500);
+          TH1F h1dSigGangI15("h1dSigGangI15", "", 200, 0, 500);
 
-        TH1F h1dThrGangI0("h1dThrGangI0","",200,0,6000);
-        TH1F h1dThrGangI1("h1dThrGangI1","",200,0,6000);
-        TH1F h1dThrGangI2("h1dThrGangI2","",200,0,6000);
-        TH1F h1dThrGangI3("h1dThrGangI3","",200,0,6000);
-        TH1F h1dThrGangI4("h1dThrGangI4","",200,0,6000);
-        TH1F h1dThrGangI5("h1dThrGangI5","",200,0,6000);
-        TH1F h1dThrGangI6("h1dThrGangI6","",200,0,6000);
-        TH1F h1dThrGangI7("h1dThrGangI7","",200,0,6000);
-        TH1F h1dThrGangI8("h1dThrGangI8","",200,0,6000);
-        TH1F h1dThrGangI9("h1dThrGangI9","",200,0,6000);
-        TH1F h1dThrGangI10("h1dThrGangI10","",200,0,6000);
-        TH1F h1dThrGangI11("h1dThrGangI11","",200,0,6000);
-        TH1F h1dThrGangI12("h1dThrGangI12","",200,0,6000);
-        TH1F h1dThrGangI13("h1dThrGangI13","",200,0,6000);
-        TH1F h1dThrGangI14("h1dThrGangI14","",200,0,6000);
-        TH1F h1dThrGangI15("h1dThrGangI15","",200,0,6000);
-        TH1F h1dSigGangI0("h1dSigGangI0","",200,0,500);
-        TH1F h1dSigGangI1("h1dSigGangI1","",200,0,500);
-        TH1F h1dSigGangI2("h1dSigGangI2","",200,0,500);
-        TH1F h1dSigGangI3("h1dSigGangI3","",200,0,500);
-        TH1F h1dSigGangI4("h1dSigGangI4","",200,0,500);
-        TH1F h1dSigGangI5("h1dSigGangI5","",200,0,500);
-        TH1F h1dSigGangI6("h1dSigGangI6","",200,0,500);
-        TH1F h1dSigGangI7("h1dSigGangI7","",200,0,500);
-        TH1F h1dSigGangI8("h1dSigGangI8","",200,0,500);
-        TH1F h1dSigGangI9("h1dSigGangI9","",200,0,500);
-        TH1F h1dSigGangI10("h1dSigGangI10","",200,0,500);
-        TH1F h1dSigGangI11("h1dSigGangI11","",200,0,500);
-        TH1F h1dSigGangI12("h1dSigGangI12","",200,0,500);
-        TH1F h1dSigGangI13("h1dSigGangI13","",200,0,500);
-        TH1F h1dSigGangI14("h1dSigGangI14","",200,0,500);
-        TH1F h1dSigGangI15("h1dSigGangI15","",200,0,500);
+          for (int ieta = 0; ieta < ncol; ieta++)
+          {
+            for (int iphi = 0; iphi < nrow; iphi++)
+            {
+              float chi2 = h2dChi2->GetBinContent(ieta + 1, iphi + 1);
+              float thr = h2dThr->GetBinContent(ieta + 1, iphi + 1);
+              float sig = h2dSig->GetBinContent(ieta + 1, iphi + 1);
+              h1dChi2.Fill(chi2);
+              h1dThr.Fill(thr);
+              h1dSig.Fill(sig);
 
-        for (int ieta=0; ieta<ncol; ieta++) {
-          for (int iphi=0; iphi<nrow; iphi++) {
-            float chi2 = h2dChi2->GetBinContent(ieta+1,iphi+1);
-            float thr = h2dThr->GetBinContent(ieta+1,iphi+1);
-            float sig = h2dSig->GetBinContent(ieta+1,iphi+1);
-            h1dChi2.Fill(chi2);
-            h1dThr.Fill(thr);
-            h1dSig.Fill(sig);
+              if (thr == 0 || thr > 10000 || sig == 0 || sig > 1000)
+                continue; // || chi2 > 0.5 || chi2 <= 0) continue;
 
-            if (thr == 0 || thr > 10000 || sig == 0 || sig > 1000) continue; // || chi2 > 0.5 || chi2 <= 0) continue;
+              // Identify FE chip ID
+              // Simply, in the calibration, the FEs are aligned from bottom left corner (0,0) with anti-clock-wise direction.
+              int circ = -1;
+              if (WhichPart != 0)
+              {
+                if (iphi < 160)
+                {
+                  circ = (int)(ieta / 18);
+                } // FE0, FE1, ... FE7
+                else
+                {
+                  circ = 15 - (int)(ieta / 18);
+                } // FE15, FE14, ... FE8
+              }
+              else
+              {
+                if (ieta < 80)
+                {
+                  circ = 0;
+                }
+                else
+                {
+                  circ = 1;
+                }
+              }
 
-            // Identify FE chip ID
-            // Simply, in the calibration, the FEs are aligned from bottom left corner (0,0) with anti-clock-wise direction.
-            int circ = -1;
-            if (iphi<160) { circ=(int)(ieta/18); }    // FE0, FE1, ... FE7
-            else          { circ=15-(int)(ieta/18); } // FE15, FE14, ... FE8
+              // normal pixels
+              int pixtype = 0;
+              if (WhichPart != 0)
+              {
+                if (ieta % 18 == 0 || ieta % 18 == 17)
+                {
+                  pixtype = 1;
+                } // define long pixels
+                if (iphi > 152 && iphi < 160 && iphi % 2 == 1)
+                {
+                  pixtype = 2;
+                } // define ganged pixels
+                if (iphi > 159 && iphi < 167 && iphi % 2 == 0)
+                {
+                  pixtype = 2;
+                }
+              }
+              // IBL
+              else
+              {
+                if (ieta == 0 || ieta == 79 || ieta == 80 || ieta == 159)
+                {
+                  pixtype = 1;
+                } // define long pixels
+              }
 
-            int pixtype = 0;                             // normal pixels
-            if (ieta%18==0 || ieta%18==17) { pixtype=1; } // define long pixels
-            if (iphi>152 && iphi<160 && iphi%2==1) { pixtype=2; }     // define ganged pixels
-            if (iphi>159 && iphi<167 && iphi%2==0) { pixtype=2; }
-
-            //==================
-            // Fill information
-            //==================
-            if (pixtype==1) {
-              if (circ==0) {
-                h1dThrLongI0.Fill(thr);
-                h1dSigLongI0.Fill(sig);
+              //==================
+              // Fill information
+              //==================
+              if (pixtype == 1)
+              {
+                if (circ == 0)
+                {
+                  h1dThrLongI0.Fill(thr);
+                  h1dSigLongI0.Fill(sig);
+                }
+                else if (circ == 1)
+                {
+                  h1dThrLongI1.Fill(thr);
+                  h1dSigLongI1.Fill(sig);
+                }
+                else if (circ == 2)
+                {
+                  h1dThrLongI2.Fill(thr);
+                  h1dSigLongI2.Fill(sig);
+                }
+                else if (circ == 3)
+                {
+                  h1dThrLongI3.Fill(thr);
+                  h1dSigLongI3.Fill(sig);
+                }
+                else if (circ == 4)
+                {
+                  h1dThrLongI4.Fill(thr);
+                  h1dSigLongI4.Fill(sig);
+                }
+                else if (circ == 5)
+                {
+                  h1dThrLongI5.Fill(thr);
+                  h1dSigLongI5.Fill(sig);
+                }
+                else if (circ == 6)
+                {
+                  h1dThrLongI6.Fill(thr);
+                  h1dSigLongI6.Fill(sig);
+                }
+                else if (circ == 7)
+                {
+                  h1dThrLongI7.Fill(thr);
+                  h1dSigLongI7.Fill(sig);
+                }
+                else if (circ == 8)
+                {
+                  h1dThrLongI8.Fill(thr);
+                  h1dSigLongI8.Fill(sig);
+                }
+                else if (circ == 9)
+                {
+                  h1dThrLongI9.Fill(thr);
+                  h1dSigLongI9.Fill(sig);
+                }
+                else if (circ == 10)
+                {
+                  h1dThrLongI10.Fill(thr);
+                  h1dSigLongI10.Fill(sig);
+                }
+                else if (circ == 11)
+                {
+                  h1dThrLongI11.Fill(thr);
+                  h1dSigLongI11.Fill(sig);
+                }
+                else if (circ == 12)
+                {
+                  h1dThrLongI12.Fill(thr);
+                  h1dSigLongI12.Fill(sig);
+                }
+                else if (circ == 13)
+                {
+                  h1dThrLongI13.Fill(thr);
+                  h1dSigLongI13.Fill(sig);
+                }
+                else if (circ == 14)
+                {
+                  h1dThrLongI14.Fill(thr);
+                  h1dSigLongI14.Fill(sig);
+                }
+                else if (circ == 15)
+                {
+                  h1dThrLongI15.Fill(thr);
+                  h1dSigLongI15.Fill(sig);
+                }
               }
-              else if (circ==1) {
-                h1dThrLongI1.Fill(thr);
-                h1dSigLongI1.Fill(sig);
+              else if (pixtype == 0)
+              {
+                if (circ == 0)
+                {
+                  h1dThrNormI0.Fill(thr);
+                  h1dSigNormI0.Fill(sig);
+                }
+                else if (circ == 1)
+                {
+                  h1dThrNormI1.Fill(thr);
+                  h1dSigNormI1.Fill(sig);
+                }
+                else if (circ == 2)
+                {
+                  h1dThrNormI2.Fill(thr);
+                  h1dSigNormI2.Fill(sig);
+                }
+                else if (circ == 3)
+                {
+                  h1dThrNormI3.Fill(thr);
+                  h1dSigNormI3.Fill(sig);
+                }
+                else if (circ == 4)
+                {
+                  h1dThrNormI4.Fill(thr);
+                  h1dSigNormI4.Fill(sig);
+                }
+                else if (circ == 5)
+                {
+                  h1dThrNormI5.Fill(thr);
+                  h1dSigNormI5.Fill(sig);
+                }
+                else if (circ == 6)
+                {
+                  h1dThrNormI6.Fill(thr);
+                  h1dSigNormI6.Fill(sig);
+                }
+                else if (circ == 7)
+                {
+                  h1dThrNormI7.Fill(thr);
+                  h1dSigNormI7.Fill(sig);
+                }
+                else if (circ == 8)
+                {
+                  h1dThrNormI8.Fill(thr);
+                  h1dSigNormI8.Fill(sig);
+                }
+                else if (circ == 9)
+                {
+                  h1dThrNormI9.Fill(thr);
+                  h1dSigNormI9.Fill(sig);
+                }
+                else if (circ == 10)
+                {
+                  h1dThrNormI10.Fill(thr);
+                  h1dSigNormI10.Fill(sig);
+                }
+                else if (circ == 11)
+                {
+                  h1dThrNormI11.Fill(thr);
+                  h1dSigNormI11.Fill(sig);
+                }
+                else if (circ == 12)
+                {
+                  h1dThrNormI12.Fill(thr);
+                  h1dSigNormI12.Fill(sig);
+                }
+                else if (circ == 13)
+                {
+                  h1dThrNormI13.Fill(thr);
+                  h1dSigNormI13.Fill(sig);
+                }
+                else if (circ == 14)
+                {
+                  h1dThrNormI14.Fill(thr);
+                  h1dSigNormI14.Fill(sig);
+                }
+                else if (circ == 15)
+                {
+                  h1dThrNormI15.Fill(thr);
+                  h1dSigNormI15.Fill(sig);
+                }
               }
-              else if (circ==2) {
-                h1dThrLongI2.Fill(thr);
-                h1dSigLongI2.Fill(sig);
-              }
-              else if (circ==3) {
-                h1dThrLongI3.Fill(thr);
-                h1dSigLongI3.Fill(sig);
-              }
-              else if (circ==4) {
-                h1dThrLongI4.Fill(thr);
-                h1dSigLongI4.Fill(sig);
-              }
-              else if (circ==5) {
-                h1dThrLongI5.Fill(thr);
-                h1dSigLongI5.Fill(sig);
-              }
-              else if (circ==6) {
-                h1dThrLongI6.Fill(thr);
-                h1dSigLongI6.Fill(sig);
-              }
-              else if (circ==7) {
-                h1dThrLongI7.Fill(thr);
-                h1dSigLongI7.Fill(sig);
-              }
-              else if (circ==8) {
-                h1dThrLongI8.Fill(thr);
-                h1dSigLongI8.Fill(sig);
-              }
-              else if (circ==9) {
-                h1dThrLongI9.Fill(thr);
-                h1dSigLongI9.Fill(sig);
-              }
-              else if (circ==10) {
-                h1dThrLongI10.Fill(thr);
-                h1dSigLongI10.Fill(sig);
-              }
-              else if (circ==11) {
-                h1dThrLongI11.Fill(thr);
-                h1dSigLongI11.Fill(sig);
-              }
-              else if (circ==12) {
-                h1dThrLongI12.Fill(thr);
-                h1dSigLongI12.Fill(sig);
-              }
-              else if (circ==13) {
-                h1dThrLongI13.Fill(thr);
-                h1dSigLongI13.Fill(sig);
-              }
-              else if (circ==14) {
-                h1dThrLongI14.Fill(thr);
-                h1dSigLongI14.Fill(sig);
-              }
-              else if (circ==15) {
-                h1dThrLongI15.Fill(thr);
-                h1dSigLongI15.Fill(sig);
-              }
-            }
-            else if (pixtype==0) {
-              if (circ==0) {
-                h1dThrNormI0.Fill(thr);
-                h1dSigNormI0.Fill(sig);
-              }
-              else if (circ==1) {
-                h1dThrNormI1.Fill(thr);
-                h1dSigNormI1.Fill(sig);
-              }
-              else if (circ==2) {
-                h1dThrNormI2.Fill(thr);
-                h1dSigNormI2.Fill(sig);
-              }
-              else if (circ==3) {
-                h1dThrNormI3.Fill(thr);
-                h1dSigNormI3.Fill(sig);
-              }
-              else if (circ==4) {
-                h1dThrNormI4.Fill(thr);
-                h1dSigNormI4.Fill(sig);
-              }
-              else if (circ==5) {
-                h1dThrNormI5.Fill(thr);
-                h1dSigNormI5.Fill(sig);
-              }
-              else if (circ==6) {
-                h1dThrNormI6.Fill(thr);
-                h1dSigNormI6.Fill(sig);
-              }
-              else if (circ==7) {
-                h1dThrNormI7.Fill(thr);
-                h1dSigNormI7.Fill(sig);
-              }
-              else if (circ==8) {
-                h1dThrNormI8.Fill(thr);
-                h1dSigNormI8.Fill(sig);
-              }
-              else if (circ==9) {
-                h1dThrNormI9.Fill(thr);
-                h1dSigNormI9.Fill(sig);
-              }
-              else if (circ==10) {
-                h1dThrNormI10.Fill(thr);
-                h1dSigNormI10.Fill(sig);
-              }
-              else if (circ==11) {
-                h1dThrNormI11.Fill(thr);
-                h1dSigNormI11.Fill(sig);
-              }
-              else if (circ==12) {
-                h1dThrNormI12.Fill(thr);
-                h1dSigNormI12.Fill(sig);
-              }
-              else if (circ==13) {
-                h1dThrNormI13.Fill(thr);
-                h1dSigNormI13.Fill(sig);
-              }
-              else if (circ==14) {
-                h1dThrNormI14.Fill(thr);
-                h1dSigNormI14.Fill(sig);
-              }
-              else if (circ==15) {
-                h1dThrNormI15.Fill(thr);
-                h1dSigNormI15.Fill(sig);
-              }
-            }
-            else if (pixtype==2){
-              if (circ==0) {
-                h1dThrGangI0.Fill(thr);
-                h1dSigGangI0.Fill(sig);
-              }
-              else if (circ==1) {
-                h1dThrGangI1.Fill(thr);
-                h1dSigGangI1.Fill(sig);
-              }
-              else if (circ==2) {
-                h1dThrGangI2.Fill(thr);
-                h1dSigGangI2.Fill(sig);
-              }
-              else if (circ==3) {
-                h1dThrGangI3.Fill(thr);
-                h1dSigGangI3.Fill(sig);
-              }
-              else if (circ==4) {
-                h1dThrGangI4.Fill(thr);
-                h1dSigGangI4.Fill(sig);
-              }
-              else if (circ==5) {
-                h1dThrGangI5.Fill(thr);
-                h1dSigGangI5.Fill(sig);
-              }
-              else if (circ==6) {
-                h1dThrGangI6.Fill(thr);
-                h1dSigGangI6.Fill(sig);
-              }
-              else if (circ==7) {
-                h1dThrGangI7.Fill(thr);
-                h1dSigGangI7.Fill(sig);
-              }
-              else if (circ==8) {
-                h1dThrGangI8.Fill(thr);
-                h1dSigGangI8.Fill(sig);
-              }
-              else if (circ==9) {
-                h1dThrGangI9.Fill(thr);
-                h1dSigGangI9.Fill(sig);
-              }
-              else if (circ==10) {
-                h1dThrGangI10.Fill(thr);
-                h1dSigGangI10.Fill(sig);
-              }
-              else if (circ==11) {
-                h1dThrGangI11.Fill(thr);
-                h1dSigGangI11.Fill(sig);
-              }
-              else if (circ==12) {
-                h1dThrGangI12.Fill(thr);
-                h1dSigGangI12.Fill(sig);
-              }
-              else if (circ==13) {
-                h1dThrGangI13.Fill(thr);
-                h1dSigGangI13.Fill(sig);
-              }
-              else if (circ==14) {
-                h1dThrGangI14.Fill(thr);
-                h1dSigGangI14.Fill(sig);
-              }
-              else if (circ==15) {
-                h1dThrGangI15.Fill(thr);
-                h1dSigGangI15.Fill(sig);
+              else if (pixtype == 2)
+              {
+                if (circ == 0)
+                {
+                  h1dThrGangI0.Fill(thr);
+                  h1dSigGangI0.Fill(sig);
+                }
+                else if (circ == 1)
+                {
+                  h1dThrGangI1.Fill(thr);
+                  h1dSigGangI1.Fill(sig);
+                }
+                else if (circ == 2)
+                {
+                  h1dThrGangI2.Fill(thr);
+                  h1dSigGangI2.Fill(sig);
+                }
+                else if (circ == 3)
+                {
+                  h1dThrGangI3.Fill(thr);
+                  h1dSigGangI3.Fill(sig);
+                }
+                else if (circ == 4)
+                {
+                  h1dThrGangI4.Fill(thr);
+                  h1dSigGangI4.Fill(sig);
+                }
+                else if (circ == 5)
+                {
+                  h1dThrGangI5.Fill(thr);
+                  h1dSigGangI5.Fill(sig);
+                }
+                else if (circ == 6)
+                {
+                  h1dThrGangI6.Fill(thr);
+                  h1dSigGangI6.Fill(sig);
+                }
+                else if (circ == 7)
+                {
+                  h1dThrGangI7.Fill(thr);
+                  h1dSigGangI7.Fill(sig);
+                }
+                else if (circ == 8)
+                {
+                  h1dThrGangI8.Fill(thr);
+                  h1dSigGangI8.Fill(sig);
+                }
+                else if (circ == 9)
+                {
+                  h1dThrGangI9.Fill(thr);
+                  h1dSigGangI9.Fill(sig);
+                }
+                else if (circ == 10)
+                {
+                  h1dThrGangI10.Fill(thr);
+                  h1dSigGangI10.Fill(sig);
+                }
+                else if (circ == 11)
+                {
+                  h1dThrGangI11.Fill(thr);
+                  h1dSigGangI11.Fill(sig);
+                }
+                else if (circ == 12)
+                {
+                  h1dThrGangI12.Fill(thr);
+                  h1dSigGangI12.Fill(sig);
+                }
+                else if (circ == 13)
+                {
+                  h1dThrGangI13.Fill(thr);
+                  h1dSigGangI13.Fill(sig);
+                }
+                else if (circ == 14)
+                {
+                  h1dThrGangI14.Fill(thr);
+                  h1dSigGangI14.Fill(sig);
+                }
+                else if (circ == 15)
+                {
+                  h1dThrGangI15.Fill(thr);
+                  h1dSigGangI15.Fill(sig);
+                }
               }
             }
           }
+
+          pcdMap[modStr]["I0"]["ThrNorm"] = h1dThrNormI0.GetMean();
+          pcdMap[modStr]["I0"]["ThrRmsNorm"] = h1dThrNormI0.GetRMS();
+          pcdMap[modStr]["I0"]["ThrSigNorm"] = h1dSigNormI0.GetMean();
+          pcdMap[modStr]["I1"]["ThrNorm"] = h1dThrNormI1.GetMean();
+          pcdMap[modStr]["I1"]["ThrRmsNorm"] = h1dThrNormI1.GetRMS();
+          pcdMap[modStr]["I1"]["ThrSigNorm"] = h1dSigNormI1.GetMean();
+          pcdMap[modStr]["I2"]["ThrNorm"] = h1dThrNormI2.GetMean();
+          pcdMap[modStr]["I2"]["ThrRmsNorm"] = h1dThrNormI2.GetRMS();
+          pcdMap[modStr]["I2"]["ThrSigNorm"] = h1dSigNormI2.GetMean();
+          pcdMap[modStr]["I3"]["ThrNorm"] = h1dThrNormI3.GetMean();
+          pcdMap[modStr]["I3"]["ThrRmsNorm"] = h1dThrNormI3.GetRMS();
+          pcdMap[modStr]["I3"]["ThrSigNorm"] = h1dSigNormI3.GetMean();
+          pcdMap[modStr]["I4"]["ThrNorm"] = h1dThrNormI4.GetMean();
+          pcdMap[modStr]["I4"]["ThrRmsNorm"] = h1dThrNormI4.GetRMS();
+          pcdMap[modStr]["I4"]["ThrSigNorm"] = h1dSigNormI4.GetMean();
+          pcdMap[modStr]["I5"]["ThrNorm"] = h1dThrNormI5.GetMean();
+          pcdMap[modStr]["I5"]["ThrRmsNorm"] = h1dThrNormI5.GetRMS();
+          pcdMap[modStr]["I5"]["ThrSigNorm"] = h1dSigNormI5.GetMean();
+          pcdMap[modStr]["I6"]["ThrNorm"] = h1dThrNormI6.GetMean();
+          pcdMap[modStr]["I6"]["ThrRmsNorm"] = h1dThrNormI6.GetRMS();
+          pcdMap[modStr]["I6"]["ThrSigNorm"] = h1dSigNormI6.GetMean();
+          pcdMap[modStr]["I7"]["ThrNorm"] = h1dThrNormI7.GetMean();
+          pcdMap[modStr]["I7"]["ThrRmsNorm"] = h1dThrNormI7.GetRMS();
+          pcdMap[modStr]["I7"]["ThrSigNorm"] = h1dSigNormI7.GetMean();
+          pcdMap[modStr]["I8"]["ThrNorm"] = h1dThrNormI8.GetMean();
+          pcdMap[modStr]["I8"]["ThrRmsNorm"] = h1dThrNormI8.GetRMS();
+          pcdMap[modStr]["I8"]["ThrSigNorm"] = h1dSigNormI8.GetMean();
+          pcdMap[modStr]["I9"]["ThrNorm"] = h1dThrNormI9.GetMean();
+          pcdMap[modStr]["I9"]["ThrRmsNorm"] = h1dThrNormI9.GetRMS();
+          pcdMap[modStr]["I9"]["ThrSigNorm"] = h1dSigNormI9.GetMean();
+          pcdMap[modStr]["I10"]["ThrNorm"] = h1dThrNormI10.GetMean();
+          pcdMap[modStr]["I10"]["ThrRmsNorm"] = h1dThrNormI10.GetRMS();
+          pcdMap[modStr]["I10"]["ThrSigNorm"] = h1dSigNormI10.GetMean();
+          pcdMap[modStr]["I11"]["ThrNorm"] = h1dThrNormI11.GetMean();
+          pcdMap[modStr]["I11"]["ThrRmsNorm"] = h1dThrNormI11.GetRMS();
+          pcdMap[modStr]["I11"]["ThrSigNorm"] = h1dSigNormI11.GetMean();
+          pcdMap[modStr]["I12"]["ThrNorm"] = h1dThrNormI12.GetMean();
+          pcdMap[modStr]["I12"]["ThrRmsNorm"] = h1dThrNormI12.GetRMS();
+          pcdMap[modStr]["I12"]["ThrSigNorm"] = h1dSigNormI12.GetMean();
+          pcdMap[modStr]["I13"]["ThrNorm"] = h1dThrNormI13.GetMean();
+          pcdMap[modStr]["I13"]["ThrRmsNorm"] = h1dThrNormI13.GetRMS();
+          pcdMap[modStr]["I13"]["ThrSigNorm"] = h1dSigNormI13.GetMean();
+          pcdMap[modStr]["I14"]["ThrNorm"] = h1dThrNormI14.GetMean();
+          pcdMap[modStr]["I14"]["ThrRmsNorm"] = h1dThrNormI14.GetRMS();
+          pcdMap[modStr]["I14"]["ThrSigNorm"] = h1dSigNormI14.GetMean();
+          pcdMap[modStr]["I15"]["ThrNorm"] = h1dThrNormI15.GetMean();
+          pcdMap[modStr]["I15"]["ThrRmsNorm"] = h1dThrNormI15.GetRMS();
+          pcdMap[modStr]["I15"]["ThrSigNorm"] = h1dSigNormI15.GetMean();
+
+          pcdMap[modStr]["I0"]["ThrLong"] = h1dThrLongI0.GetMean();
+          pcdMap[modStr]["I0"]["ThrRmsLong"] = h1dThrLongI0.GetRMS();
+          pcdMap[modStr]["I0"]["ThrSigLong"] = h1dSigLongI0.GetMean();
+          pcdMap[modStr]["I1"]["ThrLong"] = h1dThrLongI1.GetMean();
+          pcdMap[modStr]["I1"]["ThrRmsLong"] = h1dThrLongI1.GetRMS();
+          pcdMap[modStr]["I1"]["ThrSigLong"] = h1dSigLongI1.GetMean();
+          pcdMap[modStr]["I2"]["ThrLong"] = h1dThrLongI2.GetMean();
+          pcdMap[modStr]["I2"]["ThrRmsLong"] = h1dThrLongI2.GetRMS();
+          pcdMap[modStr]["I2"]["ThrSigLong"] = h1dSigLongI2.GetMean();
+          pcdMap[modStr]["I3"]["ThrLong"] = h1dThrLongI3.GetMean();
+          pcdMap[modStr]["I3"]["ThrRmsLong"] = h1dThrLongI3.GetRMS();
+          pcdMap[modStr]["I3"]["ThrSigLong"] = h1dSigLongI3.GetMean();
+          pcdMap[modStr]["I4"]["ThrLong"] = h1dThrLongI4.GetMean();
+          pcdMap[modStr]["I4"]["ThrRmsLong"] = h1dThrLongI4.GetRMS();
+          pcdMap[modStr]["I4"]["ThrSigLong"] = h1dSigLongI4.GetMean();
+          pcdMap[modStr]["I5"]["ThrLong"] = h1dThrLongI5.GetMean();
+          pcdMap[modStr]["I5"]["ThrRmsLong"] = h1dThrLongI5.GetRMS();
+          pcdMap[modStr]["I5"]["ThrSigLong"] = h1dSigLongI5.GetMean();
+          pcdMap[modStr]["I6"]["ThrLong"] = h1dThrLongI6.GetMean();
+          pcdMap[modStr]["I6"]["ThrRmsLong"] = h1dThrLongI6.GetRMS();
+          pcdMap[modStr]["I6"]["ThrSigLong"] = h1dSigLongI6.GetMean();
+          pcdMap[modStr]["I7"]["ThrLong"] = h1dThrLongI7.GetMean();
+          pcdMap[modStr]["I7"]["ThrRmsLong"] = h1dThrLongI7.GetRMS();
+          pcdMap[modStr]["I7"]["ThrSigLong"] = h1dSigLongI7.GetMean();
+          pcdMap[modStr]["I8"]["ThrLong"] = h1dThrLongI8.GetMean();
+          pcdMap[modStr]["I8"]["ThrRmsLong"] = h1dThrLongI8.GetRMS();
+          pcdMap[modStr]["I8"]["ThrSigLong"] = h1dSigLongI8.GetMean();
+          pcdMap[modStr]["I9"]["ThrLong"] = h1dThrLongI9.GetMean();
+          pcdMap[modStr]["I9"]["ThrRmsLong"] = h1dThrLongI9.GetRMS();
+          pcdMap[modStr]["I9"]["ThrSigLong"] = h1dSigLongI9.GetMean();
+          pcdMap[modStr]["I10"]["ThrLong"] = h1dThrLongI10.GetMean();
+          pcdMap[modStr]["I10"]["ThrRmsLong"] = h1dThrLongI10.GetRMS();
+          pcdMap[modStr]["I10"]["ThrSigLong"] = h1dSigLongI10.GetMean();
+          pcdMap[modStr]["I11"]["ThrLong"] = h1dThrLongI11.GetMean();
+          pcdMap[modStr]["I11"]["ThrRmsLong"] = h1dThrLongI11.GetRMS();
+          pcdMap[modStr]["I11"]["ThrSigLong"] = h1dSigLongI11.GetMean();
+          pcdMap[modStr]["I12"]["ThrLong"] = h1dThrLongI12.GetMean();
+          pcdMap[modStr]["I12"]["ThrRmsLong"] = h1dThrLongI12.GetRMS();
+          pcdMap[modStr]["I12"]["ThrSigLong"] = h1dSigLongI12.GetMean();
+          pcdMap[modStr]["I13"]["ThrLong"] = h1dThrLongI13.GetMean();
+          pcdMap[modStr]["I13"]["ThrRmsLong"] = h1dThrLongI13.GetRMS();
+          pcdMap[modStr]["I13"]["ThrSigLong"] = h1dSigLongI13.GetMean();
+          pcdMap[modStr]["I14"]["ThrLong"] = h1dThrLongI14.GetMean();
+          pcdMap[modStr]["I14"]["ThrRmsLong"] = h1dThrLongI14.GetRMS();
+          pcdMap[modStr]["I14"]["ThrSigLong"] = h1dSigLongI14.GetMean();
+          pcdMap[modStr]["I15"]["ThrLong"] = h1dThrLongI15.GetMean();
+          pcdMap[modStr]["I15"]["ThrRmsLong"] = h1dThrLongI15.GetRMS();
+          pcdMap[modStr]["I15"]["ThrSigLong"] = h1dSigLongI15.GetMean();
+
+          pcdMap[modStr]["I0"]["ThrGang"] = h1dThrGangI0.GetMean();
+          pcdMap[modStr]["I0"]["ThrRmsGang"] = h1dThrGangI0.GetRMS();
+          pcdMap[modStr]["I0"]["ThrSigGang"] = h1dSigGangI0.GetMean();
+          pcdMap[modStr]["I1"]["ThrGang"] = h1dThrGangI1.GetMean();
+          pcdMap[modStr]["I1"]["ThrRmsGang"] = h1dThrGangI1.GetRMS();
+          pcdMap[modStr]["I1"]["ThrSigGang"] = h1dSigGangI1.GetMean();
+          pcdMap[modStr]["I2"]["ThrGang"] = h1dThrGangI2.GetMean();
+          pcdMap[modStr]["I2"]["ThrRmsGang"] = h1dThrGangI2.GetRMS();
+          pcdMap[modStr]["I2"]["ThrSigGang"] = h1dSigGangI2.GetMean();
+          pcdMap[modStr]["I3"]["ThrGang"] = h1dThrGangI3.GetMean();
+          pcdMap[modStr]["I3"]["ThrRmsGang"] = h1dThrGangI3.GetRMS();
+          pcdMap[modStr]["I3"]["ThrSigGang"] = h1dSigGangI3.GetMean();
+          pcdMap[modStr]["I4"]["ThrGang"] = h1dThrGangI4.GetMean();
+          pcdMap[modStr]["I4"]["ThrRmsGang"] = h1dThrGangI4.GetRMS();
+          pcdMap[modStr]["I4"]["ThrSigGang"] = h1dSigGangI4.GetMean();
+          pcdMap[modStr]["I5"]["ThrGang"] = h1dThrGangI5.GetMean();
+          pcdMap[modStr]["I5"]["ThrRmsGang"] = h1dThrGangI5.GetRMS();
+          pcdMap[modStr]["I5"]["ThrSigGang"] = h1dSigGangI5.GetMean();
+          pcdMap[modStr]["I6"]["ThrGang"] = h1dThrGangI6.GetMean();
+          pcdMap[modStr]["I6"]["ThrRmsGang"] = h1dThrGangI6.GetRMS();
+          pcdMap[modStr]["I6"]["ThrSigGang"] = h1dSigGangI6.GetMean();
+          pcdMap[modStr]["I7"]["ThrGang"] = h1dThrGangI7.GetMean();
+          pcdMap[modStr]["I7"]["ThrRmsGang"] = h1dThrGangI7.GetRMS();
+          pcdMap[modStr]["I7"]["ThrSigGang"] = h1dSigGangI7.GetMean();
+          pcdMap[modStr]["I8"]["ThrGang"] = h1dThrGangI8.GetMean();
+          pcdMap[modStr]["I8"]["ThrRmsGang"] = h1dThrGangI8.GetRMS();
+          pcdMap[modStr]["I8"]["ThrSigGang"] = h1dSigGangI8.GetMean();
+          pcdMap[modStr]["I9"]["ThrGang"] = h1dThrGangI9.GetMean();
+          pcdMap[modStr]["I9"]["ThrRmsGang"] = h1dThrGangI9.GetRMS();
+          pcdMap[modStr]["I9"]["ThrSigGang"] = h1dSigGangI9.GetMean();
+          pcdMap[modStr]["I10"]["ThrGang"] = h1dThrGangI10.GetMean();
+          pcdMap[modStr]["I10"]["ThrRmsGang"] = h1dThrGangI10.GetRMS();
+          pcdMap[modStr]["I10"]["ThrSigGang"] = h1dSigGangI10.GetMean();
+          pcdMap[modStr]["I11"]["ThrGang"] = h1dThrGangI11.GetMean();
+          pcdMap[modStr]["I11"]["ThrRmsGang"] = h1dThrGangI11.GetRMS();
+          pcdMap[modStr]["I11"]["ThrSigGang"] = h1dSigGangI11.GetMean();
+          pcdMap[modStr]["I12"]["ThrGang"] = h1dThrGangI12.GetMean();
+          pcdMap[modStr]["I12"]["ThrRmsGang"] = h1dThrGangI12.GetRMS();
+          pcdMap[modStr]["I12"]["ThrSigGang"] = h1dSigGangI12.GetMean();
+          pcdMap[modStr]["I13"]["ThrGang"] = h1dThrGangI13.GetMean();
+          pcdMap[modStr]["I13"]["ThrRmsGang"] = h1dThrGangI13.GetRMS();
+          pcdMap[modStr]["I13"]["ThrSigGang"] = h1dSigGangI13.GetMean();
+          pcdMap[modStr]["I14"]["ThrGang"] = h1dThrGangI14.GetMean();
+          pcdMap[modStr]["I14"]["ThrRmsGang"] = h1dThrGangI14.GetRMS();
+          pcdMap[modStr]["I14"]["ThrSigGang"] = h1dSigGangI14.GetMean();
+          pcdMap[modStr]["I15"]["ThrGang"] = h1dThrGangI15.GetMean();
+          pcdMap[modStr]["I15"]["ThrRmsGang"] = h1dThrGangI15.GetRMS();
+          pcdMap[modStr]["I15"]["ThrSigGang"] = h1dSigGangI15.GetMean();
         }
-
-
-        pcdMap[modStr]["I0"]["ThrNorm"] = h1dThrNormI0.GetMean();
-        pcdMap[modStr]["I0"]["ThrRmsNorm"] = h1dThrNormI0.GetRMS();
-        pcdMap[modStr]["I0"]["ThrSigNorm"] = h1dSigNormI0.GetMean();
-        pcdMap[modStr]["I1"]["ThrNorm"] = h1dThrNormI1.GetMean();
-        pcdMap[modStr]["I1"]["ThrRmsNorm"] = h1dThrNormI1.GetRMS();
-        pcdMap[modStr]["I1"]["ThrSigNorm"] = h1dSigNormI1.GetMean();
-        pcdMap[modStr]["I2"]["ThrNorm"] = h1dThrNormI2.GetMean();
-        pcdMap[modStr]["I2"]["ThrRmsNorm"] = h1dThrNormI2.GetRMS();
-        pcdMap[modStr]["I2"]["ThrSigNorm"] = h1dSigNormI2.GetMean();
-        pcdMap[modStr]["I3"]["ThrNorm"] = h1dThrNormI3.GetMean();
-        pcdMap[modStr]["I3"]["ThrRmsNorm"] = h1dThrNormI3.GetRMS();
-        pcdMap[modStr]["I3"]["ThrSigNorm"] = h1dSigNormI3.GetMean();
-        pcdMap[modStr]["I4"]["ThrNorm"] = h1dThrNormI4.GetMean();
-        pcdMap[modStr]["I4"]["ThrRmsNorm"] = h1dThrNormI4.GetRMS();
-        pcdMap[modStr]["I4"]["ThrSigNorm"] = h1dSigNormI4.GetMean();
-        pcdMap[modStr]["I5"]["ThrNorm"] = h1dThrNormI5.GetMean();
-        pcdMap[modStr]["I5"]["ThrRmsNorm"] = h1dThrNormI5.GetRMS();
-        pcdMap[modStr]["I5"]["ThrSigNorm"] = h1dSigNormI5.GetMean();
-        pcdMap[modStr]["I6"]["ThrNorm"] = h1dThrNormI6.GetMean();
-        pcdMap[modStr]["I6"]["ThrRmsNorm"] = h1dThrNormI6.GetRMS();
-        pcdMap[modStr]["I6"]["ThrSigNorm"] = h1dSigNormI6.GetMean();
-        pcdMap[modStr]["I7"]["ThrNorm"] = h1dThrNormI7.GetMean();
-        pcdMap[modStr]["I7"]["ThrRmsNorm"] = h1dThrNormI7.GetRMS();
-        pcdMap[modStr]["I7"]["ThrSigNorm"] = h1dSigNormI7.GetMean();
-        pcdMap[modStr]["I8"]["ThrNorm"] = h1dThrNormI8.GetMean();
-        pcdMap[modStr]["I8"]["ThrRmsNorm"] = h1dThrNormI8.GetRMS();
-        pcdMap[modStr]["I8"]["ThrSigNorm"] = h1dSigNormI8.GetMean();
-        pcdMap[modStr]["I9"]["ThrNorm"] = h1dThrNormI9.GetMean();
-        pcdMap[modStr]["I9"]["ThrRmsNorm"] = h1dThrNormI9.GetRMS();
-        pcdMap[modStr]["I9"]["ThrSigNorm"] = h1dSigNormI9.GetMean();
-        pcdMap[modStr]["I10"]["ThrNorm"] = h1dThrNormI10.GetMean();
-        pcdMap[modStr]["I10"]["ThrRmsNorm"] = h1dThrNormI10.GetRMS();
-        pcdMap[modStr]["I10"]["ThrSigNorm"] = h1dSigNormI10.GetMean();
-        pcdMap[modStr]["I11"]["ThrNorm"] = h1dThrNormI11.GetMean();
-        pcdMap[modStr]["I11"]["ThrRmsNorm"] = h1dThrNormI11.GetRMS();
-        pcdMap[modStr]["I11"]["ThrSigNorm"] = h1dSigNormI11.GetMean();
-        pcdMap[modStr]["I12"]["ThrNorm"] = h1dThrNormI12.GetMean();
-        pcdMap[modStr]["I12"]["ThrRmsNorm"] = h1dThrNormI12.GetRMS();
-        pcdMap[modStr]["I12"]["ThrSigNorm"] = h1dSigNormI12.GetMean();
-        pcdMap[modStr]["I13"]["ThrNorm"] = h1dThrNormI13.GetMean();
-        pcdMap[modStr]["I13"]["ThrRmsNorm"] = h1dThrNormI13.GetRMS();
-        pcdMap[modStr]["I13"]["ThrSigNorm"] = h1dSigNormI13.GetMean();
-        pcdMap[modStr]["I14"]["ThrNorm"] = h1dThrNormI14.GetMean();
-        pcdMap[modStr]["I14"]["ThrRmsNorm"] = h1dThrNormI14.GetRMS();
-        pcdMap[modStr]["I14"]["ThrSigNorm"] = h1dSigNormI14.GetMean();
-        pcdMap[modStr]["I15"]["ThrNorm"] = h1dThrNormI15.GetMean();
-        pcdMap[modStr]["I15"]["ThrRmsNorm"] = h1dThrNormI15.GetRMS();
-        pcdMap[modStr]["I15"]["ThrSigNorm"] = h1dSigNormI15.GetMean();
-
-        pcdMap[modStr]["I0"]["ThrLong"] = h1dThrLongI0.GetMean();
-        pcdMap[modStr]["I0"]["ThrRmsLong"] = h1dThrLongI0.GetRMS();
-        pcdMap[modStr]["I0"]["ThrSigLong"] = h1dSigLongI0.GetMean();
-        pcdMap[modStr]["I1"]["ThrLong"] = h1dThrLongI1.GetMean();
-        pcdMap[modStr]["I1"]["ThrRmsLong"] = h1dThrLongI1.GetRMS();
-        pcdMap[modStr]["I1"]["ThrSigLong"] = h1dSigLongI1.GetMean();
-        pcdMap[modStr]["I2"]["ThrLong"] = h1dThrLongI2.GetMean();
-        pcdMap[modStr]["I2"]["ThrRmsLong"] = h1dThrLongI2.GetRMS();
-        pcdMap[modStr]["I2"]["ThrSigLong"] = h1dSigLongI2.GetMean();
-        pcdMap[modStr]["I3"]["ThrLong"] = h1dThrLongI3.GetMean();
-        pcdMap[modStr]["I3"]["ThrRmsLong"] = h1dThrLongI3.GetRMS();
-        pcdMap[modStr]["I3"]["ThrSigLong"] = h1dSigLongI3.GetMean();
-        pcdMap[modStr]["I4"]["ThrLong"] = h1dThrLongI4.GetMean();
-        pcdMap[modStr]["I4"]["ThrRmsLong"] = h1dThrLongI4.GetRMS();
-        pcdMap[modStr]["I4"]["ThrSigLong"] = h1dSigLongI4.GetMean();
-        pcdMap[modStr]["I5"]["ThrLong"] = h1dThrLongI5.GetMean();
-        pcdMap[modStr]["I5"]["ThrRmsLong"] = h1dThrLongI5.GetRMS();
-        pcdMap[modStr]["I5"]["ThrSigLong"] = h1dSigLongI5.GetMean();
-        pcdMap[modStr]["I6"]["ThrLong"] = h1dThrLongI6.GetMean();
-        pcdMap[modStr]["I6"]["ThrRmsLong"] = h1dThrLongI6.GetRMS();
-        pcdMap[modStr]["I6"]["ThrSigLong"] = h1dSigLongI6.GetMean();
-        pcdMap[modStr]["I7"]["ThrLong"] = h1dThrLongI7.GetMean();
-        pcdMap[modStr]["I7"]["ThrRmsLong"] = h1dThrLongI7.GetRMS();
-        pcdMap[modStr]["I7"]["ThrSigLong"] = h1dSigLongI7.GetMean();
-        pcdMap[modStr]["I8"]["ThrLong"] = h1dThrLongI8.GetMean();
-        pcdMap[modStr]["I8"]["ThrRmsLong"] = h1dThrLongI8.GetRMS();
-        pcdMap[modStr]["I8"]["ThrSigLong"] = h1dSigLongI8.GetMean();
-        pcdMap[modStr]["I9"]["ThrLong"] = h1dThrLongI9.GetMean();
-        pcdMap[modStr]["I9"]["ThrRmsLong"] = h1dThrLongI9.GetRMS();
-        pcdMap[modStr]["I9"]["ThrSigLong"] = h1dSigLongI9.GetMean();
-        pcdMap[modStr]["I10"]["ThrLong"] = h1dThrLongI10.GetMean();
-        pcdMap[modStr]["I10"]["ThrRmsLong"] = h1dThrLongI10.GetRMS();
-        pcdMap[modStr]["I10"]["ThrSigLong"] = h1dSigLongI10.GetMean();
-        pcdMap[modStr]["I11"]["ThrLong"] = h1dThrLongI11.GetMean();
-        pcdMap[modStr]["I11"]["ThrRmsLong"] = h1dThrLongI11.GetRMS();
-        pcdMap[modStr]["I11"]["ThrSigLong"] = h1dSigLongI11.GetMean();
-        pcdMap[modStr]["I12"]["ThrLong"] = h1dThrLongI12.GetMean();
-        pcdMap[modStr]["I12"]["ThrRmsLong"] = h1dThrLongI12.GetRMS();
-        pcdMap[modStr]["I12"]["ThrSigLong"] = h1dSigLongI12.GetMean();
-        pcdMap[modStr]["I13"]["ThrLong"] = h1dThrLongI13.GetMean();
-        pcdMap[modStr]["I13"]["ThrRmsLong"] = h1dThrLongI13.GetRMS();
-        pcdMap[modStr]["I13"]["ThrSigLong"] = h1dSigLongI13.GetMean();
-        pcdMap[modStr]["I14"]["ThrLong"] = h1dThrLongI14.GetMean();
-        pcdMap[modStr]["I14"]["ThrRmsLong"] = h1dThrLongI14.GetRMS();
-        pcdMap[modStr]["I14"]["ThrSigLong"] = h1dSigLongI14.GetMean();
-        pcdMap[modStr]["I15"]["ThrLong"] = h1dThrLongI15.GetMean();
-        pcdMap[modStr]["I15"]["ThrRmsLong"] = h1dThrLongI15.GetRMS();
-        pcdMap[modStr]["I15"]["ThrSigLong"] = h1dSigLongI15.GetMean();
-
-        pcdMap[modStr]["I0"]["ThrGang"] = h1dThrGangI0.GetMean();
-        pcdMap[modStr]["I0"]["ThrRmsGang"] = h1dThrGangI0.GetRMS();
-        pcdMap[modStr]["I0"]["ThrSigGang"] = h1dSigGangI0.GetMean();
-        pcdMap[modStr]["I1"]["ThrGang"] = h1dThrGangI1.GetMean();
-        pcdMap[modStr]["I1"]["ThrRmsGang"] = h1dThrGangI1.GetRMS();
-        pcdMap[modStr]["I1"]["ThrSigGang"] = h1dSigGangI1.GetMean();
-        pcdMap[modStr]["I2"]["ThrGang"] = h1dThrGangI2.GetMean();
-        pcdMap[modStr]["I2"]["ThrRmsGang"] = h1dThrGangI2.GetRMS();
-        pcdMap[modStr]["I2"]["ThrSigGang"] = h1dSigGangI2.GetMean();
-        pcdMap[modStr]["I3"]["ThrGang"] = h1dThrGangI3.GetMean();
-        pcdMap[modStr]["I3"]["ThrRmsGang"] = h1dThrGangI3.GetRMS();
-        pcdMap[modStr]["I3"]["ThrSigGang"] = h1dSigGangI3.GetMean();
-        pcdMap[modStr]["I4"]["ThrGang"] = h1dThrGangI4.GetMean();
-        pcdMap[modStr]["I4"]["ThrRmsGang"] = h1dThrGangI4.GetRMS();
-        pcdMap[modStr]["I4"]["ThrSigGang"] = h1dSigGangI4.GetMean();
-        pcdMap[modStr]["I5"]["ThrGang"] = h1dThrGangI5.GetMean();
-        pcdMap[modStr]["I5"]["ThrRmsGang"] = h1dThrGangI5.GetRMS();
-        pcdMap[modStr]["I5"]["ThrSigGang"] = h1dSigGangI5.GetMean();
-        pcdMap[modStr]["I6"]["ThrGang"] = h1dThrGangI6.GetMean();
-        pcdMap[modStr]["I6"]["ThrRmsGang"] = h1dThrGangI6.GetRMS();
-        pcdMap[modStr]["I6"]["ThrSigGang"] = h1dSigGangI6.GetMean();
-        pcdMap[modStr]["I7"]["ThrGang"] = h1dThrGangI7.GetMean();
-        pcdMap[modStr]["I7"]["ThrRmsGang"] = h1dThrGangI7.GetRMS();
-        pcdMap[modStr]["I7"]["ThrSigGang"] = h1dSigGangI7.GetMean();
-        pcdMap[modStr]["I8"]["ThrGang"] = h1dThrGangI8.GetMean();
-        pcdMap[modStr]["I8"]["ThrRmsGang"] = h1dThrGangI8.GetRMS();
-        pcdMap[modStr]["I8"]["ThrSigGang"] = h1dSigGangI8.GetMean();
-        pcdMap[modStr]["I9"]["ThrGang"] = h1dThrGangI9.GetMean();
-        pcdMap[modStr]["I9"]["ThrRmsGang"] = h1dThrGangI9.GetRMS();
-        pcdMap[modStr]["I9"]["ThrSigGang"] = h1dSigGangI9.GetMean();
-        pcdMap[modStr]["I10"]["ThrGang"] = h1dThrGangI10.GetMean();
-        pcdMap[modStr]["I10"]["ThrRmsGang"] = h1dThrGangI10.GetRMS();
-        pcdMap[modStr]["I10"]["ThrSigGang"] = h1dSigGangI10.GetMean();
-        pcdMap[modStr]["I11"]["ThrGang"] = h1dThrGangI11.GetMean();
-        pcdMap[modStr]["I11"]["ThrRmsGang"] = h1dThrGangI11.GetRMS();
-        pcdMap[modStr]["I11"]["ThrSigGang"] = h1dSigGangI11.GetMean();
-        pcdMap[modStr]["I12"]["ThrGang"] = h1dThrGangI12.GetMean();
-        pcdMap[modStr]["I12"]["ThrRmsGang"] = h1dThrGangI12.GetRMS();
-        pcdMap[modStr]["I12"]["ThrSigGang"] = h1dSigGangI12.GetMean();
-        pcdMap[modStr]["I13"]["ThrGang"] = h1dThrGangI13.GetMean();
-        pcdMap[modStr]["I13"]["ThrRmsGang"] = h1dThrGangI13.GetRMS();
-        pcdMap[modStr]["I13"]["ThrSigGang"] = h1dSigGangI13.GetMean();
-        pcdMap[modStr]["I14"]["ThrGang"] = h1dThrGangI14.GetMean();
-        pcdMap[modStr]["I14"]["ThrRmsGang"] = h1dThrGangI14.GetRMS();
-        pcdMap[modStr]["I14"]["ThrSigGang"] = h1dSigGangI14.GetMean();
-        pcdMap[modStr]["I15"]["ThrGang"] = h1dThrGangI15.GetMean();
-        pcdMap[modStr]["I15"]["ThrRmsGang"] = h1dThrGangI15.GetRMS();
-        pcdMap[modStr]["I15"]["ThrSigGang"] = h1dSigGangI15.GetMean();
       }
     }
     roThrDir->WriteTObject(&h1dChi2);
@@ -784,13 +897,54 @@ void PixelCalib() {
             // Identify FE chip ID
             // Simply, in the calibration, the FEs are aligned from bottom left corner (0,0) with anti-clock-wise direction.
             int circ = -1;
-            if (iphi<160) { circ=(int)(ieta/18); }    // FE0, FE1, ... FE7
-            else          { circ=15-(int)(ieta/18); } // FE15, FE14, ... FE8
+            if (WhichPart != 0)
+            {
+              if (iphi < 160)
+              {
+                circ = (int)(ieta / 18);
+              } // FE0, FE1, ... FE7
+              else
+              {
+                circ = 15 - (int)(ieta / 18);
+              } // FE15, FE14, ... FE8
+            }
+            else
+            {
+              if (ieta < 80)
+              {
+                circ = 0;
+              }
+              else
+              {
+                circ = 1;
+              }
+            }
 
-            int pixtype = 0;                             // normal pixels
-            if (ieta%18==0 || ieta%18==17) { pixtype=1; } // define long pixels
-            if (iphi>152 && iphi<160 && iphi%2==1) { pixtype=2; }     // define ganged pixels
-            if (iphi>159 && iphi<167 && iphi%2==0) { pixtype=2; }
+            // normal pixels
+            int pixtype = 0;
+            if (WhichPart != 0)
+            {
+              if (ieta % 18 == 0 || ieta % 18 == 17)
+              {
+                pixtype = 1;
+              } // define long pixels
+              if (iphi > 152 && iphi < 160 && iphi % 2 == 1)
+              {
+                pixtype = 2;
+              } // define ganged pixels
+              if (iphi > 159 && iphi < 167 && iphi % 2 == 0)
+              {
+                pixtype = 2;
+              }
+            }
+            // IBL
+            else
+            {
+              if (ieta == 0 || ieta == 79 || ieta == 80 || ieta == 159)
+              {
+                pixtype = 1;
+              } // define long pixels
+            }
 
             //==================
             // Fill information
@@ -1138,13 +1292,54 @@ void PixelCalib() {
               // Identify FE chip ID
               // Simply, in the calibration, the FEs are aligned from bottom left corner (0,0) with anti-clock-wise direction.
               int circ = -1;
-              if (iphi<160) { circ=(int)(ieta/18); }    // FE0, FE1, ... FE7
-              else          { circ=15-(int)(ieta/18); } // FE15, FE14, ... FE8
+              if (WhichPart != 0)
+              {
+                if (iphi < 160)
+                {
+                  circ = (int)(ieta / 18);
+                } // FE0, FE1, ... FE7
+                else
+                {
+                  circ = 15 - (int)(ieta / 18);
+                } // FE15, FE14, ... FE8
+              }
+              else
+              {
+                if (ieta < 80)
+                {
+                  circ = 0;
+                }
+                else
+                {
+                  circ = 1;
+                }
+              }
 
-              int pixtype = 0;                             // normal pixels
-              if (ieta%18==0 || ieta%18==17) { pixtype=1; } // define long pixels
-              if (iphi>152 && iphi<160 && iphi%2==1) { pixtype=2; }     // define ganged pixels
-              if (iphi>159 && iphi<167 && iphi%2==0) { pixtype=2; }
+              // normal pixels
+              int pixtype = 0;
+              if (WhichPart != 0)
+              {
+                if (ieta % 18 == 0 || ieta % 18 == 17)
+                {
+                  pixtype = 1;
+                } // define long pixels
+                if (iphi > 152 && iphi < 160 && iphi % 2 == 1)
+                {
+                  pixtype = 2;
+                } // define ganged pixels
+                if (iphi > 159 && iphi < 167 && iphi % 2 == 0)
+                {
+                  pixtype = 2;
+                }
+              }
+              // IBL
+              else
+              {
+                if (ieta == 0 || ieta == 79 || ieta == 80 || ieta == 159)
+                {
+                  pixtype = 1;
+                } // define long pixels
+              }
 
               //==================
               // Fill information
@@ -1838,22 +2033,22 @@ void PixelCalib() {
         float parLongP0I15 = f1DispLongI15.GetParameter(0);
         float parLongP1I15 = f1DispLongI15.GetParameter(1);
 
-        float badcalI0[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI1[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI2[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI3[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI4[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI5[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI6[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI7[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI8[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI9[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI10[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI11[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI12[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI13[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI14[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-        float badcalI15[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI0[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI1[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI2[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI3[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI4[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI5[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI6[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI7[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI8[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI9[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI10[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI11[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI12[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI13[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI14[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        float badcalI15[ncharge] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
         for (int i=qthresh; i<ncharge; i++){
             badcalI0[i] = abs( 1 - ( (parAI0 * parEI0 - parCI0 * totArrI0[i]) / (totArrI0[i] - parAI0) ) / chargeArr[i] );
@@ -2114,7 +2309,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI0_re[i] - ((parAI0 * parEI0 - parCI0 * totArrI0_re[i]) / (totArrI0_re[i] - parAI0))));
+                find_max.push_back(abs(1 - ((parAI0 * parEI0 - parCI0 * totArrI0_re[i]) / (totArrI0_re[i] - parAI0)) / chargeArrI0_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2180,7 +2375,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI1_re[i] - ((parAI1 * parEI1 - parCI1 * totArrI1_re[i]) / (totArrI1_re[i] - parAI1))));
+                find_max.push_back(abs(1 - ((parAI1 * parEI1 - parCI1 * totArrI1_re[i]) / (totArrI1_re[i] - parAI1)) / chargeArrI1_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2246,7 +2441,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI2_re[i] - ((parAI2 * parEI2 - parCI2 * totArrI2_re[i]) / (totArrI2_re[i] - parAI2))));
+                find_max.push_back(abs(1 - ((parAI2 * parEI2 - parCI2 * totArrI2_re[i]) / (totArrI2_re[i] - parAI2)) / chargeArrI2_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2313,7 +2508,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI3_re[i] - ((parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3))));
+                find_max.push_back(abs(1 - ((parAI3 * parEI3 - parCI3 * totArrI3_re[i]) / (totArrI3_re[i] - parAI3)) / chargeArrI3_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2379,7 +2574,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI4_re[i] - ((parAI4 * parEI4 - parCI4 * totArrI4_re[i]) / (totArrI4_re[i] - parAI4))));
+                find_max.push_back(abs(1 - ((parAI4 * parEI4 - parCI4 * totArrI4_re[i]) / (totArrI4_re[i] - parAI4)) / chargeArrI4_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2445,7 +2640,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI5_re[i] - ((parAI5 * parEI5 - parCI5 * totArrI5_re[i]) / (totArrI5_re[i] - parAI5))));
+                find_max.push_back(abs(1 - ((parAI5 * parEI5 - parCI5 * totArrI5_re[i]) / (totArrI5_re[i] - parAI5)) / chargeArrI5_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2511,7 +2706,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI6_re[i] - ((parAI6 * parEI6 - parCI6 * totArrI6_re[i]) / (totArrI6_re[i] - parAI6))));
+                find_max.push_back(abs(1 - ((parAI6 * parEI6 - parCI6 * totArrI6_re[i]) / (totArrI6_re[i] - parAI6)) / chargeArrI6_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2577,7 +2772,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI7_re[i] - ((parAI7 * parEI7 - parCI7 * totArrI7_re[i]) / (totArrI7_re[i] - parAI7))));
+                find_max.push_back(abs(1 - ((parAI7 * parEI7 - parCI7 * totArrI7_re[i]) / (totArrI7_re[i] - parAI7)) / chargeArrI7_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2643,7 +2838,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI8_re[i] - ((parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8))));
+                find_max.push_back(abs(1 - ((parAI8 * parEI8 - parCI8 * totArrI8_re[i]) / (totArrI8_re[i] - parAI8)) / chargeArrI8_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2709,7 +2904,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI9_re[i] - ((parAI9 * parEI9 - parCI9 * totArrI9_re[i]) / (totArrI9_re[i] - parAI9))));
+                find_max.push_back(abs(1 - ((parAI9 * parEI9 - parCI9 * totArrI9_re[i]) / (totArrI9_re[i] - parAI9)) / chargeArrI9_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2775,7 +2970,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI10_re[i] - ((parAI10 * parEI10 - parCI10 * totArrI10_re[i]) / (totArrI10_re[i] - parAI10))));
+                find_max.push_back(abs(1 - ((parAI10 * parEI10 - parCI10 * totArrI10_re[i]) / (totArrI10_re[i] - parAI10)) / chargeArrI10_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2841,7 +3036,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI11_re[i] - ((parAI11 * parEI11 - parCI11 * totArrI11_re[i]) / (totArrI11_re[i] - parAI11))));
+                find_max.push_back(abs(1 - ((parAI11 * parEI11 - parCI11 * totArrI11_re[i]) / (totArrI11_re[i] - parAI11)) / chargeArrI11_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2907,7 +3102,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI12_re[i] - ((parAI12 * parEI12 - parCI12 * totArrI12_re[i]) / (totArrI12_re[i] - parAI12))));
+                find_max.push_back(abs(1 - ((parAI12 * parEI12 - parCI12 * totArrI12_re[i]) / (totArrI12_re[i] - parAI12)) / chargeArrI12_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -2973,7 +3168,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI13_re[i] - ((parAI13 * parEI13 - parCI13 * totArrI13_re[i]) / (totArrI13_re[i] - parAI13))));
+                find_max.push_back(abs(1 - ((parAI13 * parEI13 - parCI13 * totArrI13_re[i]) / (totArrI13_re[i] - parAI13)) / chargeArrI13_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -3039,7 +3234,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI14_re[i] - ((parAI14 * parEI14 - parCI14 * totArrI14_re[i]) / (totArrI14_re[i] - parAI14))));
+                find_max.push_back(abs(1 - ((parAI14 * parEI14 - parCI14 * totArrI14_re[i]) / (totArrI14_re[i] - parAI14)) / chargeArrI14_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -3105,7 +3300,7 @@ void PixelCalib() {
               if( i < qthresh ){
                 find_max.push_back(0);
               }else{
-                find_max.push_back(abs(chargeArrI15_re[i] - ((parAI15 * parEI15 - parCI15 * totArrI15_re[i]) / (totArrI15_re[i] - parAI15))));
+                find_max.push_back(abs(1 - ((parAI15 * parEI15 - parCI15 * totArrI15_re[i]) / (totArrI15_re[i] - parAI15)) / chargeArrI15_re[i]));
               }
             }
             std::vector<Double_t>::iterator iter = std::max_element(find_max.begin(), find_max.end());
@@ -3160,6 +3355,7 @@ void PixelCalib() {
 
         fprintf(outputfile, "\n");
 
+        if (WhichPart != 0){
         std::cout << modStr << std::endl;
         std::cout << "I0 "
           << int(pcdMap[modStr]["I0"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsNorm"]) << " "
@@ -3352,6 +3548,34 @@ void PixelCalib() {
           << parLongAI15 << " " << parLongEI15 << " " << parLongCI15 << " "
           << parP0I15 << " " << parP1I15
           << std::endl;
+        }
+        else
+        {
+          std::cout << modStr << std::endl;
+          std::cout << "I0 "
+                    << int(pcdMap[modStr]["I0"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsNorm"]) << " "
+                    << int(pcdMap[modStr]["I0"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I0"]["TimNorm"]) << " "
+                    << int(pcdMap[modStr]["I0"]["ThrLong"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsLong"]) << " "
+                    << int(pcdMap[modStr]["I0"]["ThrSigLong"]) << " " << int(timMap[modStr]["I0"]["TimLong"]) << " "
+                    << int(pcdMap[modStr]["I0"]["ThrLong"]) << " " << int(pcdMap[modStr]["I0"]["ThrRmsLong"]) << " "
+                    << int(pcdMap[modStr]["I0"]["ThrSigLong"]) << " " << int(timMap[modStr]["I0"]["TimLong"]) << " "
+                    << parAI0 << " " << parEI0 << " " << parCI0 << " "
+                    << parLongAI0 << " " << parLongEI0 << " " << parLongCI0 << " "
+                    << parP0I0 << " " << parP1I0
+                    << std::endl;
+
+          std::cout << "I1 "
+                    << int(pcdMap[modStr]["I1"]["ThrNorm"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsNorm"]) << " "
+                    << int(pcdMap[modStr]["I1"]["ThrSigNorm"]) << " " << int(timMap[modStr]["I1"]["TimNorm"]) << " "
+                    << int(pcdMap[modStr]["I1"]["ThrLong"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsLong"]) << " "
+                    << int(pcdMap[modStr]["I1"]["ThrSigLong"]) << " " << int(timMap[modStr]["I1"]["TimLong"]) << " "
+                    << int(pcdMap[modStr]["I1"]["ThrLong"]) << " " << int(pcdMap[modStr]["I1"]["ThrRmsLong"]) << " "
+                    << int(pcdMap[modStr]["I1"]["ThrSigLong"]) << " " << int(timMap[modStr]["I1"]["TimLong"]) << " "
+                    << parAI1 << " " << parEI1 << " " << parCI1 << " "
+                    << parLongAI1 << " " << parLongEI1 << " " << parLongCI1 << " "
+                    << parP0I1 << " " << parP1I1
+                    << std::endl;
+        }
 
         roTotDir->WriteTObject(&grTotI0);
         roTotDir->WriteTObject(&grTotI1);

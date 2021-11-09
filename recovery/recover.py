@@ -396,7 +396,7 @@ while head2 < last2:
         tail_diff += 1
 
     # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
-    module_diff = elements_diff[head_diff]
+    module_diff = elements_diff[head_diff].split()[0]
     if module_diff == module2:
       rowBlock_diff = elements_diff[head_diff+1:tail_diff]
       # split each line of the block
@@ -412,7 +412,7 @@ while head2 < last2:
       break
     head_diff = tail_diff
 
-  data_recover_all = [[splitted[i][0],
+  data_recover_all = [[splitted2[i][0],
                     int(diffmodule(data_diff, i, "normal", "threshold")), int(diffmodule(data_diff, i, "normal", "sigma")), int(diffmodule(data_diff, i, "normal", "noise")), int(diffmodule(data_diff, i, "normal", "intime")),
                     int(diffmodule(data_diff, i, "long", "threshold")),   int(diffmodule(data_diff, i, "long", "sigma")),   int(diffmodule(data_diff, i, "long", "noise")),   int(diffmodule(data_diff, i, "long", "intime")),
                     int(diffmodule(data_diff, i, "ganged", "threshold")), int(diffmodule(data_diff, i, "ganged", "sigma")), int(diffmodule(data_diff, i, "ganged", "noise")), int(diffmodule(data_diff, i, "ganged", "intime")),
@@ -482,10 +482,40 @@ for modules in module_lines:
   if modulename:
     golden_modules.append(modulename)
 
+golden_hash = []
+for modules in module_lines:
+  modulehash = ""
+  goldens = modules.split('=')
+  modules = modules.split()
+  if len(modules) != 0:
+    if modules[0] == "else" and modules[1] == "if":
+      golden_hashID = " : " + goldens[3].split(';')[0]
+      golden_bec = goldens[4].split(';')[0].strip()
+      golden_layer = goldens[5].split(';')[0].strip()
+      golden_phi = goldens[6].split(';')[0].strip()
+      golden_eta = goldens[7].split(';')[0].strip()
+      modulehash = golden_hashID + " " + golden_bec + "," + golden_layer + "," + golden_phi + "," + golden_eta
+    elif modules[0] == "if":
+      golden_hashIds = modules[4].split(';')[0]
+      golden_bec = modules[5].split('=')[1].split(';')[0]
+      golden_layer = modules[6].split('=')[1].split(';')[0]
+      golden_phi = modules[8].split(';')[0]
+      golden_eta = modules[10].split(';')[0].strip()
+      if len(golden_hashIds) == 1:
+        golden_hashID = " :    " + golden_hashIds
+      elif len(golden_hashIds) == 2:
+        golden_hashID = " :   " + golden_hashIds
+      elif len(golden_hashIds) == 3:
+        golden_hashID = " :  " +  golden_hashIds
+      elif len(golden_hashIds) == 4:
+        golden_hashID = " : " +  golden_hashIds
+      modulehash = golden_hashID + " " + golden_bec + "," + golden_layer + "," + golden_phi + "," + golden_eta
+  if modulehash:
+    golden_hash.append(modulehash)
+
 list_sa = list(set(golden_modules) - set(module_list))
 
 all_recover.close()
-
 
 
 copy_rec  = open("template.dat","r")
@@ -513,7 +543,7 @@ while head3 < last3:
       tail3 += 1
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
-  module3 = elements_copy[head3]
+  module3 = elements_copy[head3].split(":")[0].strip()
   print( "processing module", module3 )
   if module3 in list_sa:
     with open(output_data, "a") as f:
@@ -558,9 +588,10 @@ while head3 < last3:
       tail3 += 1
 
   # the head line is the module name ( e.g. L0_B01_S2_A7_M2A )
-  module3 = elements_sort[head3]
+  module3 = elements_sort[head3].split(":")[0].strip()
+  elements_sort[head3] = module3
   sort_num = golden_dict[module3]
-  sort_dict[sort_num] = [ elements_sort[head3 + i] + "\n" for i in range(tail3-head3) ]
+  sort_dict[sort_num] = [ elements_sort[head3 + i] + golden_hash[sort_num] + "\n" if i==0 else elements_sort[head3 + i] + "\n" for i in range(tail3-head3)]
 
   print( "processing module", module3 )
   head3 = tail3
